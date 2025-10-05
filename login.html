@@ -74,7 +74,7 @@ async function handleLogin() {
         // Сохраняем dataKey в браузере под именем 'plannerAuthDataKey'
         localStorage.setItem(STORAGE_KEY_AUTH, dataKey);
         
-        window.location.href = 'planner.html'; 
+        window.location.href = 'index.html'; 
     } else {
         authMessage.textContent = result.message || 'Ошибка входа.';
     }
