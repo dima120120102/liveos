@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Планер недели с улучшениями</title>
 <style>
+/* НОВЫЙ СТИЛЬ ДЛЯ КНОПКИ АВТОРИЗАЦИИ */
+.auth-control-btn{
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    background: #333;
+    color: #eee;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10000; /* Поверх всего */
+    transition: background 0.2s;
+}
+.auth-control-btn:hover{
+    background: #007bff; /* Цвет, используемый для кнопки входа */
+}
+
 /* Стили из исходного кода */
 body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:flex;flex-direction:column;height:100vh;}
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
@@ -68,6 +87,10 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </style>
 </head>
 <body>
+
+<div id="authControl" class="auth-control-btn" onclick="goToAuth()">
+    🚪 Выход/Вход
+</div>
 
 <div class="banner">
   <img id="bannerImg" src="your-banner.jpg" alt="Баннер">
@@ -147,6 +170,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 
 <script>
 const STORAGE_KEY='plannerData_v8'; // Обновляем ключ для новой структуры данных
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Ключ для авторизации
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -274,6 +298,7 @@ function openWeekModal(id){
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
       const rm=document.createElement('img'); rm.src='trash-icon.png'; rm.width=16; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
+      taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u2716\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
     });
@@ -320,7 +345,7 @@ document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
   let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc}\n`;
   weekDays.forEach(d=>{
-    text+=`${d}:\n`;
+    text+=`\n${d}:\n`;
     (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=`${i+1}. ${t}\n`);
   });
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
@@ -352,9 +377,9 @@ function renderHabitTracker(){
         const removeBtn=document.createElement('span'); removeBtn.innerText=' ×'; removeBtn.style.cursor='pointer'; removeBtn.style.color='#f00';
         removeBtn.onclick=()=>{
             if(confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)){
-                data.habits.splice(index,1);
+                const deletedHabit = data.habits.splice(index,1)[0];
                 // Удаляем соответствующие данные из записей
-                data.habitRecords.forEach(record=>{delete record.tasks[habit];});
+                data.habitRecords.forEach(record=>{delete record.tasks[deletedHabit];});
                 save(); renderHabitTracker();
             }
         };
@@ -376,6 +401,12 @@ function renderHabitTracker(){
             const td=document.createElement('td');
             const checkbox=document.createElement('input');
             checkbox.type='checkbox';
+            
+            // Убедимся, что tasks содержит этот habit, если нет, добавляем с false
+            if(typeof record.tasks[habit] === 'undefined'){
+                record.tasks[habit] = false;
+            }
+            
             checkbox.checked=!!record.tasks[habit];
 
             // Отслеживание клика
@@ -413,6 +444,8 @@ document.getElementById('addHabitBtn').onclick=()=>{
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
+        // Обновляем старые записи, чтобы новый habit в них появился (по умолчанию false)
+        data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
         save();
         renderHabitTracker();
     }
@@ -421,7 +454,7 @@ document.getElementById('addHabitBtn').onclick=()=>{
 // Обработчик создания нового дня
 document.getElementById('newDayBtn').onclick=()=>{
     const today=new Date().setHours(0,0,0,0);
-    // Проверка, есть ли уже запись за сегодня
+    // Проверка, есть ли уже запись за сегодняшний день
     if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
         alert('Запись за сегодняшний день уже существует!');
         return;
@@ -440,6 +473,13 @@ document.getElementById('newDayBtn').onclick=()=>{
     renderHabitTracker();
 };
 
+/* --- НОВАЯ ФУНКЦИЯ ДЛЯ ВЫХОДА --- */
+function goToAuth() {
+    // Удаляем ключ авторизации, чтобы пользователь вышел
+    localStorage.removeItem(STORAGE_KEY_AUTH); 
+    // Перенаправляем на страницу входа
+    window.location.href = 'login.html'; 
+}
 
 /* --- Инициализация --- */
 renderGoals();
