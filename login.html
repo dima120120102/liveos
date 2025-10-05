@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Вход и Регистрация</title>
+<style>
+/* Стили для формы Аутентификации */
+body { margin: 0; font-family: Inter, sans-serif; background: #111; color: #eee; display: flex; justify-content: center; align-items: center; height: 100vh; }
+.auth-box { background: #1f1f1f; padding: 30px; border-radius: 10px; width: 300px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+.auth-box h3 { margin-top: 0; color: #007bff; }
+.auth-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #333; background: #222; color: #eee; border-radius: 6px; box-sizing: border-box; }
+.btn { background: #222; border: none; color: #eee; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+.login-btn { background: #007bff; margin-bottom: 10px; }
+.login-btn:hover { background: #0056b3; }
+.register-btn { background: #333; }
+.register-btn:hover { background: #555; }
+.auth-box button { width: 100%; }
+#authMessage { color: #ff5555; margin-top: 15px; min-height: 20px; }
+</style>
+</head>
+<body>
+
+<div class="auth-box">
+    <h3>Авторизация Планера</h3>
+    <input type="text" id="authUsername" placeholder="Логин">
+    <input type="password" id="authPassword" placeholder="Пароль">
+    <button id="loginBtn" class="btn login-btn">Войти</button>
+    <button id="registerBtn" class="btn register-btn">Регистрация</button>
+    <p id="authMessage"></p>
+</div>
+
+<script>
+// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ (Правильно)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz0wQhLECeSILQC4ul8DqXe1NL45oudIqJq9dfL9_hXirpZDw8s4I6Mmq_iY5f-tsyb/exec"; 
+// 2. ПРОСТОЙ КЛЮЧ ДЛЯ BROWSER LOCALSTORAGE (Исправлено)
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+
+// Элементы UI
+const authUsername = document.getElementById('authUsername');
+const authPassword = document.getElementById('authPassword');
+const authMessage = document.getElementById('authMessage');
+
+// --- ВЗАИМОДЕЙСТВИЕ С APPS SCRIPT ---
+
+async function sendRequest(action, params = {}) {
+    const url = SCRIPT_URL;
+    const formData = new URLSearchParams();
+    formData.append('action', action);
+    for (const key in params) {
+        formData.append(key, params[key]);
+    }
+    
+    try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        return await response.json();
+    } catch (error) {
+        console.error("Fetch error:", error);
+        return { status: "error", message: "Ошибка подключения к серверу Apps Script." };
+    }
+}
+
+// --- ФУНКЦИИ АУТЕНТИФИКАЦИИ ---
+
+async function handleLogin() {
+    const username = authUsername.value.trim();
+    const password = authPassword.value.trim();
+    authMessage.textContent = 'Проверка...';
+
+    const result = await sendRequest("login", { username: username, password: password });
+    
+    if (result.status === "success") {
+        const dataKey = result.dataKey;
+        // Сохраняем dataKey в браузере под именем 'plannerAuthDataKey'
+        localStorage.setItem(STORAGE_KEY_AUTH, dataKey);
+        
+        window.location.href = 'planner.html'; 
+    } else {
+        authMessage.textContent = result.message || 'Ошибка входа.';
+    }
+}
+
+async function handleRegister() {
+    const username = authUsername.value.trim();
+    const password = authPassword.value.trim();
+    if (username.length < 3 || password.length < 3) {
+        authMessage.textContent = 'Логин и пароль должны быть не менее 3 символов.';
+        return;
+    }
+    
+    authMessage.textContent = 'Регистрация...';
+    const result = await sendRequest("register", { username: username, password: password });
+    
+    authMessage.textContent = result.message || 'Ошибка регистрации.';
+    if (result.status === "success") {
+        authPassword.value = '';
+    }
+}
+
+document.getElementById('loginBtn').onclick = handleLogin;
+document.getElementById('registerBtn').onclick = handleRegister;
+
+// --- Проверка, если пользователь уже вошел ---
+function checkLoggedIn() {
+    if (localStorage.getItem(STORAGE_KEY_AUTH)) {
+        window.location.href = 'planner.html';
+    }
+}
+checkLoggedIn();
+</script>
+</body>
+</html>
