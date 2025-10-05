@@ -103,7 +103,7 @@ document.getElementById('registerBtn').onclick = handleRegister;
 // --- Проверка, если пользователь уже вошел ---
 function checkLoggedIn() {
     if (localStorage.getItem(STORAGE_KEY_AUTH)) {
-        window.location.href = 'planner.html';
+        window.location.href = 'index.html';
     }
 }
 checkLoggedIn();
