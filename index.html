@@ -5,7 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Планер недели с улучшениями</title>
 <style>
-body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:flex;overflow:hidden;}
+body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:flex;flex-direction:column;height:100vh;}
+/* Баннер */
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;object-fit:contain;display:block;}
+
+/* Основной контейнер */
+.main-container{display:flex;flex:1;overflow:hidden;}
+
 /* Левая панель: цели */
 .goals{width:220px;background:#181818;border-right:1px solid #222;padding:18px;display:flex;flex-direction:column;gap:10px;overflow:auto;position:relative;}
 .goal{background:#1f1f1f;border-radius:8px;padding:8px;position:relative;transition:0.2s;}
@@ -13,7 +20,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 .goal .goal-remove{position:absolute;right:6px;top:4px;opacity:0;cursor:pointer;color:#999;}
 .goal:hover .goal-remove{opacity:1;}
 .goal[contenteditable]:focus{outline:1px solid #555;}
-.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#777;color:#111;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;display:none;}
+.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#969191;color:#111;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;display:none;}
 .goals:hover .add-goal-btn{display:flex}
 
 /* Правая часть */
@@ -25,7 +32,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 
 /* Месяцы */
 .months{display:flex;gap:12px;overflow-x:auto;padding:10px 4px;}
-.month{min-width:180px;background:#222;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
+.month{min-width:180px;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
 .month .m-title{text-align:center;font-weight:600;}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px;}
 .drop-zone{border:2px dashed #333;border-radius:8px;padding:10px;text-align:center;color:#777;font-size:13px;transition:0.2s;}
@@ -60,22 +67,31 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </head>
 <body>
 
-<aside class="goals">
-  <h2>Годовые цели</h2>
-  <div id="goalsList"></div>
-  <div id="addGoalBtn" class="add-goal-btn">＋</div>
-</aside>
+<!-- Баннер -->
+<div class="banner">
+  <img id="bannerImg" src="your-banner.jpg" alt="Баннер">
+</div>
 
-<main class="right">
-  <div>
-    <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
-  </div>
-  <div>
-    <div style="color:#888;font-size:13px;">Не распределённые</div>
-    <div id="unassignedList" class="unassigned-list"></div>
-  </div>
-  <div class="months" id="months"></div>
-</main>
+<div class="main-container">
+  <!-- Левая панель: цели -->
+  <aside class="goals">
+    <h2>Годовые цели</h2>
+    <div id="goalsList"></div>
+    <div id="addGoalBtn" class="add-goal-btn">＋</div>
+  </aside>
+
+  <!-- Правая панель -->
+  <main class="right">
+    <div>
+      <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+    </div>
+    <div>
+      <div style="color:#888;font-size:13px;">Не распределённые</div>
+      <div id="unassignedList" class="unassigned-list"></div>
+    </div>
+    <div class="months" id="months"></div>
+  </main>
+</div>
 
 <!-- Модальное окно редактирования недели -->
 <div class="modal" id="weekModal">
@@ -109,7 +125,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </div>
 
 <script>
-const STORAGE_KEY='plannerData_v6';
+const STORAGE_KEY='plannerData_v7';
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -250,10 +266,7 @@ function openWeekModal(id){
   });
 }
 
-function renderWeekModal(){
-  if(!currentWeek) return;
-  openWeekModal(currentWeek.id);
-}
+function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 
 document.getElementById('closeModal').onclick=()=>{weekModal.style.display='none';};
 document.getElementById('saveBtn').onclick=()=>{
@@ -270,19 +283,13 @@ document.getElementById('saveBtn').onclick=()=>{
 /* --- Меню ⋮ --- */
 const menuBtn=document.getElementById('menuBtn');
 const weekMenu=document.getElementById('weekMenu');
-menuBtn.onclick=e=>{
-  e.stopPropagation();
-  weekMenu.style.display=weekMenu.style.display==='flex'?'none':'flex';
-};
+menuBtn.onclick=e=>{e.stopPropagation(); weekMenu.style.display=weekMenu.style.display==='flex'?'none':'flex';};
 document.addEventListener('click',()=>{weekMenu.style.display='none';});
 document.getElementById('deleteWeek').onclick=()=>{
   if(!currentWeek) return;
   ['unassigned',...months].forEach(k=>{
-    if(k==='unassigned'){
-      data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);
-    } else {
-      data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);
-    }
+    if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
+    else {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
   save(); renderUnassigned(); renderMonths(); weekModal.style.display='none';
 };
@@ -297,10 +304,10 @@ document.getElementById('downloadWeek').onclick=()=>{
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
+/* --- Инициализация --- */
 renderGoals();
 renderUnassigned();
 renderMonths();
 </script>
-
 </body>
 </html>
