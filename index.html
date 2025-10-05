@@ -3,16 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Планер недели с меню</title>
+<title>Планер недели с улучшениями</title>
 <style>
 body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:flex;overflow:hidden;}
 /* Левая панель: цели */
 .goals{width:220px;background:#181818;border-right:1px solid #222;padding:18px;display:flex;flex-direction:column;gap:10px;overflow:auto;position:relative;}
-.goal{background:#1f1f1f;border-radius:8px;padding:8px;position:relative;}
+.goal{background:#1f1f1f;border-radius:8px;padding:8px;position:relative;transition:0.2s;}
+.goal:hover{background:#292929;}
 .goal .goal-remove{position:absolute;right:6px;top:4px;opacity:0;cursor:pointer;color:#999;}
 .goal:hover .goal-remove{opacity:1;}
 .goal[contenteditable]:focus{outline:1px solid #555;}
-.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#ff9800;color:#111;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;display:none;}
+.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#777;color:#111;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;display:none;}
 .goals:hover .add-goal-btn{display:flex}
 
 /* Правая часть */
@@ -34,24 +35,27 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 .modal{position:fixed;top:0;left:0;width:100%;height:100%;background:#111;z-index:1000;display:none;flex-direction:column;}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#1f1f1f;border-bottom:1px solid #333;}
 .modal-header input{background:#222;color:#eee;border:none;padding:6px 10px;border-radius:6px;font-size:16px;width:60%;}
-.modal-header .actions{display:flex;align-items:center;gap:10px;}
+.modal-header .actions{display:flex;align-items:center;gap:10px;position:relative;}
 .modal-header span{cursor:pointer;font-size:20px;position:relative;}
 .menu{position:absolute;top:25px;right:0;background:#222;border:1px solid #333;border-radius:6px;display:none;flex-direction:column;min-width:140px;z-index:200;}
-.menu div{padding:8px 12px;cursor:pointer;transition:0.2s;}
+.menu div{padding:8px 12px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;}
 .menu div:hover{background:#333;}
 .modal-body{display:flex;flex:1;overflow:hidden;}
 .modal-left{width:220px;border-right:1px solid #222;padding:10px;overflow-y:auto;}
 .modal-right{flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}
 .modal-description{padding-bottom:10px;}
 .modal-days{display:flex;overflow-x:auto;gap:10px;flex-shrink:0;}
-.day{min-width:160px;border-radius:10px;padding:10px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;}
+.day{min-width:160px;border-radius:10px;padding:10px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;transition:0.2s;}
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px;}
 .tasks{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;}
-.tasks div{background:#333;border-radius:6px;padding:4px 6px;}
-.add-task-btn{margin-top:4px;background:#ff9800;color:#111;border:none;padding:4px;border-radius:6px;cursor:pointer;font-size:12px;}
-.save-btn{margin:10px 20px;padding:8px 12px;background:#ff9800;color:#111;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
+.tasks div{background:#333;border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;}
+.add-task-btn{margin-top:4px;background:#aca6a6;color:#111;border:none;padding:4px;border-radius:6px;cursor:pointer;font-size:12px;}
+.save-btn{margin:10px 20px;padding:8px 12px;background:#969191;color:#111;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
 .modal-goals h4{margin:0 0 6px 0;font-size:14px;}
-.modal-goals ul{margin:0;padding-left:16px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:6px;}
+.modal-goals ul li{background:#292929;padding:6px 10px;border-radius:8px;transition:0.2s;}
+.modal-goals ul li:hover{background:#3a3a3a;}
+.task-delete{cursor:pointer;margin-left:6px;}
 </style>
 </head>
 <body>
@@ -80,8 +84,8 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
     <div class="actions">
       <span id="menuBtn">⋮
         <div class="menu" id="weekMenu">
-          <div id="deleteWeek">Удалить неделю</div>
-          <div id="downloadWeek">Скачать TXT</div>
+          <div id="deleteWeek"><img src="trash-icon.png" width="16"> Удалить неделю</div>
+          <div id="downloadWeek"><img src="download-icon.png" width="16"> Скачать TXT</div>
         </div>
       </span>
       <span id="closeModal">×</span>
@@ -105,7 +109,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </div>
 
 <script>
-const STORAGE_KEY='plannerData_v5';
+const STORAGE_KEY='plannerData_v6';
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -144,130 +148,159 @@ function createWeekEl(week){
 }
 function renderUnassigned(){
   unassignedList.innerHTML='';
-  data.unassigned.forEach(id=>{
-    const w=data.weeks[id]; if(w){unassignedList.appendChild(createWeekEl(w));}
+  data.unassigned.forEach(w=>{
+    const el=createWeekEl(w);
+    unassignedList.appendChild(el);
   });
 }
-createWeekBtn.onclick=()=>{
-  const id='w'+Date.now();
-  data.weeks[id]={id,title:'Неделя '+(Object.keys(data.weeks).length+1),desc:'',tasks:{}};
-  data.unassigned.push(id);
-  save(); renderUnassigned();
-};
 
 /* --- Месяцы --- */
-const monthsEl=document.getElementById('months');
+const monthsContainer=document.getElementById('months');
 function renderMonths(){
-  monthsEl.innerHTML='';
+  monthsContainer.innerHTML='';
   months.forEach((m,i)=>{
-    const monthDiv=document.createElement('div'); monthDiv.className='month'; monthDiv.style.background=monthColors[i];
-    const title=document.createElement('div'); title.className='m-title'; title.innerText=m; monthDiv.appendChild(title);
-    const list=document.createElement('div'); list.className='month-weeks';
-    (data.months[m]||[]).forEach(id=>{
-      const w=data.weeks[id]; if(w){const el=createWeekEl(w); el.className='week-card'; list.appendChild(el);}
+    const div=document.createElement('div'); div.className='month';
+    div.style.backgroundColor=monthColors[i%monthColors.length];
+    div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks" id="month-${m}"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
+    monthsContainer.appendChild(div);
+
+    // Перетаскивание
+    const dropZone=div.querySelector('.drop-zone');
+    dropZone.ondragover=e=>e.preventDefault();
+    dropZone.ondrop=e=>{
+      e.preventDefault();
+      const wId=dragId;
+      const idx=data.unassigned.findIndex(w=>w.id===wId);
+      if(idx>=0){
+        const w=data.unassigned.splice(idx,1)[0];
+        data.months[m].push(w);
+        save();
+        renderUnassigned();
+        renderMonths();
+      }
+    };
+
+    // Рендер недель
+    const monthWeeksDiv=div.querySelector('.month-weeks');
+    data.months[m].forEach(w=>{
+      const el=createWeekEl(w);
+      monthWeeksDiv.appendChild(el);
     });
-    const drop=document.createElement('div'); drop.className='drop-zone';
-    drop.innerText=(data.months[m]&&data.months[m].length)?'':'Перетащи сюда недели';
-    drop.ondragover=e=>{e.preventDefault();drop.classList.add('dragover');};
-    drop.ondragleave=()=>drop.classList.remove('dragover');
-    drop.ondrop=e=>{e.preventDefault();drop.classList.remove('dragover'); if(!dragId)return; moveToMonth(dragId,m); dragId=null;};
-    monthDiv.appendChild(list); monthDiv.appendChild(drop); monthsEl.appendChild(monthDiv);
   });
 }
-function moveToMonth(id,m){data.unassigned=data.unassigned.filter(x=>x!==id); months.forEach(mm=>{data.months[mm]=data.months[mm].filter(x=>x!==id);}); data.months[m].push(id); save(); renderAll();}
-unassignedList.ondragover=e=>{e.preventDefault();unassignedList.classList.add('dragover');};
-unassignedList.ondragleave=()=>unassignedList.classList.remove('dragover');
-unassignedList.ondrop=e=>{e.preventDefault();unassignedList.classList.remove('dragover'); if(!dragId)return; data.unassigned.push(dragId); months.forEach(mm=>{data.months[mm]=data.months[mm].filter(x=>x!==dragId);}); save(); renderAll(); dragId=null;};
 
-/* --- Модальное окно --- */
+/* --- Создание недели --- */
+createWeekBtn.onclick=()=>{
+  const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
+  data.unassigned.push(week);
+  save();
+  renderUnassigned();
+};
+
+/* --- Модальное окно недели --- */
 const weekModal=document.getElementById('weekModal');
 const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
-const closeModal=document.getElementById('closeModal');
-const saveBtn=document.getElementById('saveBtn');
-const menuBtn=document.getElementById('menuBtn');
-const weekMenu=document.getElementById('weekMenu');
-const deleteWeekBtn=document.getElementById('deleteWeek');
-const downloadWeekBtn=document.getElementById('downloadWeek');
-
-let currentWeekId=null;
+let currentWeek=null;
 
 function openWeekModal(id){
-  currentWeekId=id; const week=data.weeks[id];
+  const allWeeks=[...data.unassigned];
+  months.forEach(m=>{allWeeks.push(...data.months[m]);});
+  currentWeek=allWeeks.find(w=>w.id===id);
+  if(!currentWeek) return;
   weekModal.style.display='flex';
-  weekTitle.value=week.title;
-  weekDesc.value=week.desc;
-  renderWeekDays();
-  renderModalGoals();
-}
-function renderWeekDays(){
+  weekTitle.value=currentWeek.title;
+  weekDesc.value=currentWeek.desc;
+
+  // Цели
+  modalGoalsList.innerHTML='';
+  data.goals.forEach(t=>{
+    const li=document.createElement('li'); li.textContent=t;
+    modalGoalsList.appendChild(li);
+  });
+
+  // Дни
   daysContainer.innerHTML='';
-  const week=data.weeks[currentWeekId];
-  weekDays.forEach((d,i)=>{
+  weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
-    dayDiv.style.background=monthColors[i];
-    const h4=document.createElement('h4'); h4.innerHTML=`${d} <span>(${week.tasks[d]?week.tasks[d].length:0})</span>`;
-    const tasksDiv=document.createElement('div'); tasksDiv.className='tasks';
-    (week.tasks[d]||[]).forEach((task,i)=>{
-      const tdiv=document.createElement('div'); tdiv.contentEditable=true; tdiv.innerText=task;
-      tdiv.addEventListener('input',()=>{week.tasks[d][i]=tdiv.innerText; save(); renderWeekDays();});
-      tasksDiv.appendChild(tdiv);
+    const h4=document.createElement('h4');
+    h4.innerHTML=`${d} <span>${(currentWeek.tasks[d]||[]).length}</span>`;
+    dayDiv.appendChild(h4);
+
+    const taskContainer=document.createElement('div'); taskContainer.className='tasks';
+    (currentWeek.tasks[d]||[]).forEach((t,i)=>{
+      const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
+      const rm=document.createElement('img'); rm.src='trash-icon.png'; rm.width=16; rm.className='task-delete';
+      rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
+      taskDiv.appendChild(rm);
+      taskContainer.appendChild(taskDiv);
     });
-    const addBtn=document.createElement('button'); addBtn.className='add-task-btn'; addBtn.innerText='+ Добавить задачу';
+    const addBtn=document.createElement('button'); addBtn.textContent='Добавить задачу'; addBtn.className='add-task-btn';
     addBtn.onclick=()=>{
-      if(!week.tasks[d]) week.tasks[d]=[];
-      week.tasks[d].push('Новая задача'); save(); renderWeekDays();
+      if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
+      currentWeek.tasks[d].push('');
+      renderWeekModal();
+      save();
     };
-    dayDiv.appendChild(h4); dayDiv.appendChild(tasksDiv); dayDiv.appendChild(addBtn);
+    dayDiv.appendChild(taskContainer);
+    dayDiv.appendChild(addBtn);
     daysContainer.appendChild(dayDiv);
   });
 }
-function renderModalGoals(){
-  modalGoalsList.innerHTML='';
-  data.goals.forEach(g=>{
-    const li=document.createElement('li'); li.innerText=g; modalGoalsList.appendChild(li);
-  });
+
+function renderWeekModal(){
+  if(!currentWeek) return;
+  openWeekModal(currentWeek.id);
 }
 
-/* Автосохранение */
-weekTitle.addEventListener('input',()=>{data.weeks[currentWeekId].title=weekTitle.value; save(); renderAll();});
-weekDesc.addEventListener('input',()=>{data.weeks[currentWeekId].desc=weekDesc.value; save();});
-saveBtn.onclick=()=>{weekModal.style.display='none';};
-closeModal.onclick=()=>{weekModal.style.display='none';};
-
-/* Меню */
-menuBtn.onclick=(e)=>{
-  weekMenu.style.display=(weekMenu.style.display==='flex')?'none':'flex';
-};
-document.addEventListener('click',e=>{if(!menuBtn.contains(e.target)){weekMenu.style.display='none';}});
-deleteWeekBtn.onclick=()=>{
-  if(currentWeekId){
-    // удалить неделю
-    delete data.weeks[currentWeekId];
-    data.unassigned=data.unassigned.filter(id=>id!==currentWeekId);
-    months.forEach(m=>{data.months[m]=data.months[m].filter(id=>id!==currentWeekId);});
-    save(); renderAll(); weekModal.style.display='none';
+document.getElementById('closeModal').onclick=()=>{weekModal.style.display='none';};
+document.getElementById('saveBtn').onclick=()=>{
+  if(currentWeek){
+    currentWeek.title=weekTitle.value;
+    currentWeek.desc=weekDesc.value;
+    save();
+    renderUnassigned();
+    renderMonths();
+    weekModal.style.display='none';
   }
 };
-downloadWeekBtn.onclick=()=>{
-  if(!currentWeekId) return;
-  const w=data.weeks[currentWeekId];
-  let txt=`Название: ${w.title}\nОписание: ${w.desc}\n`;
-  weekDays.forEach(d=>{
-    txt+=`${d}:\n`;
-    (w.tasks[d]||[]).forEach((t,i)=>{txt+=`${i+1}. ${t}\n`;});
+
+/* --- Меню ⋮ --- */
+const menuBtn=document.getElementById('menuBtn');
+const weekMenu=document.getElementById('weekMenu');
+menuBtn.onclick=e=>{
+  e.stopPropagation();
+  weekMenu.style.display=weekMenu.style.display==='flex'?'none':'flex';
+};
+document.addEventListener('click',()=>{weekMenu.style.display='none';});
+document.getElementById('deleteWeek').onclick=()=>{
+  if(!currentWeek) return;
+  ['unassigned',...months].forEach(k=>{
+    if(k==='unassigned'){
+      data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);
+    } else {
+      data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);
+    }
   });
-  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download=w.title+'.txt'; a.click();
-  URL.revokeObjectURL(url);
+  save(); renderUnassigned(); renderMonths(); weekModal.style.display='none';
+};
+document.getElementById('downloadWeek').onclick=()=>{
+  if(!currentWeek) return;
+  let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc}\n`;
+  weekDays.forEach(d=>{
+    text+=`${d}:\n`;
+    (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=`${i+1}. ${t}\n`);
+  });
+  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
-/* --- Общий рендер --- */
-function renderAll(){renderGoals();renderUnassigned();renderMonths();}
-renderAll();
+renderGoals();
+renderUnassigned();
+renderMonths();
 </script>
+
 </body>
 </html>
