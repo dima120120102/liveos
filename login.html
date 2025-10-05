@@ -31,10 +31,11 @@ body { margin: 0; font-family: Inter, sans-serif; background: #111; color: #eee;
 </div>
 
 <script>
-// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ (Правильно)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkWKUqth5ttfSRz2gkhk0xZBjlzOVp0Uzjp6Bctx0562VV5C8N31tpbRDi9UWyMhhO/exec"; 
-// 2. ПРОСТОЙ КЛЮЧ ДЛЯ BROWSER LOCALSTORAGE (Исправлено)
+// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
+// 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НОВОЕ
 
 // Элементы UI
 const authUsername = document.getElementById('authUsername');
@@ -60,7 +61,7 @@ async function sendRequest(action, params = {}) {
     }
 }
 
-// --- ФУНКЦИИ АУТЕНТИФИКАЦИИ ---
+// --- ФУНКЦИИ АУТЕНТИФИКАЦИИ (ОБНОВЛЕНО) ---
 
 async function handleLogin() {
     const username = authUsername.value.trim();
@@ -71,8 +72,11 @@ async function handleLogin() {
     
     if (result.status === "success") {
         const dataKey = result.dataKey;
-        // Сохраняем dataKey в браузере под именем 'plannerAuthDataKey'
+        const loggedInUsername = result.username; // ✅ ПОЛУЧАЕМ НИК ОТ СЕРВЕРА
+
+        // Сохраняем ключи в браузере
         localStorage.setItem(STORAGE_KEY_AUTH, dataKey);
+        localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // ✅ СОХРАНЯЕМ НИК
         
         window.location.href = 'index.html'; 
     } else {
