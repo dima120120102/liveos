@@ -174,7 +174,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
 // 2. КЛЮЧИ ДЛЯ АВТОРИЗАЦИИ/ДАННЫХ
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НОВОЕ
+const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НИК ПОЛЬЗОВАТЕЛЯ
 const STORAGE_KEY_LOCAL = 'plannerData_v8_local'; 
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -206,18 +206,24 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        return {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+        // Возвращаем пустую, но структурированную модель данных
+        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+        months.forEach(m=>{emptyData.months[m]=[];}); 
+        return emptyData;
     }
     
     const result = await sendRequest("load", { dataKey: dataKey });
     
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
-        return {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]}; 
+        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+        months.forEach(m=>{emptyData.months[m]=[];});
+        return emptyData; 
     }
     
     const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
     
+    // Обеспечиваем наличие всех необходимых полей и месяцев
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
     if (!loadedData.months) loadedData.months = {};
@@ -225,6 +231,7 @@ async function loadDataFromAppsScript() {
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
     
+    // ✅ ГАРАНТИРУЕМ, ЧТО ВСЕ 12 МЕСЯЦЕВ СУЩЕСТВУЮТ
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
     
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
@@ -254,7 +261,7 @@ function save(){
     saveDataToAppsScript(); 
 }
 
-/* --- ФУНКЦИИ КНОПКИ АВТОРИЗАЦИИ (ОБНОВЛЕНО) --- */
+/* --- ФУНКЦИИ КНОПКИ АВТОРИЗАЦИИ --- */
 
 function updateAuthButton() {
     const authButton = document.getElementById('authControl');
@@ -277,7 +284,7 @@ function goToAuth() {
 }
 
 
-/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА, ТРЕКЕРА (БЕЗ ИЗМЕНЕНИЙ) --- */
+/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
 
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
@@ -334,18 +341,20 @@ function renderMonths(){
     };
 
     const monthWeeksDiv=div.querySelector('.month-weeks');
-    data.months[m].forEach(w=>{
+    (data.months[m] || []).forEach(w=>{ // Добавлено (data.months[m] || []) для безопасности
       const el=createWeekEl(w);
       monthWeeksDiv.appendChild(el);
     });
   });
 }
 
+// ✅ ИСПРАВЛЕНО: Теперь вызываем renderMonths() при создании недели
 createWeekBtn.onclick=()=>{
   const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
   data.unassigned.push(week);
   save();
   renderUnassigned();
+  renderMonths(); 
 };
 
 const weekModal=document.getElementById('weekModal');
@@ -435,6 +444,8 @@ document.getElementById('downloadWeek').onclick=()=>{
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
+
+/* --- КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК (без изменений) --- */
 
 const habitHeaderRow=document.getElementById('habitHeaderRow');
 const habitBody=document.getElementById('habitBody');
@@ -541,7 +552,7 @@ document.getElementById('newDayBtn').onclick=()=>{
     renderHabitTracker();
 };
 
-/* --- Главная Инициализация (ОБНОВЛЕНО) --- */
+/* --- Главная Инициализация --- */
 async function init() {
     // 1. Проверяем авторизацию
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
@@ -558,7 +569,7 @@ async function init() {
     // 4. Рендерим все элементы
     renderGoals();
     renderUnassigned();
-    renderMonths();
+    renderMonths(); // Месяцы отрисуются здесь при загрузке
     renderHabitTracker();
 }
 
