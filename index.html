@@ -17,11 +17,11 @@
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    z-index: 10000; /* Поверх всего */
+    z-index: 10000;
     transition: background 0.2s;
 }
 .auth-control-btn:hover{
-    background: #007bff; /* Цвет, используемый для кнопки входа */
+    background: #007bff;
 }
 
 /* Стили из исходного кода */
@@ -169,29 +169,116 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </div>
 
 <script>
-const STORAGE_KEY='plannerData_v8'; // Обновляем ключ для новой структуры данных
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Ключ для авторизации
+// --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
+// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ (ВОЗЬМИТЕ ИЗ APP SCRIPT)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxkWKUqth5ttfSRz2gkhk0xZBjlzOVp0Uzjp6Bctx0562VV5C8N31tpbRDi9UWyMhhO/exec"; 
+// 2. КЛЮЧИ ДЛЯ АВТОРИЗАЦИИ/ДАННЫХ
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НОВОЕ
+const STORAGE_KEY_LOCAL = 'plannerData_v8_local'; 
+
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
-let data=loadData();
-months.forEach(m=>{if(!data.months[m])data.months[m]=[];});
-let dragId=null;
+let data = null; 
+let dragId = null;
 
-/* --- Загрузка/сохранение (Обновлено) --- */
-function loadData(){
-  try{
-    const d=JSON.parse(localStorage.getItem(STORAGE_KEY));
-    // Добавляем новые поля, если они не существуют в старых данных
-    return d||{goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
-  }catch{
-    return {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
-  }
+/* --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С APPS SCRIPT --- */
+
+async function sendRequest(action, params = {}) {
+    const url = SCRIPT_URL;
+    const formData = new URLSearchParams();
+    formData.append('action', action);
+    for (const key in params) {
+        formData.append(key, params[key]);
+    }
+    
+    try {
+        const response = await fetch(url, { method: 'POST', body: formData });
+        return await response.json();
+    } catch (error) {
+        console.error("Fetch error:", error);
+        return { status: "error", message: "Ошибка подключения к серверу Apps Script." };
+    }
 }
-function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data));}
 
-/* --- Цели (Без изменений) --- */
+async function loadDataFromAppsScript() {
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        return {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+    }
+    
+    const result = await sendRequest("load", { dataKey: dataKey });
+    
+    if (result && result.status === 'error') {
+        console.error("Ошибка загрузки данных:", result.message);
+        return {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]}; 
+    }
+    
+    const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+    
+    if (!loadedData.goals) loadedData.goals = [];
+    if (!loadedData.weeks) loadedData.weeks = {};
+    if (!loadedData.months) loadedData.months = {};
+    if (!loadedData.unassigned) loadedData.unassigned = [];
+    if (!loadedData.habits) loadedData.habits = [];
+    if (!loadedData.habitRecords) loadedData.habitRecords = [];
+    
+    months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
+    
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
+    
+    return loadedData;
+}
+
+async function saveDataToAppsScript() {
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
+    
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        console.error("Нет ключа авторизации для сохранения данных.");
+        return { status: "error", message: "Нет ключа авторизации." };
+    }
+    
+    const jsonString = JSON.stringify(data);
+    const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
+    
+    if (result.status === 'error') {
+        console.error("Ошибка сохранения данных:", result.message);
+    }
+    return result;
+}
+
+function save(){
+    saveDataToAppsScript(); 
+}
+
+/* --- ФУНКЦИИ КНОПКИ АВТОРИЗАЦИИ (ОБНОВЛЕНО) --- */
+
+function updateAuthButton() {
+    const authButton = document.getElementById('authControl');
+    const username = localStorage.getItem(STORAGE_KEY_USERNAME);
+    
+    if (username) {
+        // Отображаем ник пользователя
+        authButton.innerHTML = `🚪 ${username} (Выход)`;
+    } else {
+        // Если ника нет, отображаем стандартный текст
+        authButton.innerHTML = `🚪 Выход/Вход`;
+    }
+}
+
+function goToAuth() {
+    // Удаляем оба ключа при выходе
+    localStorage.removeItem(STORAGE_KEY_AUTH); 
+    localStorage.removeItem(STORAGE_KEY_USERNAME); 
+    window.location.href = 'login.html'; 
+}
+
+
+/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА, ТРЕКЕРА (БЕЗ ИЗМЕНЕНИЙ) --- */
+
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
   goalsList.innerHTML='';
@@ -205,7 +292,6 @@ function renderGoals(){
 }
 document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
 
-/* --- Недели (Без изменений) --- */
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
 function createWeekEl(week){
@@ -223,7 +309,6 @@ function renderUnassigned(){
   });
 }
 
-/* --- Месяцы (Без изменений) --- */
 const monthsContainer=document.getElementById('months');
 function renderMonths(){
   monthsContainer.innerHTML='';
@@ -263,7 +348,6 @@ createWeekBtn.onclick=()=>{
   renderUnassigned();
 };
 
-/* --- Модальное окно недели (Без изменений) --- */
 const weekModal=document.getElementById('weekModal');
 const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
@@ -352,9 +436,6 @@ document.getElementById('downloadWeek').onclick=()=>{
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
-
-/* --- НОВЫЙ КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
-
 const habitHeaderRow=document.getElementById('habitHeaderRow');
 const habitBody=document.getElementById('habitBody');
 const habitTotalRow=document.getElementById('habitTotalRow');
@@ -366,19 +447,16 @@ function formatDate(date){
 }
 
 function renderHabitTracker(){
-    // 1. Рендер заголовков привычек
     habitHeaderRow.innerHTML='<th>Дата</th>';
     data.habits.forEach((habit, index)=>{
         const th=document.createElement('th'); th.className='habit-col';
         th.contentEditable=true; th.innerText=habit;
         th.addEventListener('input',()=>{data.habits[index]=th.innerText;save();});
 
-        // Добавляем кнопку удаления привычки
         const removeBtn=document.createElement('span'); removeBtn.innerText=' ×'; removeBtn.style.cursor='pointer'; removeBtn.style.color='#f00';
         removeBtn.onclick=()=>{
             if(confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)){
                 const deletedHabit = data.habits.splice(index,1)[0];
-                // Удаляем соответствующие данные из записей
                 data.habitRecords.forEach(record=>{delete record.tasks[deletedHabit];});
                 save(); renderHabitTracker();
             }
@@ -387,9 +465,8 @@ function renderHabitTracker(){
         habitHeaderRow.appendChild(th);
     });
 
-    // 2. Рендер ежедневных записей
     habitBody.innerHTML='';
-    const habitScores=new Array(data.habits.length).fill(0); // Массив для подсчета баллов
+    const habitScores=new Array(data.habits.length).fill(0);
     const totalDays=data.habitRecords.length;
 
     data.habitRecords.forEach(record=>{
@@ -402,24 +479,21 @@ function renderHabitTracker(){
             const checkbox=document.createElement('input');
             checkbox.type='checkbox';
             
-            // Убедимся, что tasks содержит этот habit, если нет, добавляем с false
             if(typeof record.tasks[habit] === 'undefined'){
                 record.tasks[habit] = false;
             }
             
             checkbox.checked=!!record.tasks[habit];
 
-            // Отслеживание клика
             checkbox.onchange=()=>{
                 record.tasks[habit]=checkbox.checked;
                 save();
-                renderHabitTracker(); // Перерисовываем для обновления итогов
+                renderHabitTracker();
             };
 
             td.appendChild(checkbox);
             tr.appendChild(td);
 
-            // Обновляем балл, если привычка выполнена
             if(checkbox.checked){
                 habitScores[index]++;
             }
@@ -427,7 +501,6 @@ function renderHabitTracker(){
         habitBody.appendChild(tr);
     });
 
-    // 3. Рендер итоговой строки
     habitTotalRow.innerHTML='<td>Итог (процент)</td>';
     data.habits.forEach((_, index)=>{
         const td=document.createElement('td');
@@ -438,23 +511,19 @@ function renderHabitTracker(){
     });
 }
 
-// Обработчик добавления привычки
 document.getElementById('addHabitBtn').onclick=()=>{
     const habitText=newHabitInput.value.trim();
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
-        // Обновляем старые записи, чтобы новый habit в них появился (по умолчанию false)
         data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
         save();
         renderHabitTracker();
     }
 };
 
-// Обработчик создания нового дня
 document.getElementById('newDayBtn').onclick=()=>{
     const today=new Date().setHours(0,0,0,0);
-    // Проверка, есть ли уже запись за сегодняшний день
     if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
         alert('Запись за сегодняшний день уже существует!');
         return;
@@ -464,28 +533,36 @@ document.getElementById('newDayBtn').onclick=()=>{
         date: new Date().toISOString(),
         tasks: {}
     };
-    // Инициализируем задачи для нового дня (по умолчанию все false)
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
 
     data.habitRecords.push(newRecord);
-    data.habitRecords.sort((a,b)=>new Date(a.date)-new Date(b.date)); // Сортируем по дате
+    data.habitRecords.sort((a,b)=>new Date(a.date)-new Date(b.date));
     save();
     renderHabitTracker();
 };
 
-/* --- НОВАЯ ФУНКЦИЯ ДЛЯ ВЫХОДА --- */
-function goToAuth() {
-    // Удаляем ключ авторизации, чтобы пользователь вышел
-    localStorage.removeItem(STORAGE_KEY_AUTH); 
-    // Перенаправляем на страницу входа
-    window.location.href = 'login.html'; 
+/* --- Главная Инициализация (ОБНОВЛЕНО) --- */
+async function init() {
+    // 1. Проверяем авторизацию
+    if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
+        window.location.href = 'login.html';
+        return;
+    }
+    
+    // 2. Обновляем кнопку с ником пользователя
+    updateAuthButton(); 
+
+    // 3. Загружаем данные
+    data = await loadDataFromAppsScript();
+
+    // 4. Рендерим все элементы
+    renderGoals();
+    renderUnassigned();
+    renderMonths();
+    renderHabitTracker();
 }
 
-/* --- Инициализация --- */
-renderGoals();
-renderUnassigned();
-renderMonths();
-renderHabitTracker(); // Запускаем рендер трекера
+init();
 </script>
 </body>
 </html>
