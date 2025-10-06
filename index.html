@@ -5,85 +5,220 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Планер недели с улучшениями</title>
 <style>
-/* НОВЫЙ СТИЛЬ ДЛЯ КНОПКИ АВТОРИЗАЦИИ */
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+}
+* {
+    box-sizing: border-box;
+}
+body{
+    margin:0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
+
+/* --- ОСНОВНАЯ СТРУКТУРА --- */
+.main-container{display:flex;flex:1;overflow:hidden; padding: 0 10px;}
+.goals{width:240px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;position:relative; flex-shrink: 0;}
+.goals h2 { margin: 0 0 10px 0; }
+.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;overflow:hidden;}
+
+/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
+.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease;}
+.btn:hover{background-color: var(--bg-hover);}
+.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+
+/* --- КНОПКА АВТОРИЗАЦИИ --- */
 .auth-control-btn{
     position: fixed;
     top: 15px;
     right: 20px;
-    background: #333;
-    color: #eee;
-    padding: 8px 12px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 8px 15px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
     z-index: 10000;
-    transition: background 0.2s;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid var(--border-color);
 }
 .auth-control-btn:hover{
-    background: #007bff;
+    background: var(--accent-color);
+    color: #fff;
 }
 
-/* Стили из исходного кода */
-body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:flex;flex-direction:column;height:100vh;}
-.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
-.banner img{width:100%;height:auto;object-fit:contain;display:block;}
-.main-container{display:flex;flex:1;overflow:hidden;}
-.goals{width:220px;background:#181818;border-right:1px solid #222;padding:18px;display:flex;flex-direction:column;gap:10px;overflow:auto;position:relative;}
-.goal{background:#1f1f1f;border-radius:8px;padding:8px;position:relative;transition:0.2s;}
-.goal:hover{background:#292929;}
-.goal .goal-remove{position:absolute;right:6px;top:4px;opacity:0;cursor:pointer;color:#999;}
+/* --- ЦЕЛИ --- */
+.goal{background:var(--bg-tertiary);border-radius:8px;padding:10px;position:relative;transition:background-color 0.2s; min-height: 40px;}
+.goal:hover{background:var(--bg-hover);}
+.goal .goal-remove{position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--text-secondary);font-size: 20px;}
 .goal:hover .goal-remove{opacity:1;}
-.goal[contenteditable]:focus{outline:1px solid #555;}
-.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#969191;color:#111;width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;display:none;}
+.goal[contenteditable]:focus{outline:1px solid var(--accent-color);}
+.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#555;color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;display:none; transition: background-color 0.2s;}
 .goals:hover .add-goal-btn{display:flex}
-.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:12px;overflow:hidden;}
-.btn{background:#222;border:none;color:#eee;padding:8px 12px;border-radius:8px;cursor:pointer;}
-.create-week{background:linear-gradient(90deg,#333,#222);}
+.add-goal-btn:hover { background-color: var(--accent-color); }
+
+/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
 .unassigned-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
-.week-item,.week-card{background:#1e1e1e;border-radius:8px;padding:8px 10px;cursor:grab;display:flex;align-items:center;justify-content:space-between;}
-.months{display:flex;gap:12px;overflow-x:auto;padding:10px 4px;}
-.month{min-width:180px;border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px;flex-shrink:0;}
-.month .m-title{text-align:center;font-weight:600;}
+.week-item,.week-card{background:var(--bg-secondary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
+.week-item:hover { border-color: var(--accent-color); }
+.months{display:flex;gap:15px;overflow-x:auto;padding:10px 4px; scrollbar-width: thin;}
+.month{min-width:220px;background-color: var(--bg-secondary); border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:10px;flex-shrink:0; border-top: 4px solid;}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.1em; margin-bottom: 5px;}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px;}
-.drop-zone{border:2px dashed #333;border-radius:8px;padding:10px;text-align:center;color:#777;font-size:13px;transition:0.2s;}
-.drop-zone.dragover{border-color:#ffb74d;color:#ffb74d;background:rgba(255,183,77,0.05);}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:#111;z-index:1000;display:none;flex-direction:column;}
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:10px 20px;background:#1f1f1f;border-bottom:1px solid #333;}
-.modal-header input{background:#222;color:#eee;border:none;padding:6px 10px;border-radius:6px;font-size:16px;width:60%;}
-.modal-header .actions{display:flex;align-items:center;gap:10px;position:relative;}
-.modal-header span{cursor:pointer;font-size:20px;position:relative;}
-.menu{position:absolute;top:25px;right:0;background:#222;border:1px solid #333;border-radius:6px;display:none;flex-direction:column;min-width:140px;z-index:200;}
-.menu div{padding:8px 12px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:6px;}
-.menu div:hover{background:#333;}
+.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
+.drop-zone.dragover{border-color:var(--accent-color);color:var(--accent-color);background:rgba(0,123,255,0.08);}
+
+/* --- МОДАЛЬНОЕ ОКНО --- */
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;}
+.modal-content {
+    background: var(--bg-main);
+    width: 95%;
+    max-width: 1000px;
+    height: 90vh;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+.modal-header input{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;width:60%;}
+.modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
+.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary);}
+.menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden;}
+.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;}
+.menu div:hover{background:var(--accent-color); color: #fff;}
+.menu div img { filter: invert(80%); transition: filter 0.2s; }
+.menu div:hover img { filter: invert(100%); }
 .modal-body{display:flex;flex:1;overflow:hidden;}
-.modal-left{width:220px;border-right:1px solid #222;padding:10px;overflow-y:auto;}
-.modal-right{flex:1;padding:10px;display:flex;flex-direction:column;gap:10px;overflow:hidden;}
-.modal-description{padding-bottom:10px;}
-.modal-days{display:flex;overflow-x:auto;gap:10px;flex-shrink:0;}
-.day{min-width:160px;border-radius:10px;padding:10px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;transition:0.2s;}
-.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px;}
-.tasks{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;}
-.tasks div{background:#333;border-radius:6px;padding:4px 6px;display:flex;justify-content:space-between;align-items:center;}
-.add-task-btn{margin-top:4px;background:#aca6a6;color:#111;border:none;padding:4px;border-radius:6px;cursor:pointer;font-size:12px;}
-.save-btn{margin:10px 20px;padding:8px 12px;background:#969191;color:#111;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
-.modal-goals h4{margin:0 0 6px 0;font-size:14px;}
-.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:6px;}
-.modal-goals ul li{background:#292929;padding:6px 10px;border-radius:8px;transition:0.2s;}
-.modal-goals ul li:hover{background:#3a3a3a;}
-.task-delete{cursor:pointer;margin-left:6px;}
-/* НОВЫЕ СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК */
-.habit-tracker{background:#181818;padding:20px;border-top:1px solid #222;}
-.habit-controls{display:flex;gap:10px;margin-bottom:15px;align-items:center;}
-.habit-controls input{flex:1;background:#222;border:none;color:#eee;padding:8px 12px;border-radius:8px;}
-.habit-controls button{flex-shrink:0;}
-.habit-table{width:100%;border-collapse:collapse;table-layout:fixed;}
-.habit-table th,.habit-table td{border:1px solid #222;padding:8px;text-align:center;}
-.habit-table th{background:#222;font-weight:600;}
-.habit-table td:first-child{text-align:left;font-weight:bold;}
-.habit-table .total-row{background:#292929;font-weight:bold;}
-.habit-table .date-col{width:100px;font-size:12px;}
-.habit-table input[type="checkbox"]{width:18px;height:18px;cursor:pointer;}
+.modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
+.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
+.modal-description textarea{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;}
+.modal-days{display:flex;overflow-x:auto;gap:12px;flex-shrink:0; padding-bottom: 10px;}
+.day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;transition:0.2s;}
+.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary);}
+.tasks{display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
+.tasks div{background:var(--bg-tertiary);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;}
+.add-task-btn{margin-top:auto;background:#555;color:var(--text-primary);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px; transition: background-color 0.2s;}
+.add-task-btn:hover { background-color: var(--accent-color); }
+.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
+.save-btn{padding:10px 20px;background:var(--accent-color);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
+.modal-goals h4{margin:0 0 10px 0;font-size:14px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:8px;}
+.modal-goals ul li{background:var(--bg-tertiary);padding:8px 12px;border-radius:8px;transition:0.2s; list-style: none;}
+.modal-goals ul li:hover{background:var(--bg-hover);}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px;}
+
+/* --- ✅ НОВЫЕ СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px;}
+.habit-tracker h2 { margin-top: 0; }
+.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
+.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
+.habit-table-wrapper { overflow-x: auto; } /* Обертка для скролла */
+.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center;}
+.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
+.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
+.habit-table tr:hover { background-color: var(--bg-tertiary); }
+.habit-table .total-row{background:var(--bg-hover);font-weight:bold;}
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--accent-color);}
+.habit-col .remove-habit { color: var(--danger-color); cursor: pointer; opacity: 0.5; margin-left: 5px; }
+.habit-col .remove-habit:hover { opacity: 1; }
+
+/* Прогресс-бар */
+.progress-col { width: 150px; }
+.progress-bar-container {
+    width: 100%;
+    height: 22px;
+    background-color: var(--bg-tertiary);
+    border-radius: 5px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+}
+.progress-bar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: var(--accent-color);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+.progress-bar-text {
+    position: relative;
+    z-index: 1;
+    font-size: 12px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
+}
+
+
+/* --- ✅ АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+@media (max-width: 768px) {
+    body { font-size: 14px; }
+    .main-container {
+        flex-direction: column;
+        padding: 0;
+    }
+    .goals {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        padding: 15px;
+        height: auto;
+        max-height: 200px; /* Ограничиваем высоту, чтобы не занимало весь экран */
+    }
+    .right {
+        padding: 15px;
+        overflow-y: auto; /* Добавляем скролл для основного контента */
+    }
+    .months {
+        padding: 10px 0;
+    }
+    .auth-control-btn {
+        font-size: 12px;
+        padding: 6px 10px;
+        top: 10px;
+        right: 10px;
+    }
+    .habit-controls { flex-direction: column; align-items: stretch; }
+    
+    /* Адаптивность модального окна */
+    .modal-content { width: 100%; height: 100%; border-radius: 0; }
+    .modal-body { flex-direction: column; }
+    .modal-left {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+        max-height: 150px;
+    }
+    .modal-right { overflow-y: auto; }
+    .modal-header input { width: 50%; }
+}
 </style>
 </head>
 <body>
@@ -93,7 +228,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
 </div>
 
 <div class="banner">
-  <img id="bannerImg" src="your-banner.jpg" alt="Баннер">
+  <img id="bannerImg" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2020&q=80" alt="Баннер">
 </div>
 
 <div class="main-container">
@@ -108,7 +243,7 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
       <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
     </div>
     <div>
-      <div style="color:#888;font-size:13px;">Не распределённые</div>
+      <div style="color:var(--text-secondary);font-size:13px; margin-bottom: 8px;">Не распределённые</div>
       <div id="unassignedList" class="unassigned-list"></div>
     </div>
     <div class="months" id="months"></div>
@@ -122,49 +257,51 @@ body{margin:0;font-family:Inter,sans-serif;background:#111;color:#eee;display:fl
         <button id="addHabitBtn" class="btn">Добавить привычку</button>
         <button id="newDayBtn" class="btn create-week">Новый день</button>
     </div>
-    <table class="habit-table">
-        <thead>
-            <tr id="habitHeaderRow">
-                <th>Дата</th>
-            </tr>
-        </thead>
-        <tbody id="habitBody">
+    <div class="habit-table-wrapper">
+        <table class="habit-table">
+            <thead>
+                <tr id="habitHeaderRow">
+                    <th>Дата</th>
+                    <th class="progress-col">Прогресс дня</th>
+                </tr>
+            </thead>
+            <tbody id="habitBody">
             </tbody>
-        <tfoot>
-            <tr class="total-row" id="habitTotalRow">
-                <td>Итог (процент)</td>
-            </tr>
-        </tfoot>
-    </table>
+        </table>
+    </div>
 </section>
 
 <div class="modal" id="weekModal">
-  <div class="modal-header">
-    <input id="weekTitle" placeholder="Название недели">
-    <div class="actions">
-      <span id="menuBtn">⋮
-        <div class="menu" id="weekMenu">
-          <div id="deleteWeek"><img src="trash-icon.png" width="16"> Удалить неделю</div>
-          <div id="downloadWeek"><img src="download-icon.png" width="16"> Скачать TXT</div>
+  <div class="modal-content">
+      <div class="modal-header">
+        <input id="weekTitle" placeholder="Название недели">
+        <div class="actions">
+          <span id="menuBtn">⋮
+            <div class="menu" id="weekMenu">
+              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTkSuQmCC" width="16"> Удалить неделю</div>
+              <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
+            </div>
+          </span>
+          <span id="closeModal">×</span>
         </div>
-      </span>
-      <span id="closeModal">×</span>
-    </div>
-  </div>
-  <div class="modal-body">
-    <div class="modal-left">
-      <div class="modal-goals">
-        <h4>Годовые цели</h4>
-        <ul id="modalGoalsList"></ul>
       </div>
-    </div>
-    <div class="modal-right">
-      <div class="modal-description">
-        <textarea id="weekDesc" placeholder="Описание недели" style="width:100%;background:#222;color:#eee;border:none;padding:6px;border-radius:6px;"></textarea>
+      <div class="modal-body">
+        <div class="modal-left">
+          <div class="modal-goals">
+            <h4>Годовые цели</h4>
+            <ul id="modalGoalsList"></ul>
+          </div>
+        </div>
+        <div class="modal-right">
+          <div class="modal-description">
+            <textarea id="weekDesc" placeholder="Описание недели"></textarea>
+          </div>
+          <div class="modal-days" id="daysContainer"></div>
+        </div>
       </div>
-      <div class="modal-days" id="daysContainer"></div>
-      <button class="save-btn" id="saveBtn">Сохранить</button>
-    </div>
+      <div class="modal-footer">
+          <button class="save-btn" id="saveBtn">Сохранить</button>
+      </div>
   </div>
 </div>
 
@@ -193,7 +330,7 @@ async function sendRequest(action, params = {}) {
     for (const key in params) {
         formData.append(key, params[key]);
     }
-    
+
     try {
         const response = await fetch(url, { method: 'POST', body: formData });
         return await response.json();
@@ -211,18 +348,18 @@ async function loadDataFromAppsScript() {
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
-    
+
     const result = await sendRequest("load", { dataKey: dataKey });
-    
+
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
         const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
         months.forEach(m=>{emptyData.months[m]=[];});
         return emptyData; 
     }
-    
+
     const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
-    
+
     // Обеспечиваем наличие всех необходимых полей и месяцев
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
@@ -230,27 +367,27 @@ async function loadDataFromAppsScript() {
     if (!loadedData.unassigned) loadedData.unassigned = [];
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
-    
+
     // ✅ ГАРАНТИРУЕМ, ЧТО ВСЕ 12 МЕСЯЦЕВ СУЩЕСТВУЮТ
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
-    
+
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
-    
+
     return loadedData;
 }
 
 async function saveDataToAppsScript() {
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
-    
+
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
         console.error("Нет ключа авторизации для сохранения данных.");
         return { status: "error", message: "Нет ключа авторизации." };
     }
-    
+
     const jsonString = JSON.stringify(data);
     const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
-    
+
     if (result.status === 'error') {
         console.error("Ошибка сохранения данных:", result.message);
     }
@@ -266,7 +403,7 @@ function save(){
 function updateAuthButton() {
     const authButton = document.getElementById('authControl');
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
-    
+
     if (username) {
         // Отображаем ник пользователя
         authButton.innerHTML = `🚪 ${username} (Выход)`;
@@ -292,7 +429,7 @@ function renderGoals(){
   data.goals.forEach((t,i)=>{
     const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
     div.addEventListener('input',()=>{data.goals[i]=div.innerText;save();});
-    const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='−';
+    const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
     rm.onclick=()=>{data.goals.splice(i,1);save();renderGoals();};
     div.appendChild(rm); goalsList.appendChild(div);
   });
@@ -321,40 +458,37 @@ function renderMonths(){
   monthsContainer.innerHTML='';
   months.forEach((m,i)=>{
     const div=document.createElement('div'); div.className='month';
-    div.style.backgroundColor=monthColors[i%monthColors.length];
+    div.style.borderColor=monthColors[i%monthColors.length];
     div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks" id="month-${m}"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
     monthsContainer.appendChild(div);
 
     const dropZone=div.querySelector('.drop-zone');
-    dropZone.ondragover=e=>e.preventDefault();
+    dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
+    dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
     dropZone.ondrop=e=>{
       e.preventDefault();
+      dropZone.classList.remove('dragover');
       const wId=dragId;
       const idx=data.unassigned.findIndex(w=>w.id===wId);
       if(idx>=0){
         const w=data.unassigned.splice(idx,1)[0];
         data.months[m].push(w);
-        save();
-        renderUnassigned();
-        renderMonths();
+        save(); renderAll();
       }
     };
 
     const monthWeeksDiv=div.querySelector('.month-weeks');
-    (data.months[m] || []).forEach(w=>{ // Добавлено (data.months[m] || []) для безопасности
+    (data.months[m] || []).forEach(w=>{
       const el=createWeekEl(w);
       monthWeeksDiv.appendChild(el);
     });
   });
 }
 
-// ✅ ИСПРАВЛЕНО: Теперь вызываем renderMonths() при создании недели
 createWeekBtn.onclick=()=>{
   const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
   data.unassigned.push(week);
-  save();
-  renderUnassigned();
-  renderMonths(); 
+  save(); renderAll();
 };
 
 const weekModal=document.getElementById('weekModal');
@@ -366,9 +500,10 @@ let currentWeek=null;
 
 function openWeekModal(id){
   const allWeeks=[...data.unassigned];
-  months.forEach(m=>{allWeeks.push(...data.months[m]);});
+  for(const m of months) { allWeeks.push(...(data.months[m] || [])); }
   currentWeek=allWeeks.find(w=>w.id===id);
   if(!currentWeek) return;
+  
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
@@ -389,7 +524,7 @@ function openWeekModal(id){
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-      const rm=document.createElement('img'); rm.src='trash-icon.png'; rm.width=16; rm.className='task-delete';
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTkSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u2716\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
@@ -416,8 +551,7 @@ document.getElementById('saveBtn').onclick=()=>{
     currentWeek.title=weekTitle.value;
     currentWeek.desc=weekDesc.value;
     save();
-    renderUnassigned();
-    renderMonths();
+    renderAll();
     weekModal.style.display='none';
   }
 };
@@ -430,9 +564,9 @@ document.getElementById('deleteWeek').onclick=()=>{
   if(!currentWeek) return;
   ['unassigned',...months].forEach(k=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
-    else {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
+    else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderUnassigned(); renderMonths(); weekModal.style.display='none';
+  save(); renderAll(); weekModal.style.display='none';
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
@@ -445,80 +579,95 @@ document.getElementById('downloadWeek').onclick=()=>{
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
-/* --- КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК (без изменений) --- */
+/* --- ✅ ОБНОВЛЕННЫЙ КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 
-const habitHeaderRow=document.getElementById('habitHeaderRow');
-const habitBody=document.getElementById('habitBody');
-const habitTotalRow=document.getElementById('habitTotalRow');
-const newHabitInput=document.getElementById('newHabitInput');
+const habitHeaderRow = document.getElementById('habitHeaderRow');
+const habitBody = document.getElementById('habitBody');
+const newHabitInput = document.getElementById('newHabitInput');
 
-function formatDate(date){
-    const d=new Date(date);
-    return d.toLocaleDateString('ru-RU',{month:'2-digit',day:'2-digit',year:'2-digit'});
+function formatDate(date) {
+    const d = new Date(date);
+    return d.toLocaleDateString('ru-RU', { month: '2-digit', day: '2-digit' });
 }
 
-function renderHabitTracker(){
-    habitHeaderRow.innerHTML='<th>Дата</th>';
-    data.habits.forEach((habit, index)=>{
-        const th=document.createElement('th'); th.className='habit-col';
-        th.contentEditable=true; th.innerText=habit;
-        th.addEventListener('input',()=>{data.habits[index]=th.innerText;save();});
+function renderHabitTracker() {
+    // Очищаем и создаем заголовки
+    habitHeaderRow.innerHTML = '<th>Дата</th>'; // Сбрасываем заголовки
+    data.habits.forEach((habit, index) => {
+        const th = document.createElement('th');
+        th.className = 'habit-col';
+        th.contentEditable = true;
+        th.innerText = habit;
+        th.addEventListener('blur', () => { // Используем 'blur' вместо 'input' для сохранения после выхода
+            data.habits[index] = th.innerText;
+            save();
+        });
 
-        const removeBtn=document.createElement('span'); removeBtn.innerText=' ×'; removeBtn.style.cursor='pointer'; removeBtn.style.color='#f00';
-        removeBtn.onclick=()=>{
-            if(confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)){
-                const deletedHabit = data.habits.splice(index,1)[0];
-                data.habitRecords.forEach(record=>{delete record.tasks[deletedHabit];});
-                save(); renderHabitTracker();
+        const removeBtn = document.createElement('span');
+        removeBtn.innerText = '×';
+        removeBtn.className = 'remove-habit';
+        removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)) {
+                const deletedHabit = data.habits.splice(index, 1)[0];
+                data.habitRecords.forEach(record => { delete record.tasks[deletedHabit]; });
+                save();
+                renderHabitTracker();
             }
         };
         th.appendChild(removeBtn);
         habitHeaderRow.appendChild(th);
     });
+    habitHeaderRow.insertAdjacentHTML('beforeend', '<th class="progress-col">Прогресс дня</th>');
 
-    habitBody.innerHTML='';
-    const habitScores=new Array(data.habits.length).fill(0);
-    const totalDays=data.habitRecords.length;
+    // Очищаем тело таблицы
+    habitBody.innerHTML = '';
 
-    data.habitRecords.forEach(record=>{
-        const tr=document.createElement('tr');
-        const dateTd=document.createElement('td'); dateTd.className='date-col'; dateTd.innerText=formatDate(record.date);
-        tr.appendChild(dateTd);
+    // Заполняем строки данными
+    data.habitRecords.forEach(record => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="date-col">${formatDate(record.date)}</td>`;
 
-        data.habits.forEach((habit, index)=>{
-            const td=document.createElement('td');
-            const checkbox=document.createElement('input');
-            checkbox.type='checkbox';
+        let completedHabits = 0;
+        const totalHabits = data.habits.length;
+
+        data.habits.forEach(habit => {
+            const td = document.createElement('td');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
             
-            if(typeof record.tasks[habit] === 'undefined'){
+            // Гарантируем, что у записи есть эта привычка
+            if (typeof record.tasks[habit] === 'undefined') {
                 record.tasks[habit] = false;
             }
-            
-            checkbox.checked=!!record.tasks[habit];
 
-            checkbox.onchange=()=>{
-                record.tasks[habit]=checkbox.checked;
+            checkbox.checked = !!record.tasks[habit];
+            if (checkbox.checked) {
+                completedHabits++;
+            }
+
+            checkbox.onchange = () => {
+                record.tasks[habit] = checkbox.checked;
                 save();
-                renderHabitTracker();
+                renderHabitTracker(); // Перерисовываем для обновления прогресса
             };
 
             td.appendChild(checkbox);
             tr.appendChild(td);
-
-            if(checkbox.checked){
-                habitScores[index]++;
-            }
         });
-        habitBody.appendChild(tr);
-    });
 
-    habitTotalRow.innerHTML='<td>Итог (процент)</td>';
-    data.habits.forEach((_, index)=>{
-        const td=document.createElement('td');
-        const score=habitScores[index];
-        const percentage=totalDays > 0 ? ((score/totalDays)*100).toFixed(0) : 0;
-        td.innerText=`${score}/${totalDays} (${percentage}%)`;
-        habitTotalRow.appendChild(td);
+        // ✅ Создаем ячейку с прогрессом дня
+        const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
+        const progressTd = document.createElement('td');
+        progressTd.innerHTML = `
+            <div class="progress-bar-container">
+                <div class="progress-bar" style="width: ${percentage}%;"></div>
+                <span class="progress-bar-text">${percentage.toFixed(0)}%</span>
+            </div>
+        `;
+        tr.appendChild(progressTd);
+
+        habitBody.appendChild(tr);
     });
 }
 
@@ -527,7 +676,7 @@ document.getElementById('addHabitBtn').onclick=()=>{
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
-        data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
+        data.habitRecords.forEach(r => { r.tasks[habitText] = false; }); // Добавляем новую привычку ко всем записям
         save();
         renderHabitTracker();
     }
@@ -540,37 +689,41 @@ document.getElementById('newDayBtn').onclick=()=>{
         return;
     }
 
-    const newRecord={
-        date: new Date().toISOString(),
-        tasks: {}
-    };
+    const newRecord={ date: new Date().toISOString(), tasks: {} };
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
 
     data.habitRecords.push(newRecord);
-    data.habitRecords.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date)); // Сортируем по убыванию
     save();
     renderHabitTracker();
 };
 
 /* --- Главная Инициализация --- */
+function renderAll() {
+    renderGoals();
+    renderUnassigned();
+    renderMonths();
+    renderHabitTracker();
+}
+
 async function init() {
     // 1. Проверяем авторизацию
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
         window.location.href = 'login.html';
         return;
     }
-    
+
     // 2. Обновляем кнопку с ником пользователя
     updateAuthButton(); 
 
     // 3. Загружаем данные
     data = await loadDataFromAppsScript();
 
-    // 4. Рендерим все элементы
-    renderGoals();
-    renderUnassigned();
-    renderMonths(); // Месяцы отрисуются здесь при загрузке
-    renderHabitTracker();
+    // 4. Сортируем записи привычек при загрузке (новые вверху)
+    data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+    // 5. Рендерим все элементы
+    renderAll();
 }
 
 init();
