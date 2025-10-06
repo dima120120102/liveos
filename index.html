@@ -28,21 +28,20 @@ body{
     color: var(--text-primary);
     display:flex;
     flex-direction:column;
-    height:100vh;
-    /* ✅ ИЗМЕНЕНИЕ: Основной вертикальный скролл на body */
-    overflow-y: auto; 
+    /* ✅ ИЗМЕНЕНИЕ: Убрана привязка к высоте экрана и вертикальный скролл. Скролл на body по умолчанию */
+    min-height: 100vh;
     overflow-x: hidden; /* Запрещаем общий горизонтальный скролл */
 }
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
 
 /* --- ОСНОВНАЯ СТРУКТУРА --- */
-/* ✅ ИЗМЕНЕНИЕ: Убран overflow-x: auto; */
+/* ✅ ИЗМЕНЕНИЕ: Убран flex: 1 и overflow-x: auto. */
 .main-container{
     display:flex;
-    flex:1;
+    /* flex: 1; УДАЛЕНО */
     padding: 0 10px;
-    overflow-x: hidden; /* Важно, чтобы избежать ненужного скролла на родительском элементе */
+    overflow-x: hidden; 
 }
 .goals{
     width:240px;
@@ -52,18 +51,20 @@ body{
     display:flex;
     flex-direction:column;
     gap:12px;
-    overflow-y: auto; /* Вертикальный скролл для целей */
+    /* ✅ ИЗМЕНЕНИЕ: Заменено на max-height для предотвращения чрезмерного роста */
+    max-height: 800px; 
+    overflow-y: auto; 
     position:relative; 
     flex-shrink: 0;
 }
-/* ✅ ИЗМЕНЕНИЕ: Добавлен overflow-y: auto; для вертикального скролла основного контента */
+/* ✅ ИЗМЕНЕНИЕ: Убран flex: 1 и overflow-y: auto. Блок просто занимает доступное место. */
 .right{
     flex:1;
     display:flex;
     flex-direction:column;
     padding:20px;
     gap:15px;
-    overflow-y: auto; 
+    /* overflow-y: auto; УДАЛЕНО */
 }
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
@@ -223,8 +224,9 @@ body{
     body { font-size: 14px; }
     /* ✅ ИЗМЕНЕНИЕ: Убран скролл с main-container, как и на десктопе */
     .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
-    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: 200px; }
-    .right { padding: 15px; overflow-y: auto; }
+    /* ✅ ИЗМЕНЕНИЕ: Убрана максимальная высота с целей на мобильных, чтобы они скроллились вместе со страницей */
+    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
+    .right { padding: 15px; overflow-y: visible; }
     /* ✅ ИЗМЕНЕНИЕ: Мобильный скролл теперь на обертке */
     .months-wrapper { overflow-x: auto; } 
     .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
