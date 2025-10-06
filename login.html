@@ -1,34 +1,197 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Вход и Регистрация</title>
-<style>
-/* Стили для формы Аутентификации */
-body { margin: 0; font-family: Inter, sans-serif; background: #111; color: #eee; display: flex; justify-content: center; align-items: center; height: 100vh; }
-.auth-box { background: #1f1f1f; padding: 30px; border-radius: 10px; width: 300px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-.auth-box h3 { margin-top: 0; color: #007bff; }
-.auth-box input { width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #333; background: #222; color: #eee; border-radius: 6px; box-sizing: border-box; }
-.btn { background: #222; border: none; color: #eee; padding: 10px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: background 0.2s; }
-.login-btn { background: #007bff; margin-bottom: 10px; }
-.login-btn:hover { background: #0056b3; }
-.register-btn { background: #333; }
-.register-btn:hover { background: #555; }
-.auth-box button { width: 100%; }
-#authMessage { color: #ff5555; margin-top: 15px; min-height: 20px; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Вход и Регистрация</title>
+    <style>
+        /* Стили для формы Аутентификации */
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #333;
+            --background-color: #111;
+            --box-color: #1f1f1f;
+            --text-color: #eee;
+            --error-color: #ff5555;
+            --success-color: #4CAF50;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 123, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); }
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--background-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            perspective: 1000px; /* Для 3D-эффектов */
+        }
+
+        .auth-container {
+            position: relative;
+            width: 320px;
+            height: 480px; /* Фиксированная высота для переключения */
+        }
+
+        .auth-box {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--box-color);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+            box-sizing: border-box;
+            backface-visibility: hidden;
+            transition: transform 0.8s, opacity 0.8s;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        /* Начальные состояния для анимации переключения */
+        #login-form {
+            transform: rotateY(0deg);
+            z-index: 2;
+        }
+
+        #register-form {
+            transform: rotateY(180deg);
+            opacity: 0;
+            z-index: 1;
+        }
+        
+        /* Класс для переключения форм */
+        .show-register #login-form {
+            transform: rotateY(-180deg);
+            opacity: 0;
+        }
+
+        .show-register #register-form {
+            transform: rotateY(0deg);
+            opacity: 1;
+            z-index: 2;
+        }
+
+        .auth-box h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .auth-box input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            background: #282828;
+            color: var(--text-color);
+            border-radius: 8px;
+            box-sizing: border-box;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .auth-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+            outline: none;
+        }
+
+        .btn {
+            border: none;
+            color: var(--text-color);
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: background 0.3s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn {
+            background: var(--primary-color);
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .login-btn:hover {
+            background: #0056b3;
+            animation: pulse 1s infinite;
+        }
+
+        .switch-btn {
+            background: var(--secondary-color);
+            width: 100%;
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        .switch-btn:hover {
+            background: #555;
+            opacity: 1;
+        }
+
+        .auth-box button {
+            width: 100%;
+        }
+
+        .auth-message {
+            margin-top: 15px;
+            min-height: 20px;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .error-msg { color: var(--error-color); }
+        .success-msg { color: var(--success-color); }
+        
+        .footer-text { margin-top: 15px; color: #555; font-size: 0.8em; }
+    </style>
 </head>
 <body>
 
-<div class="auth-box">
-    <h3>Авторизация</h3>
-    <input type="text" id="authUsername" placeholder="Логин">
-    <input type="password" id="authPassword" placeholder="Пароль">
-    <button id="loginBtn" class="btn login-btn">Войти</button>
-    <button id="registerBtn" class="btn register-btn">Регистрация</button>
-    <h6>МЕЛЛСТРОЙ</h6>
-    <p id="authMessage"></p>
+<div class="auth-container" id="authContainer">
+    
+    <div class="auth-box" id="login-form">
+        <h3>Вход в аккаунт</h3>
+        <input type="text" id="loginUsername" placeholder="Логин">
+        <input type="password" id="loginPassword" placeholder="Пароль">
+        <button id="loginBtn" class="btn login-btn">Войти</button>
+        <div id="loginMessage" class="auth-message error-msg"></div>
+        <button id="showRegisterBtn" class="btn switch-btn">Нет аккаунта? Регистрация</button>
+        <h6 class="footer-text">МЕЛЛСТРОЙ</h6>
+    </div>
+
+    <div class="auth-box" id="register-form">
+        <h3>Создание аккаунта</h3>
+        <input type="text" id="registerUsername" placeholder="Логин">
+        <input type="password" id="registerPassword" placeholder="Пароль">
+        <input type="password" id="registerPasswordConfirm" placeholder="Повторите пароль">
+        <button id="registerBtn" class="btn login-btn">Зарегистрироваться</button>
+        <div id="registerMessage" class="auth-message error-msg"></div>
+        <button id="showLoginBtn" class="btn switch-btn">Уже есть аккаунт? Войти</button>
+        <h6 class="footer-text">МЕЛЛСТРОЙ</h6>
+    </div>
 </div>
 
 <script>
@@ -36,12 +199,41 @@ body { margin: 0; font-family: Inter, sans-serif; background: #111; color: #eee;
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
 // 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НОВОЕ
+const STORAGE_KEY_USERNAME = 'plannerUsername';
 
-// Элементы UI
-const authUsername = document.getElementById('authUsername');
-const authPassword = document.getElementById('authPassword');
-const authMessage = document.getElementById('authMessage');
+// --- ЭЛЕМЕНТЫ UI ---
+const authContainer = document.getElementById('authContainer');
+
+// Элементы входа
+const loginUsername = document.getElementById('loginUsername');
+const loginPassword = document.getElementById('loginPassword');
+const loginMessage = document.getElementById('loginMessage');
+const loginBtn = document.getElementById('loginBtn');
+const showRegisterBtn = document.getElementById('showRegisterBtn');
+
+// Элементы регистрации
+const registerUsername = document.getElementById('registerUsername');
+const registerPassword = document.getElementById('registerPassword');
+const registerPasswordConfirm = document.getElementById('registerPasswordConfirm');
+const registerMessage = document.getElementById('registerMessage');
+const registerBtn = document.getElementById('registerBtn');
+const showLoginBtn = document.getElementById('showLoginBtn');
+
+// --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С ФОРМАМИ ---
+
+function showForm(formId) {
+    if (formId === 'register') {
+        authContainer.classList.add('show-register');
+    } else {
+        authContainer.classList.remove('show-register');
+    }
+    // Очистка сообщений при переключении
+    loginMessage.textContent = '';
+    registerMessage.textContent = '';
+}
+
+showRegisterBtn.onclick = () => showForm('register');
+showLoginBtn.onclick = () => showForm('login');
 
 // --- ВЗАИМОДЕЙСТВИЕ С APPS SCRIPT ---
 
@@ -62,48 +254,93 @@ async function sendRequest(action, params = {}) {
     }
 }
 
-// --- ФУНКЦИИ АУТЕНТИФИКАЦИИ (ОБНОВЛЕНО) ---
+// --- ВХОД (LOGIN) ---
 
 async function handleLogin() {
-    const username = authUsername.value.trim();
-    const password = authPassword.value.trim();
-    authMessage.textContent = 'Проверка...';
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+    
+    if (username.length < 3 || password.length < 3) {
+        loginMessage.textContent = 'Логин и пароль должны быть не менее 3 символов.';
+        return;
+    }
+    
+    loginMessage.textContent = 'Проверка...';
+    loginMessage.classList.remove('success-msg');
+    loginMessage.classList.add('error-msg');
 
     const result = await sendRequest("login", { username: username, password: password });
     
     if (result.status === "success") {
         const dataKey = result.dataKey;
-        const loggedInUsername = result.username; // ✅ ПОЛУЧАЕМ НИК ОТ СЕРВЕРА
+        const loggedInUsername = result.username;
 
         // Сохраняем ключи в браузере
         localStorage.setItem(STORAGE_KEY_AUTH, dataKey);
-        localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // ✅ СОХРАНЯЕМ НИК
+        localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername);
         
-        window.location.href = 'index.html'; 
+        loginMessage.textContent = 'Успешный вход! Перенаправление...';
+        loginMessage.classList.remove('error-msg');
+        loginMessage.classList.add('success-msg');
+        setTimeout(() => { window.location.href = 'index.html'; }, 500);
     } else {
-        authMessage.textContent = result.message || 'Ошибка входа.';
+        loginMessage.textContent = result.message || 'Ошибка входа.';
     }
+}
+
+loginBtn.onclick = handleLogin;
+
+// --- РЕГИСТРАЦИЯ (REGISTER) ---
+
+// Функция для проверки требований к паролю
+function validatePassword(password) {
+    // Минимум 6 символов, содержит латинские буквы (хотя бы одна), содержит цифры (хотя бы одна)
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
+    return regex.test(password);
 }
 
 async function handleRegister() {
-    const username = authUsername.value.trim();
-    const password = authPassword.value.trim();
-    if (username.length < 3 || password.length < 3) {
-        authMessage.textContent = 'Логин и пароль должны быть не менее 3 символов.';
+    const username = registerUsername.value.trim();
+    const password = registerPassword.value.trim();
+    const passwordConfirm = registerPasswordConfirm.value.trim();
+    
+    registerMessage.textContent = '';
+    registerMessage.classList.add('error-msg');
+    registerMessage.classList.remove('success-msg');
+
+    if (username.length < 3) {
+        registerMessage.textContent = 'Логин должен быть не менее 3 символов.';
         return;
     }
     
-    authMessage.textContent = 'Регистрация...';
+    if (password !== passwordConfirm) {
+        registerMessage.textContent = 'Пароли не совпадают.';
+        return;
+    }
+    
+    if (!validatePassword(password)) {
+        registerMessage.textContent = 'Пароль должен содержать не менее 6 символов, включая латинские буквы и цифры.';
+        return;
+    }
+    
+    registerMessage.textContent = 'Регистрация...';
     const result = await sendRequest("register", { username: username, password: password });
     
-    authMessage.textContent = result.message || 'Ошибка регистрации.';
     if (result.status === "success") {
-        authPassword.value = '';
+        registerMessage.textContent = '✅ Аккаунт создан! Теперь войдите в систему.';
+        registerMessage.classList.remove('error-msg');
+        registerMessage.classList.add('success-msg');
+        // Очистка полей и переключение на форму входа
+        registerUsername.value = '';
+        registerPassword.value = '';
+        registerPasswordConfirm.value = '';
+        setTimeout(() => showForm('login'), 1500); 
+    } else {
+        registerMessage.textContent = result.message || 'Ошибка регистрации.';
     }
 }
 
-document.getElementById('loginBtn').onclick = handleLogin;
-document.getElementById('registerBtn').onclick = handleRegister;
+registerBtn.onclick = handleRegister;
 
 // --- Проверка, если пользователь уже вошел ---
 function checkLoggedIn() {
