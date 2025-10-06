@@ -52,7 +52,6 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    /* ✅ ИСПРАВЛЕНИЕ: Гарантируем, что основной контейнер не растягивается по горизонтали */
     overflow-x: hidden; 
 }
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
@@ -62,7 +61,6 @@ body {
 .main-container{
     display:flex;
     padding: 0 10px;
-    /* ✅ ИСПРАВЛЕНИЕ: Гарантируем, что основной контейнер не растягивается по горизонтали */
     overflow-x: hidden; 
     transition: padding 0.3s ease; 
 }
@@ -73,6 +71,7 @@ body {
     padding:20px;
     display:flex;
     flex-direction:column;
+    /* ✅ ИСПРАВЛЕНИЕ: Добавлено расстояние между целями */
     gap:12px; 
     max-height: 800px; 
     overflow-y: auto; 
@@ -85,7 +84,6 @@ body {
     flex-direction:column;
     padding:20px;
     gap:15px;
-    /* ✅ ИСПРАВЛЕНИЕ: Добавляем overflow:hidden, чтобы избежать двойных скроллбаров */
     overflow: hidden; 
 }
 
@@ -145,9 +143,29 @@ body {
     background: var(--bg-secondary);
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
 }
-.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#555;color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;display:none; transition: background-color 0.2s, transform 0.1s;}
+.add-goal-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:15px;
+    background:#555;
+    color:var(--text-primary);
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    cursor:pointer;
+    display:none; 
+    transition: background-color 0.2s, transform 0.2s ease-out; /* Увеличено время для анимации */
+}
 .goals:hover .add-goal-btn{display:flex}
-.add-goal-btn:hover { background-color: var(--accent-color); transform: scale(1.05); }
+.add-goal-btn:hover { 
+    background-color: var(--accent-color); 
+    /* ✅ ИСПРАВЛЕНИЕ: Прыжок вверх */
+    transform: translateX(-50%) translateY(-5px) scale(1.05); 
+}
 
 /* --- НЕДЕЛИ И МЕСЯЦЫ --- */
 .unassigned-container {
@@ -185,7 +203,6 @@ body {
 /* ✅ ГАРАНТИЯ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ: */
 .months-wrapper {
     overflow-x: auto; 
-    /* Добавляем отступ, чтобы скроллбар не накладывался на элемент ниже */
     padding-bottom: 20px; 
     flex-shrink: 0;
     max-height: 500px; 
@@ -302,7 +319,7 @@ body {
 .progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
 .progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
-/* СТИЛЬ ДЛЯ УДАЛЕНИЯ ПРИВЫЧКИ: Кнопка удаления привычки */
+/* ✅ ИСПРАВЛЕНИЕ: Кнопка удаления привычки */
 .habit-table th { 
     position: relative; 
     padding-right: 25px; 
@@ -312,7 +329,7 @@ body {
     top: 50%;
     right: 5px;
     transform: translateY(-50%);
-    color: var(--danger-color);
+    color: var(--danger-color); /* Красный цвет */
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
@@ -534,7 +551,7 @@ function renderGoals(){
     // Устанавливаем чистый текст цели
     div.innerText=t;
     
-    // ✅ ИСПРАВЛЕНО: Добавлен обработчик для удаления HTML и лишних переносов
+    // ИСПРАВЛЕНО: Добавлен обработчик для удаления HTML и лишних переносов
     div.addEventListener('input',()=>{
         // Получаем чистый текст из элемента, удаляя все HTML-теги и лишние пробелы/переносы
         const cleanText = div.innerText.replace(/[\u00D7]/g, '').trim(); 
@@ -690,7 +707,7 @@ function openWeekModal(id){
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
       const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-      // ✅ ИСПРАВЛЕНИЕ: Используем innerText для сохранения только текста, удаляя HTML при вводе
+      // ИСПРАВЛЕНИЕ: Используем innerText для сохранения только текста, удаляя HTML при вводе
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
@@ -776,15 +793,15 @@ function renderHabitTracker() {
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
         
+        // ✅ ИСПРАВЛЕНИЕ: Логика удаления привычки
         removeBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)) {
-                // ✅ ИСПРАВЛЕНИЕ УДАЛЕНИЯ ПРИВЫЧКИ: Используем правильную переменную 'habit'
+            if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.`)) {
+                // Удаляем привычку из списка
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
                 
                 // Удаляем записи об этой привычке из всех дней
                 data.habitRecords.forEach(record => { 
-                    // Используем deletedHabit, который точно содержит название привычки
                     if (record.tasks.hasOwnProperty(deletedHabit)) {
                         delete record.tasks[deletedHabit]; 
                     }
