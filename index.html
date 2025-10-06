@@ -21,6 +21,31 @@
 * {
     box-sizing: border-box;
 }
+
+/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
+/* Применяется к Chrome, Safari, Opera */
+::-webkit-scrollbar {
+    width: 8px; /* Ширина для вертикального скролла */
+    height: 8px; /* Высота для горизонтального скролла */
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary); /* Фон трека */
+}
+::-webkit-scrollbar-thumb {
+    background: var(--bg-hover); /* Цвет самого ползунка */
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--border-color); /* Цвет ползунка при наведении */
+}
+/* Для Firefox (хотя стили ограничены, это лучшее, что можно сделать) */
+/* Для полноценной кастомизации Firefox нужны другие подходы или JS */
+* {
+  scrollbar-color: var(--bg-hover) var(--bg-secondary);
+  scrollbar-width: thin;
+}
+
+
 body{
     margin:0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
@@ -28,7 +53,6 @@ body{
     color: var(--text-primary);
     display:flex;
     flex-direction:column;
-    /* ✅ ИЗМЕНЕНИЕ: Убрана привязка к высоте экрана и вертикальный скролл. Скролл на body по умолчанию */
     min-height: 100vh;
     overflow-x: hidden; /* Запрещаем общий горизонтальный скролл */
 }
@@ -36,10 +60,8 @@ body{
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
 
 /* --- ОСНОВНАЯ СТРУКТУРА --- */
-/* ✅ ИЗМЕНЕНИЕ: Убран flex: 1 и overflow-x: auto. */
 .main-container{
     display:flex;
-    /* flex: 1; УДАЛЕНО */
     padding: 0 10px;
     overflow-x: hidden; 
 }
@@ -51,20 +73,18 @@ body{
     display:flex;
     flex-direction:column;
     gap:12px;
-    /* ✅ ИЗМЕНЕНИЕ: Заменено на max-height для предотвращения чрезмерного роста */
+    /* ✅ Скролл для списка целей */
     max-height: 800px; 
     overflow-y: auto; 
     position:relative; 
     flex-shrink: 0;
 }
-/* ✅ ИЗМЕНЕНИЕ: Убран flex: 1 и overflow-y: auto. Блок просто занимает доступное место. */
 .right{
     flex:1;
     display:flex;
     flex-direction:column;
     padding:20px;
     gap:15px;
-    /* overflow-y: auto; УДАЛЕНО */
 }
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
@@ -129,7 +149,7 @@ body{
 .week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
 .week-item:hover { border-color: var(--accent-color); }
 
-/* ✅ НОВОЕ ИЗМЕНЕНИЕ: Обертка для месяцев, которая управляет горизонтальным скроллом */
+/* ✅ ВОССТАНОВЛЕНИЕ: Обертка для месяцев, которая управляет горизонтальным скроллом */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 10px;
@@ -181,12 +201,15 @@ body{
 .menu div img { filter: invert(80%); transition: filter 0.2s; }
 .menu div:hover img { filter: invert(100%); }
 .modal-body{display:flex;flex:1;overflow:hidden;}
+/* ✅ Скролл для целей внутри модального окна */
 .modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
 .modal-description textarea{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;}
+/* ✅ Горизонтальный скролл для дней недели в модальном окне */
 .modal-days{display:flex;overflow-x:auto;gap:12px;flex-shrink:0; padding-bottom: 10px;}
 .day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;transition:0.2s;}
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary);}
+/* ✅ Скролл для списка задач в дне */
 .tasks{display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
 .tasks div{background:var(--bg-tertiary);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;}
 .add-task-btn{margin-top:auto;background:#555;color:var(--text-primary);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px; transition: background-color 0.2s;}
@@ -204,7 +227,8 @@ body{
 .habit-tracker h2 { margin-top: 0; }
 .habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
 .habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
-.habit-table-wrapper { overflow-x: auto; } /* Обертка для скролла */
+/* ✅ Горизонтальный скролл для таблицы привычек */
+.habit-table-wrapper { overflow-x: auto; } 
 .habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
 .habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center;}
 .habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
@@ -222,12 +246,11 @@ body{
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
-    /* ✅ ИЗМЕНЕНИЕ: Убран скролл с main-container, как и на десктопе */
     .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
-    /* ✅ ИЗМЕНЕНИЕ: Убрана максимальная высота с целей на мобильных, чтобы они скроллились вместе со страницей */
+    /* ✅ Убран скролл с целей на мобильных, чтобы они скроллились вместе со страницей */
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
     .right { padding: 15px; overflow-y: visible; }
-    /* ✅ ИЗМЕНЕНИЕ: Мобильный скролл теперь на обертке */
+    /* ✅ Мобильный скролл теперь на обертке */
     .months-wrapper { overflow-x: auto; } 
     .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
