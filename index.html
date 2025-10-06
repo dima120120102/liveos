@@ -17,29 +17,28 @@
     --accent-color: #007bff;
     --accent-hover: #0056b3;
     --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
 }
 * {
     box-sizing: border-box;
 }
 
 /* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
-/* Применяется к Chrome, Safari, Opera */
 ::-webkit-scrollbar {
-    width: 8px; /* Ширина для вертикального скролла */
-    height: 8px; /* Высота для горизонтального скролла */
+    width: 8px;
+    height: 8px;
 }
 ::-webkit-scrollbar-track {
-    background: var(--bg-secondary); /* Фон трека */
+    background: var(--bg-secondary);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-hover); /* Цвет самого ползунка */
+    background: var(--bg-hover);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--border-color); /* Цвет ползунка при наведении */
+    background: var(--border-color);
 }
-/* Для Firefox (хотя стили ограничены, это лучшее, что можно сделать) */
-/* Для полноценной кастомизации Firefox нужны другие подходы или JS */
 * {
   scrollbar-color: var(--bg-hover) var(--bg-secondary);
   scrollbar-width: thin;
@@ -54,7 +53,7 @@ body{
     display:flex;
     flex-direction:column;
     min-height: 100vh;
-    overflow-x: hidden; /* Запрещаем общий горизонтальный скролл */
+    overflow-x: hidden;
 }
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
@@ -64,6 +63,7 @@ body{
     display:flex;
     padding: 0 10px;
     overflow-x: hidden; 
+    transition: padding 0.3s ease; /* ✨ АНИМАЦИЯ */
 }
 .goals{
     width:240px;
@@ -73,7 +73,6 @@ body{
     display:flex;
     flex-direction:column;
     gap:12px;
-    /* ✅ Скролл для списка целей */
     max-height: 800px; 
     overflow-y: auto; 
     position:relative; 
@@ -88,8 +87,9 @@ body{
 }
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
-.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease;}
+.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease, transform 0.1s;}
 .btn:hover{background-color: var(--bg-hover);}
+.btn:active { transform: scale(0.98); } /* ✨ АНИМАЦИЯ */
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
@@ -106,23 +106,45 @@ body{
     font-size: 14px;
     font-weight: 600;
     z-index: 10000;
-    transition: background 0.2s, color 0.2s;
+    transition: background 0.2s, color 0.2s, transform 0.1s; /* ✨ АНИМАЦИЯ */
     border: 1px solid var(--border-color);
 }
 .auth-control-btn:hover{
     background: var(--accent-color);
     color: #fff;
+    transform: translateY(-2px);
 }
 
-/* --- ЦЕЛИ --- */
-.goal{background:var(--bg-tertiary);border-radius:8px;padding:10px;position:relative;transition:background-color 0.2s; min-height: 40px;}
-.goal:hover{background:var(--bg-hover);}
-.goal .goal-remove{position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--text-secondary);font-size: 20px;}
+/* --- ЦЕЛИ (Goal Styles) --- */
+.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+.goal{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:10px;
+    position:relative;
+    transition:background-color 0.2s, box-shadow 0.2s; /* ✨ АНИМАЦИЯ */
+    min-height: 40px;
+    border-left: 4px solid var(--success-color); /* Стиль для цели */
+    font-size: 15px;
+}
+.goal:hover{
+    background:var(--bg-hover);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); /* ✨ АНИМАЦИЯ */
+}
+.goal .goal-remove{
+    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
+    transition: opacity 0.2s; /* ✨ АНИМАЦИЯ */
+}
 .goal:hover .goal-remove{opacity:1;}
-.goal[contenteditable]:focus{outline:1px solid var(--accent-color);}
-.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#555;color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;display:none; transition: background-color 0.2s;}
+/* Стиль для активного редактирования цели */
+.goal[contenteditable]:focus{
+    outline:2px solid var(--accent-color);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.add-goal-btn{position:absolute;left:50%;transform:translateX(-50%);bottom:15px;background:#555;color:var(--text-primary);width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;display:none; transition: background-color 0.2s, transform 0.1s;}
 .goals:hover .add-goal-btn{display:flex}
-.add-goal-btn:hover { background-color: var(--accent-color); }
+.add-goal-btn:hover { background-color: var(--accent-color); transform: scale(1.05); }
 
 /* --- НЕДЕЛИ И МЕСЯЦЫ --- */
 .unassigned-container {
@@ -146,40 +168,58 @@ body{
     margin-top:10px;
     padding-right: 5px;
 }
-.week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
-.week-item:hover { border-color: var(--accent-color); }
+.week-item,.week-card{
+    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
+    transition: border-color 0.2s, transform 0.1s, box-shadow 0.2s;
+    font-weight: 500;
+}
+.week-item:hover { 
+    border-color: var(--accent-color);
+    transform: translateY(-1px); /* ✨ АНИМАЦИЯ */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
 
-/* ✅ ВОССТАНОВЛЕНИЕ: Обертка для месяцев, которая управляет горизонтальным скроллом */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 10px;
 }
 
-/* ✅ ИЗМЕНЕНИЕ: Месяцы теперь внутри .months-wrapper */
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
+    /* ✅ ИСПРАВЛЕНИЕ: Убираем избыточную ширину, чтобы скролл работал корректно */
+    width: fit-content; 
 }
-/* ✅ ИЗМЕНЕНИЕ: Месяц имеет фиксированную минимальную ширину и не сжимается */
 .month{
-    min-width:230px;
+    /* ✅ ИСПРАВЛЕНИЕ: Уменьшаем min-width, чтобы больше месяцев помещалось */
+    min-width:280px; 
     background-color: var(--bg-secondary);
     border-radius:12px;
     padding: 20px;
     display:flex;
     flex-direction:column;
     gap: 15px;
-    flex-shrink:0; /* Запрещаем сжиматься */
+    flex-shrink:0; 
     border-top: 4px solid;
+    transition: transform 0.3s ease; /* ✨ АНИМАЦИЯ */
 }
-.month .m-title{text-align:center;font-weight:bold; font-size: 1.1em; margin-bottom: 5px;}
+.month:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
 .drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
-.drop-zone.dragover{border-color:var(--accent-color);color:var(--accent-color);background:rgba(0,123,255,0.08);}
+.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
 
-/* --- МОДАЛЬНОЕ ОКНО --- */
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;}
+/* --- МОДАЛЬНОЕ ОКНО (Modal Edit Styles) --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    opacity: 0; /* ✨ АНИМАЦИЯ */
+    transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } /* ✨ АНИМАЦИЯ */
 .modal-content {
     background: var(--bg-main);
     width: 95%;
@@ -190,67 +230,82 @@ body{
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-color);
+    transform: scale(0.95); /* ✨ АНИМАЦИЯ */
+    transition: transform 0.3s ease;
 }
+.modal.visible .modal-content { transform: scale(1); } /* ✨ АНИМАЦИЯ */
+
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
-.modal-header input{background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;width:60%;}
+.modal-header input{
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
+    transition: border-color 0.2s;
+}
+.modal-header input:focus { border-color: var(--warning-color); outline: none; } /* Стиль редактирования */
 .modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
-.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary);}
-.menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden;}
+.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
+.modal-header span:hover { color: var(--accent-color); }
+.menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);}
 .menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;}
 .menu div:hover{background:var(--accent-color); color: #fff;}
 .menu div img { filter: invert(80%); transition: filter 0.2s; }
 .menu div:hover img { filter: invert(100%); }
 .modal-body{display:flex;flex:1;overflow:hidden;}
-/* ✅ Скролл для целей внутри модального окна */
 .modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
-.modal-description textarea{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;}
-/* ✅ Горизонтальный скролл для дней недели в модальном окне */
+.modal-description textarea{
+    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
+    transition: border-color 0.2s;
+}
+.modal-description textarea:focus { border-color: var(--warning-color); outline: none; } /* Стиль редактирования */
+
 .modal-days{display:flex;overflow-x:auto;gap:12px;flex-shrink:0; padding-bottom: 10px;}
 .day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;transition:0.2s;}
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary);}
-/* ✅ Скролл для списка задач в дне */
 .tasks{display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
-.tasks div{background:var(--bg-tertiary);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;}
+.tasks div{
+    background:var(--bg-tertiary);border-radius:6px;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;
+    transition: background-color 0.2s;
+}
+.tasks div:hover { background-color: var(--bg-hover); }
+.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-tertiary); } /* Стиль редактирования */
 .add-task-btn{margin-top:auto;background:#555;color:var(--text-primary);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px; transition: background-color 0.2s;}
 .add-task-btn:hover { background-color: var(--accent-color); }
 .modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
 .save-btn{padding:10px 20px;background:var(--accent-color);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;}
-.modal-goals h4{margin:0 0 10px 0;font-size:14px;}
+.modal-goals h4{margin:0 0 10px 0;font-size:14px; color: var(--warning-color);}
 .modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:8px;}
 .modal-goals ul li{background:var(--bg-tertiary);padding:8px 12px;border-radius:8px;transition:0.2s; list-style: none;}
 .modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px;}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s;}
+.task-delete:hover { filter: invert(100%); }
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 .habit-tracker{background:var(--bg-secondary);padding:25px 20px;}
-.habit-tracker h2 { margin-top: 0; }
+.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
 .habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
 .habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
-/* ✅ Горизонтальный скролл для таблицы привычек */
-.habit-table-wrapper { overflow-x: auto; } 
+.habit-table-wrapper { overflow-x: auto; }
 .habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
-.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
 .habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
 .habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
 .habit-table tr:hover { background-color: var(--bg-tertiary); }
 .habit-table .total-row{background:var(--bg-hover);font-weight:bold;}
-.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--accent-color);}
-.habit-col .remove-habit { color: var(--danger-color); cursor: pointer; opacity: 0.5; margin-left: 5px; }
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} /* ✨ АНИМАЦИЯ */
+.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
+.habit-col .remove-habit { color: var(--danger-color); cursor: pointer; opacity: 0.5; margin-left: 5px; transition: opacity 0.2s;}
 .habit-col .remove-habit:hover { opacity: 1; }
 .progress-col { width: 150px; }
 .progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
-.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--accent-color); border-radius: 5px; transition: width 0.3s ease; }
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
 .progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
     .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
-    /* ✅ Убран скролл с целей на мобильных, чтобы они скроллились вместе со страницей */
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
     .right { padding: 15px; overflow-y: visible; }
-    /* ✅ Мобильный скролл теперь на обертке */
     .months-wrapper { overflow-x: auto; } 
     .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
@@ -451,7 +506,8 @@ function renderGoals(){
   goalsList.innerHTML='';
   data.goals.forEach((t,i)=>{
     const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
-    div.addEventListener('input',()=>{data.goals[i]=div.innerText;save();});
+    // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только из задач, но не из целей.
+    div.addEventListener('input',()=>{data.goals[i]=div.innerText.trim();save();});
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
     rm.onclick=()=>{data.goals.splice(i,1);save();renderGoals();};
     div.appendChild(rm); goalsList.appendChild(div);
@@ -560,6 +616,7 @@ function openWeekModal(id){
   for(const m of months) { allWeeks.push(...(data.months[m] || [])); }
   currentWeek=allWeeks.find(w=>w.id===id);
   if(!currentWeek) return;
+  weekModal.classList.add('visible'); // ✨ АНИМАЦИЯ: Показать модальное окно
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
@@ -579,7 +636,8 @@ function openWeekModal(id){
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
       const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-      taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u2716\u00D7]/g, '').trim();save();});
+      // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только при сохранении/вводе задачи
+      taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
     });
@@ -598,14 +656,19 @@ function openWeekModal(id){
 
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 
-document.getElementById('closeModal').onclick=()=>{weekModal.style.display='none';};
+document.getElementById('closeModal').onclick=()=>{
+    weekModal.classList.remove('visible');
+    // Небольшая задержка, чтобы анимация завершилась
+    setTimeout(() => { weekModal.style.display='none'; }, 300); 
+};
 document.getElementById('saveBtn').onclick=()=>{
   if(currentWeek){
     currentWeek.title=weekTitle.value;
     currentWeek.desc=weekDesc.value;
     save();
     renderAll();
-    weekModal.style.display='none';
+    weekModal.classList.remove('visible');
+    setTimeout(() => { weekModal.style.display='none'; }, 300);
   }
 };
 const menuBtn=document.getElementById('menuBtn');
@@ -618,7 +681,9 @@ document.getElementById('deleteWeek').onclick=()=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
     else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderAll(); weekModal.style.display='none';
+  save(); renderAll(); 
+  weekModal.classList.remove('visible');
+  setTimeout(() => { weekModal.style.display='none'; }, 300);
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
@@ -654,11 +719,18 @@ function renderHabitTracker() {
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
+        // ✅ ИСПРАВЛЕНИЕ: Используем индекс в цикле для удаления, чтобы избежать проблем
         removeBtn.onclick = (e) => {
             e.stopPropagation();
             if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)) {
+                // Удаляем привычку по индексу
                 const deletedHabit = data.habits.splice(index, 1)[0];
-                data.habitRecords.forEach(record => { delete record.tasks[deletedHabit]; });
+                // Удаляем записи об этой привычке из всех дней
+                data.habitRecords.forEach(record => { 
+                    if (record.tasks.hasOwnProperty(deletedHabit)) {
+                        delete record.tasks[deletedHabit];
+                    }
+                });
                 save();
                 renderHabitTracker();
             }
