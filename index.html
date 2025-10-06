@@ -34,11 +34,12 @@ body{
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
 
 /* --- ОСНОВНАЯ СТРУКТУРА --- */
-.main-container{display:flex;flex:1;overflow:hidden; padding: 0 10px;}
+/* ✅ ИЗМЕНЕНИЕ: Горизонтальный скролл теперь на всем контейнере, а не только на месяцах */
+.main-container{display:flex;flex:1;overflow-x: auto; padding: 0 10px;}
 .goals{width:240px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;position:relative; flex-shrink: 0;}
 .goals h2 { margin: 0 0 10px 0; }
-/* ✅ ИЗМЕНЕНИЕ: Включен вертикальный скролл для правой части */
-.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;overflow-y: auto;}
+/* ✅ ИЗМЕНЕНИЕ: Убран внутренний скролл */
+.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;}
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
 .btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease;}
@@ -78,52 +79,47 @@ body{
 .add-goal-btn:hover { background-color: var(--accent-color); }
 
 /* --- НЕДЕЛИ И МЕСЯЦЫ --- */
-/* ✅ ИЗМЕНЕНИЕ: Стили для скролл-контейнера нераспределенных недель */
 .unassigned-container {
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 15px;
     border: 1px solid var(--border-color);
-    max-width: 250px; /* ✅ ИЗМЕНЕНИЕ: Сужен блок */
-    transition: 0.2s ease-in-out; /* ✅ ИЗМЕНЕНИЕ: Плавность для подсветки */
+    max-width: 250px;
+    transition: 0.2s ease-in-out;
 }
-/* ✅ ИЗМЕНЕНИЕ: Стиль для подсветки при перетаскивании */
 .unassigned-container.dragover {
     border-color: var(--accent-color);
     background: rgba(0,123,255,0.08);
 }
 .unassigned-list{
-    max-height: 200px; /* Ограничиваем высоту */
-    overflow-y: auto;   /* Добавляем скролл, если нужно */
+    max-height: 200px;
+    overflow-y: auto;
     display:flex;
     flex-direction:column;
     gap:8px;
     margin-top:10px;
-    padding-right: 5px; /* Место для скроллбара */
+    padding-right: 5px;
 }
 .week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
 .week-item:hover { border-color: var(--accent-color); }
 
-/* ✅ ИЗМЕНЕНИЕ: Стили для контейнера месяцев, чтобы они переносились, а не скроллились */
+/* ✅ ИЗМЕНЕНИЕ: Возвращаем месяцы в одну строку без переноса */
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
-    flex-wrap: wrap; /* Разрешаем перенос */
-    align-items: flex-start; /* Выравниваем по верху */
 }
-/* ✅ ИЗМЕНЕНИЕ: Увеличены отступы, промежутки и добавлена гибкость для месяцев */
+/* ✅ ИЗМЕНЕНИЕ: Месяц имеет фиксированную минимальную ширину и не сжимается */
 .month{
-    min-width:250px;
+    min-width:230px;
     background-color: var(--bg-secondary);
     border-radius:12px;
-    padding: 20px; /* Увеличен внутренний отступ */
+    padding: 20px;
     display:flex;
     flex-direction:column;
-    gap: 15px; /* Увеличен промежуток между элементами */
+    gap: 15px;
+    flex-shrink:0; /* Запрещаем сжиматься */
     border-top: 4px solid;
-    flex-grow: 1; /* Позволяем расти, чтобы заполнить строку */
-    flex-basis: 250px; /* Базовая ширина для расчета переноса */
 }
 .month .m-title{text-align:center;font-weight:bold; font-size: 1.1em; margin-bottom: 5px;}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
@@ -194,10 +190,10 @@ body{
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
-    .main-container { flex-direction: column; padding: 0; }
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } /* Отключаем гориз. скролл для мобильных */
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: 200px; }
     .right { padding: 15px; overflow-y: auto; }
-    .months { padding: 10px 0; }
+    .months { overflow-x: auto; } /* Возвращаем скролл для месяцев на мобильных */
     .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
@@ -265,7 +261,7 @@ body{
         <div class="actions">
           <span id="menuBtn">⋮
             <div class="menu" id="weekMenu">
-              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTkSuQmCC" width="16"> Удалить неделю</div>
+              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
               <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
             </div>
           </span>
@@ -405,7 +401,6 @@ document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая �
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
 
-// ✅ ИЗМЕНЕНИЕ: Добавляем обработчики для перетаскивания недель ОБРАТНО в нераспределенные
 const unassignedContainer = unassignedList.parentElement;
 unassignedContainer.ondragover = e => {
     e.preventDefault();
@@ -422,25 +417,22 @@ unassignedContainer.ondrop = e => {
 
     let weekToMove = null;
 
-    // Ищем неделю в месяцах
     for (const monthName of months) {
         if (data.months[monthName]) {
             const weekIndex = data.months[monthName].findIndex(w => w.id === wId);
             if (weekIndex !== -1) {
-                // Нашли, вырезаем из массива месяца
                 weekToMove = data.months[monthName].splice(weekIndex, 1)[0];
-                break; // Выходим из цикла, как только нашли
+                break;
             }
         }
     }
     
-    // Если неделю нашли и переместили, то добавляем ее в нераспределенные
     if (weekToMove) {
         data.unassigned.push(weekToMove);
         save();
         renderAll();
     }
-    dragId = null; // Сбрасываем ID после переноса
+    dragId = null;
 };
 
 function createWeekEl(week){
@@ -479,7 +471,7 @@ function renderMonths(){
         data.months[m].push(w);
         save(); renderAll();
       }
-      dragId = null; // Сбрасываем ID
+      dragId = null;
     };
     const monthWeeksDiv=div.querySelector('.month-weeks');
     (data.months[m] || []).forEach(w=>{
@@ -524,7 +516,7 @@ function openWeekModal(id){
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTkSuQmCC'; rm.className='task-delete';
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u2716\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
