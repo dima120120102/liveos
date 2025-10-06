@@ -27,7 +27,7 @@
 /* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
 ::-webkit-scrollbar {
     width: 8px;
-    height: 8px;
+    height: 8px; /* Важно для горизонтальной прокрутки */
 }
 ::-webkit-scrollbar-track {
     background: var(--bg-secondary);
@@ -179,19 +179,18 @@ body{
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ✅ ИСПРАВЛЕНИЕ: Контейнер для прокрутки */
+/* ✅ ГАРАНТИЯ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ: */
 .months-wrapper {
-    overflow-x: auto; 
+    overflow-x: auto; /* Показываем горизонтальный скроллбар, если контента больше ширины */
     padding-bottom: 10px;
     flex-shrink: 0;
-    /* Ограничиваем высоту, чтобы скроллбар был виден */
     max-height: 500px; 
 }
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
-    /* ❗ ГАРАНТИЯ ПРОКРУТКИ: Заставляем контейнер растягиваться по горизонтали */
+    /* ❗ Ключевое свойство: заставляет контейнер растягиваться по ширине всего контента */
     width: max-content; 
 }
 .month{
@@ -758,7 +757,7 @@ function renderHabitTracker() {
                 // Удаляем записи об этой привычке из всех дней
                 data.habitRecords.forEach(record => { 
                     if (record.tasks.hasOwnProperty(deletedHabit)) {
-                        delete record.tasks[deletedHabit];
+                        delete record.tasks[deletedHabited];
                     }
                 });
                 save();
