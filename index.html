@@ -63,7 +63,7 @@ body{
     display:flex;
     padding: 0 10px;
     overflow-x: hidden; 
-    transition: padding 0.3s ease; /* ✨ АНИМАЦИЯ */
+    transition: padding 0.3s ease; 
 }
 .goals{
     width:240px;
@@ -72,7 +72,7 @@ body{
     padding:20px;
     display:flex;
     flex-direction:column;
-    gap:12px; /* ✅ ИСПРАВЛЕНО: Небольшой отступ между целями */
+    gap:12px; /* ✅ Отступ между целями */
     max-height: 800px; 
     overflow-y: auto; 
     position:relative; 
@@ -89,7 +89,7 @@ body{
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
 .btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease, transform 0.1s;}
 .btn:hover{background-color: var(--bg-hover);}
-.btn:active { transform: scale(0.98); } /* ✨ АНИМАЦИЯ */
+.btn:active { transform: scale(0.98); } 
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
@@ -106,7 +106,7 @@ body{
     font-size: 14px;
     font-weight: 600;
     z-index: 10000;
-    transition: background 0.2s, color 0.2s, transform 0.1s; /* ✨ АНИМАЦИЯ */
+    transition: background 0.2s, color 0.2s, transform 0.1s; 
     border: 1px solid var(--border-color);
 }
 .auth-control-btn:hover{
@@ -122,18 +122,18 @@ body{
     border-radius:8px;
     padding:10px;
     position:relative;
-    transition:background-color 0.2s, box-shadow 0.2s; /* ✨ АНИМАЦИЯ */
+    transition:background-color 0.2s, box-shadow 0.2s; 
     min-height: 40px;
-    border-left: 4px solid var(--success-color); /* Стиль для цели */
+    border-left: 4px solid var(--success-color); 
     font-size: 15px;
 }
 .goal:hover{
     background:var(--bg-hover);
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); /* ✨ АНИМАЦИЯ */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); 
 }
 .goal .goal-remove{
     position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
-    transition: opacity 0.2s; /* ✨ АНИМАЦИЯ */
+    transition: opacity 0.2s; 
 }
 .goal:hover .goal-remove{opacity:1;}
 /* Стиль для активного редактирования цели */
@@ -175,22 +175,23 @@ body{
 }
 .week-item:hover { 
     border-color: var(--accent-color);
-    transform: translateY(-1px); /* ✨ АНИМАЦИЯ */
+    transform: translateY(-1px); 
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ✅ ИСПРАВЛЕНО: Возвращаем flexbox для контейнера и добавляем прокрутку */
+/* ✅ ИСПРАВЛЕНИЕ: Контейнер для прокрутки */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 10px;
-    display: flex; 
     flex-shrink: 0;
+    /* Ограничиваем высоту, чтобы скроллбар был виден */
+    max-height: 500px; 
 }
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
-    /* Убираем жесткую ширину, чтобы содержимое прокручивалось */
+    /* ❗ ГАРАНТИЯ ПРОКРУТКИ: Заставляем контейнер растягиваться по горизонтали */
     width: max-content; 
 }
 .month{
@@ -203,7 +204,7 @@ body{
     gap: 15px;
     flex-shrink:0; 
     border-top: 4px solid;
-    transition: transform 0.3s ease; /* ✨ АНИМАЦИЯ */
+    transition: transform 0.3s ease; 
 }
 .month:hover {
     transform: translateY(-2px);
@@ -217,10 +218,10 @@ body{
 /* --- МОДАЛЬНОЕ ОКНО (Modal Edit Styles) --- */
 .modal{
     position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
-    opacity: 0; /* ✨ АНИМАЦИЯ */
+    opacity: 0; 
     transition: opacity 0.3s ease;
 }
-.modal.visible { opacity: 1; } /* ✨ АНИМАЦИЯ */
+.modal.visible { opacity: 1; } 
 .modal-content {
     background: var(--bg-main);
     width: 95%;
@@ -231,17 +232,17 @@ body{
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    transform: scale(0.95); /* ✨ АНИМАЦИЯ */
+    transform: scale(0.95); 
     transition: transform 0.3s ease;
 }
-.modal.visible .modal-content { transform: scale(1); } /* ✨ АНИМАЦИЯ */
+.modal.visible .modal-content { transform: scale(1); } 
 
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
 .modal-header input{
     background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
     transition: border-color 0.2s;
 }
-.modal-header input:focus { border-color: var(--warning-color); outline: none; } /* Стиль редактирования */
+.modal-header input:focus { border-color: var(--warning-color); outline: none; } 
 .modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
@@ -257,7 +258,7 @@ body{
     width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
     transition: border-color 0.2s;
 }
-.modal-description textarea:focus { border-color: var(--warning-color); outline: none; } /* Стиль редактирования */
+.modal-description textarea:focus { border-color: var(--warning-color); outline: none; } 
 
 .modal-days{display:flex;overflow-x:auto;gap:12px;flex-shrink:0; padding-bottom: 10px;}
 .day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;transition:0.2s;}
@@ -268,7 +269,7 @@ body{
     transition: background-color 0.2s;
 }
 .tasks div:hover { background-color: var(--bg-hover); }
-.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-tertiary); } /* Стиль редактирования */
+.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-tertiary); } 
 .add-task-btn{margin-top:auto;background:#555;color:var(--text-primary);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px; transition: background-color 0.2s;}
 .add-task-btn:hover { background-color: var(--accent-color); }
 .modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
@@ -292,10 +293,8 @@ body{
 .habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
 .habit-table tr:hover { background-color: var(--bg-tertiary); }
 .habit-table .total-row{background:var(--bg-hover);font-weight:bold;}
-.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} /* ✨ АНИМАЦИЯ */
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
 .habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
-.habit-col .remove-habit { color: var(--danger-color); cursor: pointer; opacity: 0.5; margin-left: 5px; transition: opacity 0.2s;}
-.habit-col .remove-habit:hover { opacity: 1; }
 .progress-col { width: 150px; }
 .progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
 .progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
@@ -378,8 +377,8 @@ body{
         <div class="actions">
           <span id="menuBtn">⋮
             <div class="menu" id="weekMenu">
-              <div id="deleteWeek"><img src="trash-icon.png" width="16"> Удалить неделю</div>
-              <div id="downloadWeek"><img src="download-icon.png" width="16"> Скачать TXT</div>
+              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
+              <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
             </div>
           </span>
           <span id="closeModal">×</span>
@@ -647,7 +646,7 @@ function openWeekModal(id){
   for(const m of months) { allWeeks.push(...(data.months[m] || [])); }
   currentWeek=allWeeks.find(w=>w.id===id);
   if(!currentWeek) return;
-  weekModal.classList.add('visible'); // ✨ АНИМАЦИЯ: Показать модальное окно
+  weekModal.classList.add('visible'); 
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
@@ -667,7 +666,7 @@ function openWeekModal(id){
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
       const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-      // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только при сохранении/вводе задачи
+      // ✅ ИСПРАВЛЕНИЕ: Используем innerText для сохранения только текста, удаляя HTML при вводе
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
