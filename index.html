@@ -26,21 +26,21 @@
 
 /* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
 ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px; /* Важно для горизонтальной прокрутки */
+    width: 10px; /* Увеличение ширины */
+    height: 10px; /* Увеличение высоты для горизонтального скролла */
 }
 ::-webkit-scrollbar-track {
     background: var(--bg-secondary);
 }
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-hover);
-    border-radius: 4px;
+    background: var(--accent-color); /* Сделал контрастным цветом */
+    border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--border-color);
+    background: var(--accent-hover);
 }
 * {
-  scrollbar-color: var(--bg-hover) var(--bg-secondary);
+  scrollbar-color: var(--accent-color) var(--bg-secondary); /* Установил контрастный цвет для Firefox */
   scrollbar-width: thin;
 }
 
@@ -182,7 +182,7 @@ body{
 /* ✅ ГАРАНТИЯ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ: */
 .months-wrapper {
     overflow-x: auto; /* Показываем горизонтальный скроллбар, если контента больше ширины */
-    padding-bottom: 10px;
+    padding-bottom: 20px; /* Увеличил отступ, чтобы скроллбар был полностью виден */
     flex-shrink: 0;
     max-height: 500px; 
 }
@@ -299,7 +299,7 @@ body{
 .progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
 .progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
-/* ✅ НОВЫЙ СТИЛЬ: Кнопка удаления привычки */
+/* ✅ СТИЛЬ ДЛЯ УДАЛЕНИЯ ПРИВЫЧКИ: Кнопка удаления привычки */
 .habit-table th { 
     position: relative; 
     padding-right: 25px; /* Освобождаем место для кнопки */
@@ -776,7 +776,7 @@ function renderHabitTracker() {
         removeBtn.onclick = (e) => {
             e.stopPropagation();
             if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"?`)) {
-                // ✅ ИСПРАВЛЕНИЕ: Используем правильную переменную 'habit'
+                // ✅ ИСПРАВЛЕНИЕ УДАЛЕНИЯ ПРИВЫЧКИ: Используем правильную переменную 'habit'
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
                 
                 // Удаляем записи об этой привычке из всех дней
