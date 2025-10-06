@@ -37,7 +37,8 @@ body{
 .main-container{display:flex;flex:1;overflow:hidden; padding: 0 10px;}
 .goals{width:240px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;position:relative; flex-shrink: 0;}
 .goals h2 { margin: 0 0 10px 0; }
-.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;overflow:hidden;}
+/* ✅ ИЗМЕНЕНИЕ: Включен вертикальный скролл для правой части */
+.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;overflow-y: auto;}
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
 .btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease;}
@@ -83,6 +84,13 @@ body{
     border-radius: 8px;
     padding: 15px;
     border: 1px solid var(--border-color);
+    max-width: 250px; /* ✅ ИЗМЕНЕНИЕ: Сужен блок */
+    transition: 0.2s ease-in-out; /* ✅ ИЗМЕНЕНИЕ: Плавность для подсветки */
+}
+/* ✅ ИЗМЕНЕНИЕ: Стиль для подсветки при перетаскивании */
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0,123,255,0.08);
 }
 .unassigned-list{
     max-height: 200px; /* Ограничиваем высоту */
@@ -95,21 +103,30 @@ body{
 }
 .week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
 .week-item:hover { border-color: var(--accent-color); }
-.months{display:flex;gap:15px;overflow-x:auto;padding:10px 4px; scrollbar-width: thin;}
-/* ✅ ИЗМЕНЕНИЕ: Увеличены отступы и промежутки для месяцев */
+
+/* ✅ ИЗМЕНЕНИЕ: Стили для контейнера месяцев, чтобы они переносились, а не скроллились */
+.months{
+    display:flex;
+    gap:15px;
+    padding:10px 4px;
+    flex-wrap: wrap; /* Разрешаем перенос */
+    align-items: flex-start; /* Выравниваем по верху */
+}
+/* ✅ ИЗМЕНЕНИЕ: Увеличены отступы, промежутки и добавлена гибкость для месяцев */
 .month{
-    min-width:230px;
+    min-width:250px;
     background-color: var(--bg-secondary);
     border-radius:12px;
     padding: 20px; /* Увеличен внутренний отступ */
     display:flex;
     flex-direction:column;
     gap: 15px; /* Увеличен промежуток между элементами */
-    flex-shrink:0;
     border-top: 4px solid;
+    flex-grow: 1; /* Позволяем расти, чтобы заполнить строку */
+    flex-basis: 250px; /* Базовая ширина для расчета переноса */
 }
 .month .m-title{text-align:center;font-weight:bold; font-size: 1.1em; margin-bottom: 5px;}
-.month .month-weeks{display:flex;flex-direction:column;gap:8px;}
+.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
 .drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
 .drop-zone.dragover{border-color:var(--accent-color);color:var(--accent-color);background:rgba(0,123,255,0.08);}
 
@@ -387,6 +404,45 @@ document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая �
 
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
+
+// ✅ ИЗМЕНЕНИЕ: Добавляем обработчики для перетаскивания недель ОБРАТНО в нераспределенные
+const unassignedContainer = unassignedList.parentElement;
+unassignedContainer.ondragover = e => {
+    e.preventDefault();
+    unassignedContainer.classList.add('dragover');
+};
+unassignedContainer.ondragleave = () => {
+    unassignedContainer.classList.remove('dragover');
+};
+unassignedContainer.ondrop = e => {
+    e.preventDefault();
+    unassignedContainer.classList.remove('dragover');
+    const wId = dragId;
+    if (!wId) return;
+
+    let weekToMove = null;
+
+    // Ищем неделю в месяцах
+    for (const monthName of months) {
+        if (data.months[monthName]) {
+            const weekIndex = data.months[monthName].findIndex(w => w.id === wId);
+            if (weekIndex !== -1) {
+                // Нашли, вырезаем из массива месяца
+                weekToMove = data.months[monthName].splice(weekIndex, 1)[0];
+                break; // Выходим из цикла, как только нашли
+            }
+        }
+    }
+    
+    // Если неделю нашли и переместили, то добавляем ее в нераспределенные
+    if (weekToMove) {
+        data.unassigned.push(weekToMove);
+        save();
+        renderAll();
+    }
+    dragId = null; // Сбрасываем ID после переноса
+};
+
 function createWeekEl(week){
   const div=document.createElement('div'); div.className='week-item';
   div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
@@ -423,6 +479,7 @@ function renderMonths(){
         data.months[m].push(w);
         save(); renderAll();
       }
+      dragId = null; // Сбрасываем ID
     };
     const monthWeeksDiv=div.querySelector('.month-weeks');
     (data.months[m] || []).forEach(w=>{
