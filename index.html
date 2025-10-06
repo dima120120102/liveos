@@ -29,17 +29,42 @@ body{
     display:flex;
     flex-direction:column;
     height:100vh;
+    /* ✅ ИЗМЕНЕНИЕ: Основной вертикальный скролл на body */
+    overflow-y: auto; 
+    overflow-x: hidden; /* Запрещаем общий горизонтальный скролл */
 }
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
 
 /* --- ОСНОВНАЯ СТРУКТУРА --- */
-/* ✅ ИЗМЕНЕНИЕ: Горизонтальный скролл теперь на всем контейнере, а не только на месяцах */
-.main-container{display:flex;flex:1;overflow-x: auto; padding: 0 10px;}
-.goals{width:240px;background:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:12px;overflow:auto;position:relative; flex-shrink: 0;}
-.goals h2 { margin: 0 0 10px 0; }
-/* ✅ ИЗМЕНЕНИЕ: Убран внутренний скролл */
-.right{flex:1;display:flex;flex-direction:column;padding:20px;gap:15px;}
+/* ✅ ИЗМЕНЕНИЕ: Убран overflow-x: auto; */
+.main-container{
+    display:flex;
+    flex:1;
+    padding: 0 10px;
+    overflow-x: hidden; /* Важно, чтобы избежать ненужного скролла на родительском элементе */
+}
+.goals{
+    width:240px;
+    background:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    overflow-y: auto; /* Вертикальный скролл для целей */
+    position:relative; 
+    flex-shrink: 0;
+}
+/* ✅ ИЗМЕНЕНИЕ: Добавлен overflow-y: auto; для вертикального скролла основного контента */
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    gap:15px;
+    overflow-y: auto; 
+}
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
 .btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease;}
@@ -103,7 +128,13 @@ body{
 .week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
 .week-item:hover { border-color: var(--accent-color); }
 
-/* ✅ ИЗМЕНЕНИЕ: Возвращаем месяцы в одну строку без переноса */
+/* ✅ НОВОЕ ИЗМЕНЕНИЕ: Обертка для месяцев, которая управляет горизонтальным скроллом */
+.months-wrapper {
+    overflow-x: auto; 
+    padding-bottom: 10px;
+}
+
+/* ✅ ИЗМЕНЕНИЕ: Месяцы теперь внутри .months-wrapper */
 .months{
     display:flex;
     gap:15px;
@@ -190,10 +221,12 @@ body{
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
-    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } /* Отключаем гориз. скролл для мобильных */
+    /* ✅ ИЗМЕНЕНИЕ: Убран скролл с main-container, как и на десктопе */
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: 200px; }
     .right { padding: 15px; overflow-y: auto; }
-    .months { overflow-x: auto; } /* Возвращаем скролл для месяцев на мобильных */
+    /* ✅ ИЗМЕНЕНИЕ: Мобильный скролл теперь на обертке */
+    .months-wrapper { overflow-x: auto; } 
     .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
@@ -229,7 +262,10 @@ body{
       <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
       <div id="unassignedList" class="unassigned-list"></div>
     </div>
-    <div class="months" id="months"></div>
+    
+    <div class="months-wrapper">
+        <div class="months" id="months"></div>
+    </div>
   </main>
 </div>
 
