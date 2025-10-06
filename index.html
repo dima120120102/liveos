@@ -77,11 +77,37 @@ body{
 .add-goal-btn:hover { background-color: var(--accent-color); }
 
 /* --- НЕДЕЛИ И МЕСЯЦЫ --- */
-.unassigned-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
-.week-item,.week-card{background:var(--bg-secondary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
+/* ✅ ИЗМЕНЕНИЕ: Стили для скролл-контейнера нераспределенных недель */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+.unassigned-list{
+    max-height: 200px; /* Ограничиваем высоту */
+    overflow-y: auto;   /* Добавляем скролл, если нужно */
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-right: 5px; /* Место для скроллбара */
+}
+.week-item,.week-card{background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; transition: border-color 0.2s;}
 .week-item:hover { border-color: var(--accent-color); }
 .months{display:flex;gap:15px;overflow-x:auto;padding:10px 4px; scrollbar-width: thin;}
-.month{min-width:220px;background-color: var(--bg-secondary); border-radius:12px;padding:15px;display:flex;flex-direction:column;gap:10px;flex-shrink:0; border-top: 4px solid;}
+/* ✅ ИЗМЕНЕНИЕ: Увеличены отступы и промежутки для месяцев */
+.month{
+    min-width:230px;
+    background-color: var(--bg-secondary);
+    border-radius:12px;
+    padding: 20px; /* Увеличен внутренний отступ */
+    display:flex;
+    flex-direction:column;
+    gap: 15px; /* Увеличен промежуток между элементами */
+    flex-shrink:0;
+    border-top: 4px solid;
+}
 .month .m-title{text-align:center;font-weight:bold; font-size: 1.1em; margin-bottom: 5px;}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px;}
 .drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
@@ -128,7 +154,7 @@ body{
 .modal-goals ul li:hover{background:var(--bg-hover);}
 .task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px;}
 
-/* --- ✅ НОВЫЕ СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 .habit-tracker{background:var(--bg-secondary);padding:25px 20px;}
 .habit-tracker h2 { margin-top: 0; }
 .habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
@@ -143,79 +169,23 @@ body{
 .habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--accent-color);}
 .habit-col .remove-habit { color: var(--danger-color); cursor: pointer; opacity: 0.5; margin-left: 5px; }
 .habit-col .remove-habit:hover { opacity: 1; }
-
-/* Прогресс-бар */
 .progress-col { width: 150px; }
-.progress-bar-container {
-    width: 100%;
-    height: 22px;
-    background-color: var(--bg-tertiary);
-    border-radius: 5px;
-    position: relative;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border-color);
-}
-.progress-bar {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    background-color: var(--accent-color);
-    border-radius: 5px;
-    transition: width 0.3s ease;
-}
-.progress-bar-text {
-    position: relative;
-    z-index: 1;
-    font-size: 12px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 1px 1px 1px rgba(0,0,0,0.5);
-}
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--accent-color); border-radius: 5px; transition: width 0.3s ease; }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
-
-/* --- ✅ АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
-    .main-container {
-        flex-direction: column;
-        padding: 0;
-    }
-    .goals {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        padding: 15px;
-        height: auto;
-        max-height: 200px; /* Ограничиваем высоту, чтобы не занимало весь экран */
-    }
-    .right {
-        padding: 15px;
-        overflow-y: auto; /* Добавляем скролл для основного контента */
-    }
-    .months {
-        padding: 10px 0;
-    }
-    .auth-control-btn {
-        font-size: 12px;
-        padding: 6px 10px;
-        top: 10px;
-        right: 10px;
-    }
+    .main-container { flex-direction: column; padding: 0; }
+    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: 200px; }
+    .right { padding: 15px; overflow-y: auto; }
+    .months { padding: 10px 0; }
+    .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
-    
-    /* Адаптивность модального окна */
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
     .modal-body { flex-direction: column; }
-    .modal-left {
-        width: 100%;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-        max-height: 150px;
-    }
+    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 150px; }
     .modal-right { overflow-y: auto; }
     .modal-header input { width: 50%; }
 }
@@ -228,7 +198,7 @@ body{
 </div>
 
 <div class="banner">
-  <img id="bannerImg" src="your-banner.jpg" alt="Баннер">
+  <img id="bannerImg" src="https://images.unsplash.com/photo-1531297484001-80022131f5a1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2020&q=80" alt="Баннер">
 </div>
 
 <div class="main-container">
@@ -242,8 +212,8 @@ body{
     <div>
       <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
     </div>
-    <div>
-      <div style="color:var(--text-secondary);font-size:13px; margin-bottom: 8px;">Не распределённые</div>
+    <div class="unassigned-container">
+      <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
       <div id="unassignedList" class="unassigned-list"></div>
     </div>
     <div class="months" id="months"></div>
@@ -307,11 +277,9 @@ body{
 
 <script>
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
-// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ (ВОЗЬМИТЕ ИЗ APP SCRIPT)
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
-// 2. КЛЮЧИ ДЛЯ АВТОРИЗАЦИИ/ДАННЫХ
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername'; // ✅ НИК ПОЛЬЗОВАТЕЛЯ
+const STORAGE_KEY_USERNAME = 'plannerUsername';
 const STORAGE_KEY_LOCAL = 'plannerData_v8_local'; 
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
@@ -330,7 +298,6 @@ async function sendRequest(action, params = {}) {
     for (const key in params) {
         formData.append(key, params[key]);
     }
-
     try {
         const response = await fetch(url, { method: 'POST', body: formData });
         return await response.json();
@@ -343,51 +310,38 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        // Возвращаем пустую, но структурированную модель данных
         const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
-
     const result = await sendRequest("load", { dataKey: dataKey });
-
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
         const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
         months.forEach(m=>{emptyData.months[m]=[];});
         return emptyData; 
     }
-
     const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
-
-    // Обеспечиваем наличие всех необходимых полей и месяцев
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
     if (!loadedData.months) loadedData.months = {};
     if (!loadedData.unassigned) loadedData.unassigned = [];
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
-
-    // ✅ ГАРАНТИРУЕМ, ЧТО ВСЕ 12 МЕСЯЦЕВ СУЩЕСТВУЮТ
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
-
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
-
     return loadedData;
 }
 
 async function saveDataToAppsScript() {
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
-
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
         console.error("Нет ключа авторизации для сохранения данных.");
         return { status: "error", message: "Нет ключа авторизации." };
     }
-
     const jsonString = JSON.stringify(data);
     const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
-
     if (result.status === 'error') {
         console.error("Ошибка сохранения данных:", result.message);
     }
@@ -403,23 +357,18 @@ function save(){
 function updateAuthButton() {
     const authButton = document.getElementById('authControl');
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
-
     if (username) {
-        // Отображаем ник пользователя
         authButton.innerHTML = `🚪 ${username} (Выход)`;
     } else {
-        // Если ника нет, отображаем стандартный текст
         authButton.innerHTML = `🚪 Выход/Вход`;
     }
 }
 
 function goToAuth() {
-    // Удаляем оба ключа при выходе
     localStorage.removeItem(STORAGE_KEY_AUTH); 
     localStorage.removeItem(STORAGE_KEY_USERNAME); 
     window.location.href = 'login.html'; 
 }
-
 
 /* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
 
@@ -461,7 +410,6 @@ function renderMonths(){
     div.style.borderColor=monthColors[i%monthColors.length];
     div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks" id="month-${m}"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
     monthsContainer.appendChild(div);
-
     const dropZone=div.querySelector('.drop-zone');
     dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
     dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
@@ -476,7 +424,6 @@ function renderMonths(){
         save(); renderAll();
       }
     };
-
     const monthWeeksDiv=div.querySelector('.month-weeks');
     (data.months[m] || []).forEach(w=>{
       const el=createWeekEl(w);
@@ -503,24 +450,20 @@ function openWeekModal(id){
   for(const m of months) { allWeeks.push(...(data.months[m] || [])); }
   currentWeek=allWeeks.find(w=>w.id===id);
   if(!currentWeek) return;
-  
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
-
   modalGoalsList.innerHTML='';
   data.goals.forEach(t=>{
     const li=document.createElement('li'); li.textContent=t;
     modalGoalsList.appendChild(li);
   });
-
   daysContainer.innerHTML='';
   weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
     const h4=document.createElement('h4');
     h4.innerHTML=`${d} <span>${(currentWeek.tasks[d]||[]).length}</span>`;
     dayDiv.appendChild(h4);
-
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
@@ -555,7 +498,6 @@ document.getElementById('saveBtn').onclick=()=>{
     weekModal.style.display='none';
   }
 };
-
 const menuBtn=document.getElementById('menuBtn');
 const weekMenu=document.getElementById('weekMenu');
 menuBtn.onclick=e=>{e.stopPropagation(); weekMenu.style.display=weekMenu.style.display==='flex'?'none':'flex';};
@@ -579,30 +521,26 @@ document.getElementById('downloadWeek').onclick=()=>{
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
-/* --- ✅ ОБНОВЛЕННЫЙ КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+/* --- КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 
 const habitHeaderRow = document.getElementById('habitHeaderRow');
 const habitBody = document.getElementById('habitBody');
 const newHabitInput = document.getElementById('newHabitInput');
-
 function formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString('ru-RU', { month: '2-digit', day: '2-digit' });
 }
-
 function renderHabitTracker() {
-    // Очищаем и создаем заголовки
-    habitHeaderRow.innerHTML = '<th>Дата</th>'; // Сбрасываем заголовки
+    habitHeaderRow.innerHTML = '<th>Дата</th>';
     data.habits.forEach((habit, index) => {
         const th = document.createElement('th');
         th.className = 'habit-col';
         th.contentEditable = true;
         th.innerText = habit;
-        th.addEventListener('blur', () => { // Используем 'blur' вместо 'input' для сохранения после выхода
+        th.addEventListener('blur', () => {
             data.habits[index] = th.innerText;
             save();
         });
-
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
@@ -619,44 +557,31 @@ function renderHabitTracker() {
         habitHeaderRow.appendChild(th);
     });
     habitHeaderRow.insertAdjacentHTML('beforeend', '<th class="progress-col">Прогресс дня</th>');
-
-    // Очищаем тело таблицы
     habitBody.innerHTML = '';
-
-    // Заполняем строки данными
     data.habitRecords.forEach(record => {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td class="date-col">${formatDate(record.date)}</td>`;
-
         let completedHabits = 0;
         const totalHabits = data.habits.length;
-
         data.habits.forEach(habit => {
             const td = document.createElement('td');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            
-            // Гарантируем, что у записи есть эта привычка
             if (typeof record.tasks[habit] === 'undefined') {
                 record.tasks[habit] = false;
             }
-
             checkbox.checked = !!record.tasks[habit];
             if (checkbox.checked) {
                 completedHabits++;
             }
-
             checkbox.onchange = () => {
                 record.tasks[habit] = checkbox.checked;
                 save();
-                renderHabitTracker(); // Перерисовываем для обновления прогресса
+                renderHabitTracker();
             };
-
             td.appendChild(checkbox);
             tr.appendChild(td);
         });
-
-        // ✅ Создаем ячейку с прогрессом дня
         const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
         const progressTd = document.createElement('td');
         progressTd.innerHTML = `
@@ -666,34 +591,29 @@ function renderHabitTracker() {
             </div>
         `;
         tr.appendChild(progressTd);
-
         habitBody.appendChild(tr);
     });
 }
-
 document.getElementById('addHabitBtn').onclick=()=>{
     const habitText=newHabitInput.value.trim();
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
-        data.habitRecords.forEach(r => { r.tasks[habitText] = false; }); // Добавляем новую привычку ко всем записям
+        data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
         save();
         renderHabitTracker();
     }
 };
-
 document.getElementById('newDayBtn').onclick=()=>{
     const today=new Date().setHours(0,0,0,0);
     if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
         alert('Запись за сегодняшний день уже существует!');
         return;
     }
-
     const newRecord={ date: new Date().toISOString(), tasks: {} };
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
-
     data.habitRecords.push(newRecord);
-    data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date)); // Сортируем по убыванию
+    data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
     save();
     renderHabitTracker();
 };
@@ -705,27 +625,16 @@ function renderAll() {
     renderMonths();
     renderHabitTracker();
 }
-
 async function init() {
-    // 1. Проверяем авторизацию
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
         window.location.href = 'login.html';
         return;
     }
-
-    // 2. Обновляем кнопку с ником пользователя
     updateAuthButton(); 
-
-    // 3. Загружаем данные
     data = await loadDataFromAppsScript();
-
-    // 4. Сортируем записи привычек при загрузке (новые вверху)
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-
-    // 5. Рендерим все элементы
     renderAll();
 }
-
 init();
 </script>
 </body>
