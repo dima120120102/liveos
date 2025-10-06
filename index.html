@@ -179,25 +179,26 @@ body{
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* ✅ ИСПРАВЛЕНО: Устанавливаем overflow-x: auto; и display: block; для скролла */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 10px;
+    display: block; 
 }
-
+/* ✅ ИСПРАВЛЕНО: Устанавливаем white-space: nowrap; для предотвращения переноса */
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
-    /* ✅ ИСПРАВЛЕНИЕ: Убираем избыточную ширину, чтобы скролл работал корректно */
     width: fit-content; 
+    white-space: nowrap; 
 }
 .month{
-    /* ✅ ИСПРАВЛЕНИЕ: Уменьшаем min-width, чтобы больше месяцев помещалось */
     min-width:280px; 
     background-color: var(--bg-secondary);
     border-radius:12px;
     padding: 20px;
-    display:flex;
+    display:inline-flex; /* ✅ ИСПРАВЛЕНО: Используем inline-flex вместо flex, чтобы работал white-space: nowrap; */
     flex-direction:column;
     gap: 15px;
     flex-shrink:0; 
@@ -342,7 +343,7 @@ body{
       <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
       <div id="unassignedList" class="unassigned-list"></div>
     </div>
-    
+
     <div class="months-wrapper">
         <div class="months" id="months"></div>
     </div>
@@ -365,7 +366,7 @@ body{
                 </tr>
             </thead>
             <tbody id="habitBody">
-            </tbody>
+            </tbody >
         </table>
     </div>
 </section>
@@ -506,11 +507,23 @@ function renderGoals(){
   goalsList.innerHTML='';
   data.goals.forEach((t,i)=>{
     const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
-    // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только из задач, но не из целей.
-    div.addEventListener('input',()=>{data.goals[i]=div.innerText.trim();save();});
+    
+    // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только из задач, но не из целей. 
+    // Обновляем текст и сохраняем при редактировании
+    div.addEventListener('input',()=>{
+        // Удаляем потенциальные символы удаления, если они были случайно введены
+        data.goals[i]=div.innerText.replace(/[\u00D7]/g, '').trim(); 
+        save();
+    });
+
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-    rm.onclick=()=>{data.goals.splice(i,1);save();renderGoals();};
-    div.appendChild(rm); goalsList.appendChild(div);
+    rm.onclick=()=>{
+        data.goals.splice(i,1);
+        save();
+        renderGoals(); // Перерисовка после удаления
+    };
+    div.appendChild(rm); 
+    goalsList.appendChild(div);
   });
 }
 document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
@@ -543,7 +556,7 @@ unassignedContainer.ondrop = e => {
             }
         }
     }
-    
+
     if (weekToMove) {
         data.unassigned.push(weekToMove);
         save();
