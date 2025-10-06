@@ -72,7 +72,7 @@ body{
     padding:20px;
     display:flex;
     flex-direction:column;
-    gap:12px;
+    gap:12px; /* ✅ ИСПРАВЛЕНО: Небольшой отступ между целями */
     max-height: 800px; 
     overflow-y: auto; 
     position:relative; 
@@ -179,26 +179,26 @@ body{
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ✅ ИСПРАВЛЕНО: Устанавливаем overflow-x: auto; и display: block; для скролла */
+/* ✅ ИСПРАВЛЕНО: Возвращаем flexbox для контейнера и добавляем прокрутку */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 10px;
-    display: block; 
+    display: flex; 
+    flex-shrink: 0;
 }
-/* ✅ ИСПРАВЛЕНО: Устанавливаем white-space: nowrap; для предотвращения переноса */
 .months{
     display:flex;
     gap:15px;
     padding:10px 4px;
-    width: fit-content; 
-    white-space: nowrap; 
+    /* Убираем жесткую ширину, чтобы содержимое прокручивалось */
+    width: max-content; 
 }
 .month{
     min-width:280px; 
     background-color: var(--bg-secondary);
     border-radius:12px;
     padding: 20px;
-    display:inline-flex; /* ✅ ИСПРАВЛЕНО: Используем inline-flex вместо flex, чтобы работал white-space: nowrap; */
+    display:flex;
     flex-direction:column;
     gap: 15px;
     flex-shrink:0; 
@@ -378,8 +378,8 @@ body{
         <div class="actions">
           <span id="menuBtn">⋮
             <div class="menu" id="weekMenu">
-              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
-              <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
+              <div id="deleteWeek"><img src="trash-icon.png" width="16"> Удалить неделю</div>
+              <div id="downloadWeek"><img src="download-icon.png" width="16"> Скачать TXT</div>
             </div>
           </span>
           <span id="closeModal">×</span>
@@ -506,13 +506,31 @@ const goalsList=document.getElementById('goalsList');
 function renderGoals(){
   goalsList.innerHTML='';
   data.goals.forEach((t,i)=>{
-    const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
+    const div=document.createElement('div'); div.className='goal'; 
+    div.contentEditable=true; 
+    // Устанавливаем чистый текст цели
+    div.innerText=t;
     
-    // ✅ ИСПРАВЛЕНИЕ: Удаляем крестик только из задач, но не из целей. 
-    // Обновляем текст и сохраняем при редактировании
+    // ✅ ИСПРАВЛЕНО: Добавлен обработчик для удаления HTML и лишних переносов
     div.addEventListener('input',()=>{
-        // Удаляем потенциальные символы удаления, если они были случайно введены
-        data.goals[i]=div.innerText.replace(/[\u00D7]/g, '').trim(); 
+        // Получаем чистый текст из элемента, удаляя все HTML-теги и лишние пробелы/переносы
+        const cleanText = div.innerText.replace(/[\u00D7]/g, '').trim(); 
+        
+        // Это важно: обновляем содержимое div чистым текстом, чтобы удалить вставленные HTML-теги
+        if (div.innerHTML !== cleanText) {
+            div.innerHTML = cleanText;
+            // Устанавливаем курсор в конец текста после очистки
+            const range = document.createRange();
+            const sel = window.getSelection();
+            if (div.firstChild) {
+                range.setStart(div.firstChild, div.firstChild.length);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        }
+
+        data.goals[i] = cleanText; 
         save();
     });
 
