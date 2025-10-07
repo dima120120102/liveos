@@ -619,7 +619,7 @@ body {
         Сохранить все
     </button>
     <div id="accountControl" class="account-control-btn" onclick="openProfileModal()">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQBJREFUSEvNlbFNwzAMRQdiA3oDUgFdgG4gG9gb0AnYgGwgbkCbARhBNkgG9gb0An0GqY+xPImR40+K8y/vK046F4jR+gZ+AM/mB5wBO3APrJAH0gL8/HlHILjZz5v0QAnYgbc1V1XgCXwF57UCbsAOrIBNqAIn4AT8CzwIN18D7gX89wkoBx/BucAduAFv4A7ewQ34gD/sVwO+AfY6B3n/DtgE7+E/9BfwAb7BLpCC3X8Bv4B/wA2YBX8zX7gG3gPPYAvc7R/8BvjE/wM+Qz0O4h/2gB/A9w2w3i+gC2TgG9T829/9wG3gB3gMvj9yY/4BAqQf8g5T+u+m4Rj9g8p7w/5Xk+sBAAAAAElFTkSuQmCC" width="16" height="16" alt="account.png">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQBJREFUSEvNlbFNwzAMRQdiA3oDUgFdgG4gG9gb0AnYgGwgbkCbARhBNkgG9gb0An0GqY+xPImR40+K8y/vK046F4jR+gZ+AM/mB5wBO3APrJAH0gL8/HlHILjZz5v0QAnYgbc1V1XgCXwF57UCbsAOrIBNqAIn4AT8CzwIN18D7gX89wkoBx/BucAduAFv4A7ewQ34gD/sVwO+AfY6B3n/DtgE7+E/9BfwAb7BLpCC3X8Bv4B/wA2YBX8zX7gG3gPPYAvc7R/8BvjE/wM+Qz0O4h/2gB/A9w2w3i+gC2TgG9T829/9wG3gB3gMvj9yY/4BAqQf8g5T+u+m4Rj9g8p7w/5Xk+sBAAAAAElFTkSuQmCC" width="16" alt="account.png">
         <span id="usernameDisplay">Вход</span>
     </div>
 </div>
@@ -742,7 +742,7 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTThJcgg=" width="16" style="filter: invert(80%);"> 
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkThJcgg" width="16" style="filter: invert(80%);"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -1157,6 +1157,8 @@ const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
+const menuBtn = document.getElementById('menuBtn'); // ✅ Добавлено
+const weekMenu = document.getElementById('weekMenu'); // ✅ Добавлено
 let currentWeek=null;
 
 function openWeekModal(id){
@@ -1221,18 +1223,33 @@ function openWeekModal(id){
     dayDiv.appendChild(addBtn);
     daysContainer.appendChild(dayDiv);
   });
+
+  // ✅ ИСПРАВЛЕНИЕ МЕНЮ "ТРИ ТОЧКИ"
+  menuBtn.onclick = (e) => {
+      e.stopPropagation(); 
+      weekMenu.style.display = weekMenu.style.display === 'flex' ? 'none' : 'flex';
+  };
+  
+  // Добавляем обработчик для скрытия меню при клике вне его
+  document.addEventListener('click', (e) => {
+      if (weekMenu.style.display === 'flex' && !menuBtn.contains(e.target) && !weekMenu.contains(e.target)) {
+          weekMenu.style.display = 'none';
+      }
+  });
 }
 
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 
 document.getElementById('closeModal').onclick=()=>{
     weekModal.classList.remove('visible');
-    setTimeout(() => { weekModal.style.display='none'; }, 300); 
+    setTimeout(() => { weekModal.style.display='none'; }, 300);
+    weekMenu.style.display = 'none'; // Дополнительно скрываем меню при закрытии модалки
 };
 // Кнопка "Сохранить" в модалке недели теперь просто "Закрыть"
 document.getElementById('saveBtn').onclick=()=>{
     weekModal.classList.remove('visible');
     setTimeout(() => { weekModal.style.display='none'; }, 300);
+    weekMenu.style.display = 'none';
 };
 
 document.getElementById('deleteWeek').onclick=()=>{
@@ -1282,7 +1299,10 @@ function renderHabitTracker() {
 
         // ✅ ИСПРАВЛЕНА ЛОГИКА РЕДАКТИРОВАНИЯ И УДАЛЕНИЯ ПРИВЫЧКИ
         th.addEventListener('blur', () => {
-            data.habits[index] = th.innerText.trim();
+            // Убедимся, что при блюре удаляем лишние символы
+            const cleanText = th.innerText.replace(/[\u00D7]/g, '').trim(); 
+            th.innerText = cleanText;
+            data.habits[index] = cleanText;
             save(); // Локальное сохранение
         });
 
@@ -1292,7 +1312,8 @@ function renderHabitTracker() {
         removeBtn.className = 'remove-habit';
         
         removeBtn.onclick = (e) => {
-            e.stopPropagation(); // ⬅️ Важно: предотвращаем всплытие, чтобы не активировать contenteditable
+            e.stopPropagation(); // <-- КРИТИЧНОЕ ИСПРАВЛЕНИЕ: Предотвращаем активацию contenteditable
+            
             if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.`)) {
                 
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
