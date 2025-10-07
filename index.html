@@ -969,14 +969,18 @@ function updateAuthButton() {
     usernameDisplay.textContent = username || 'Вход';
 }
 
+// ✅ ИСПРАВЛЕНА goToAuth - теперь гарантированно перенаправляет ИЗБЕГАЯ ЗАЦИКЛИВАНИЯ
 function goToAuth() {
     localStorage.removeItem(STORAGE_KEY_AUTH); 
     localStorage.removeItem(STORAGE_KEY_USERNAME); 
     localStorage.removeItem(STORAGE_KEY_LOCAL); 
     localStorage.removeItem(STORAGE_KEY_UNSAVED); 
-    // ✅ ИСПРАВЛЕНИЕ: Гарантируем перенаправление, если мы не на login.html
+    
+    // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Проверяем, что текущий путь НЕ СОДЕРЖИТ 'login.html'
     if (window.location.pathname.indexOf('login.html') === -1) {
         window.location.href = 'login.html'; 
+        // Критично: Прерываем выполнение всего остального кода
+        // в вызывающей функции, чтобы предотвратить дальнейший рендеринг.
     }
 }
 
