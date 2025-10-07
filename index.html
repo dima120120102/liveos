@@ -93,8 +93,8 @@ body {
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
-/* --- КНОПКА АВТОРИЗАЦИИ --- */
-.auth-control-btn{
+/* --- КНОПКА ЛИЧНЫЙ КАБИНЕТ (ACCOUNT CONTROL) --- */
+.account-control-btn{
     position: fixed;
     top: 15px;
     right: 20px;
@@ -108,11 +108,21 @@ body {
     z-index: 10000;
     transition: background 0.2s, color 0.2s, transform 0.1s; 
     border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
-.auth-control-btn:hover{
+.account-control-btn:hover{
     background: var(--accent-color);
     color: #fff;
     transform: translateY(-2px);
+}
+.account-control-btn img {
+    filter: invert(80%);
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img {
+    filter: invert(100%);
 }
 
 /* --- ЦЕЛИ (Goal Styles) --- */
@@ -232,7 +242,6 @@ body {
 .drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
 
 /* --- МОДАЛЬНОЕ ОКНО (Modal Edit Styles) --- */
-/* ... (стили модального окна без изменений) ... */
 .modal{
     position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
     opacity: 0; 
@@ -253,6 +262,17 @@ body {
     transition: transform 0.3s ease;
 }
 .modal.visible .modal-content { transform: scale(1); } 
+
+/* Стили для маленького модального окна ЛК */
+.small-modal-content {
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 20px;
+    gap: 15px;
+    display: flex;
+    flex-direction: column;
+}
 
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
 .modal-header input{
@@ -336,6 +356,33 @@ body {
 }
 .remove-habit:hover {
     opacity: 1;
+}
+
+/* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
+.habit-table-container {
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-out;
+    max-height: 500px; 
+}
+.habit-table-container.collapsed {
+    max-height: 250px; 
+}
+.toggle-history-btn {
+    width: 100%;
+    text-align: center;
+    background: var(--bg-tertiary);
+    color: var(--accent-color);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    border-radius: 0 0 8px 8px;
+}
+.toggle-history-btn:hover {
+    background: var(--bg-hover);
 }
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
@@ -422,32 +469,58 @@ body {
     cursor: pointer;
 }
 
-/* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
-.habit-table-container {
-    overflow: hidden;
-    position: relative;
-    transition: max-height 0.5s ease-out;
-    max-height: 500px; /* Достаточно для 5 строк + шапка */
-}
-.habit-table-container.collapsed {
-    max-height: 250px; /* Высота для 5 строк + шапка */
-}
-.toggle-history-btn {
-    width: 100%;
-    text-align: center;
-    background: var(--bg-tertiary);
-    color: var(--accent-color);
-    padding: 10px;
+/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
+.profile-section {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
     border: 1px solid var(--border-color);
-    border-top: none;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background 0.2s;
-    border-radius: 0 0 8px 8px;
+    border-radius: 8px;
 }
-.toggle-history-btn:hover {
-    background: var(--bg-hover);
+.profile-section h3 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.1em;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 5px;
 }
+.profile-input-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+.profile-input-group input {
+    flex: 1;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+.btn-save-nick {
+    background: var(--success-color);
+    border-color: var(--success-color);
+}
+.btn-save-nick:hover {
+    background: #3e8e41;
+}
+.btn-logout {
+    background: var(--warning-color);
+    border-color: var(--warning-color);
+}
+.btn-logout:hover {
+    background: #d6a100;
+}
+.btn-delete {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    margin-top: 20px;
+}
+.btn-delete:hover {
+    background: #c32727;
+}
+
 
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
@@ -456,7 +529,7 @@ body {
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
     .right { padding: 15px; overflow-y: visible; }
     .months-wrapper { overflow-x: auto; } 
-    .auth-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
+    .account-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
     .modal-body { flex-direction: column; }
@@ -466,13 +539,19 @@ body {
 
     .mood-calendar { grid-template-columns: repeat(4, 1fr); }
     .mood-option { font-size: 30px; }
+    .small-modal-content {
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+    }
 }
 </style>
 </head>
 <body>
 
-<div id="authControl" class="auth-control-btn" onclick="goToAuth()">
-    🚪 Выход/Вход
+<div id="accountControl" class="account-control-btn" onclick="openProfileModal()">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S5v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
+    <span id="usernameDisplay">Вход</span>
 </div>
 
 <div class="banner">
@@ -578,12 +657,43 @@ body {
     </div>
 </div>
 
+<div class="modal" id="profileModal">
+    <div class="modal-content small-modal-content">
+        <h2>Личный кабинет</h2>
+        
+        <div class="profile-section">
+            <h3>Имя пользователя (Ник)</h3>
+            <div class="profile-input-group">
+                <input type="text" id="nickInput" placeholder="Введите новый ник">
+                <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3>Безопасность</h3>
+            <p style="font-size:13px; color:var(--text-secondary); margin: 0;">Смена пароля невозможна, так как используется авторизация через Google. Для смены аккаунта используйте "Выход".</p>
+            <button id="logoutBtn" class="btn btn-logout">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuSuQmCC" width="16" style="filter: invert(100%);"> 
+                Выйти из аккаунта
+            </button>
+        </div>
+
+        <button id="deleteProfileBtn" class="btn btn-delete">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII=" width="16" style="filter: invert(100%);">
+            Удалить профиль и все данные
+        </button>
+
+        <button class="btn" onclick="closeProfileModal()">Закрыть</button>
+    </div>
+</div>
+
+
 <script>
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername';
-const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; // Обновляем версию для новых данных
+const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; 
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
@@ -619,7 +729,7 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}}; // Добавлено moodRecords
+        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}}; 
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
@@ -637,7 +747,7 @@ async function loadDataFromAppsScript() {
     if (!loadedData.unassigned) loadedData.unassigned = [];
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
-    if (!loadedData.moodRecords) loadedData.moodRecords = {}; // Инициализация
+    if (!loadedData.moodRecords) loadedData.moodRecords = {}; 
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
     return loadedData;
@@ -658,20 +768,48 @@ async function saveDataToAppsScript() {
     return result;
 }
 
+// ✅ НОВАЯ ФУНКЦИЯ: Удаление профиля
+async function deleteProfileAndData() {
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        alert("Ошибка: нет ключа авторизации.");
+        return;
+    }
+
+    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) {
+        return;
+    }
+
+    const confirmText = prompt("Для подтверждения удаления введите свой ник:");
+    if (confirmText !== localStorage.getItem(STORAGE_KEY_USERNAME)) {
+        alert("Введенный ник не совпадает. Удаление отменено.");
+        return;
+    }
+
+    const result = await sendRequest("deleteProfile", { dataKey: dataKey });
+
+    if (result.status === 'success') {
+        alert("Ваш профиль и все данные успешно удалены. Вы будете перенаправлены на страницу входа.");
+        goToAuth();
+    } else {
+        alert(`Ошибка при удалении профиля: ${result.message}`);
+    }
+}
+
+
 function save(){
     saveDataToAppsScript(); 
 }
 
-/* --- ФУНКЦИИ КНОПКИ АВТОРИЗАЦИИ --- */
+/* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) --- */
+
+const usernameDisplay = document.getElementById('usernameDisplay');
+const profileModal = document.getElementById('profileModal');
+const nickInput = document.getElementById('nickInput');
 
 function updateAuthButton() {
-    const authButton = document.getElementById('authControl');
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
-    if (username) {
-        authButton.innerHTML = `🚪 ${username} (Выход)`;
-    } else {
-        authButton.innerHTML = `🚪 Выход/Вход`;
-    }
+    usernameDisplay.textContent = username || 'Вход';
 }
 
 function goToAuth() {
@@ -679,6 +817,37 @@ function goToAuth() {
     localStorage.removeItem(STORAGE_KEY_USERNAME); 
     window.location.href = 'login.html'; 
 }
+
+function openProfileModal() {
+    nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
+    profileModal.classList.add('visible'); 
+    profileModal.style.display='flex';
+}
+
+function closeProfileModal() {
+    profileModal.classList.remove('visible');
+    setTimeout(() => { profileModal.style.display='none'; }, 300);
+}
+
+document.getElementById('saveNickBtn').onclick = () => {
+    const newNick = nickInput.value.trim();
+    if (newNick) {
+        localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
+        updateAuthButton();
+        alert(`Имя пользователя изменено на: ${newNick}`);
+        closeProfileModal();
+    } else {
+        alert("Имя пользователя не может быть пустым.");
+    }
+};
+
+document.getElementById('logoutBtn').onclick = () => {
+    if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
+        goToAuth();
+    }
+};
+
+document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
 /* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
 
