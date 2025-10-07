@@ -618,7 +618,7 @@ body {
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAkvACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
         Сохранить все
     </button>
-    <div id="accountControl" class="account-control-btn" onclick="handleAccountControlClick()">
+    <div id="accountControl" class="account-control-btn">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTkSuQmCC" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Вход</span>
     </div>
@@ -786,7 +786,7 @@ body {
 <script>
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
 // 🚨 ВАЖНО: Замените эту ссылку на вашу реальную ссылку Apps Script
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
+const SCRIPT_URL = "ВАША_ССЫЛКА_APPS_SCRIPT"; 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername'; 
 const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; 
@@ -806,6 +806,7 @@ let data = null;
 let dragId = null;
 
 const saveAllBtn = document.getElementById('saveAllBtn');
+const accountControlBtn = document.getElementById('accountControl'); // Получаем кнопку для привязки
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1011,7 +1012,7 @@ function closeProfileModal() {
 
 function openAuthModal() {
     isRegistrationMode = false;
-    toggleAuthView(); // Сбрасываем вид на "Вход"
+    toggleAuthView(false); // Сбрасываем вид на "Вход"
     authModal.classList.add('visible'); 
     authModal.style.display='flex';
     // Кнопка "Закрыть" нужна только, если пользователь может куда-то вернуться (т.е. уже вошел)
@@ -1023,19 +1024,23 @@ function closeAuthModal() {
     setTimeout(() => { authModal.style.display='none'; }, 300);
 }
 
-function toggleAuthView() {
-    // isRegistrationMode - это **предыдущее** состояние
-    authModalTitle.textContent = !isRegistrationMode ? 'Регистрация' : 'Вход'; 
-    authPrimaryBtn.textContent = !isRegistrationMode ? 'Зарегистрироваться' : 'Войти';
-    toggleAuthMode.textContent = !isRegistrationMode ? 'Уже есть аккаунт? Войти' : 'Нужен аккаунт? Регистрация';
-    isRegistrationMode = !isRegistrationMode; // Переключаем режим на **новое** состояние
+function toggleAuthView(doToggle = true) {
+    if (doToggle) {
+        isRegistrationMode = !isRegistrationMode;
+    } else {
+        isRegistrationMode = false; // Принудительный сброс на вход
+    }
+    
+    authModalTitle.textContent = isRegistrationMode ? 'Регистрация' : 'Вход'; 
+    authPrimaryBtn.textContent = isRegistrationMode ? 'Зарегистрироваться' : 'Войти';
+    toggleAuthMode.textContent = isRegistrationMode ? 'Уже есть аккаунт? Войти' : 'Нужен аккаунт? Регистрация';
     authConfirmPasswordInput.style.display = isRegistrationMode ? 'block' : 'none';
     authMessage.textContent = '';
     authUsernameInput.value = '';
     authPasswordInput.value = '';
     authConfirmPasswordInput.value = '';
 }
-toggleAuthMode.onclick = toggleAuthView;
+toggleAuthMode.onclick = () => toggleAuthView(true);
 
 authPrimaryBtn.onclick = async () => {
     const username = authUsernameInput.value.trim();
@@ -1043,7 +1048,7 @@ authPrimaryBtn.onclick = async () => {
     const confirmPassword = authConfirmPasswordInput.value;
     authMessage.textContent = '';
     
-    if (!username || !password) {
+    if (!username || !password || (isRegistrationMode && !confirmPassword)) {
         authMessage.textContent = 'Пожалуйста, заполните все поля.';
         return;
     }
@@ -1298,7 +1303,7 @@ function openWeekModal(id){
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTkSuQmCC"; rm.className='task-delete';
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC"; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
@@ -1598,68 +1603,4 @@ function updateMoodSelection() {
     const todayKey = getDayKey(new Date());
     const savedMood = data.moodRecords[todayKey];
     
-    document.querySelectorAll('.mood-option').forEach(option => {
-        const mood = option.getAttribute('data-mood');
-        option.classList.remove('selected');
-        
-        if (mood === savedMood) {
-            option.classList.add('selected');
-        }
-        
-        option.onclick = () => {
-             if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
-                alert("Войдите в систему, чтобы отслеживать настроение.");
-                return;
-            }
-            selectMood(mood);
-        };
-    });
-}
-
-function selectMood(mood) {
-    const todayKey = getDayKey(new Date());
-    data.moodRecords[todayKey] = mood;
-    save(); 
-    updateMoodSelection();
-    renderMoodCalendar();
-}
-
-
-/* --- Главная Инициализация --- */
-function renderAll() {
-    renderGoals();
-    renderUnassigned();
-    renderMonths();
-    renderHabitTracker();
-    updateMoodSelect();
-    updateMoodSelection();
-    renderMoodCalendar();
-    setUnsaved(localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true');
-}
-
-async function init() {
-    // 1. Обновляем кнопку, чтобы показать "Вход" или "Имя пользователя"
-    updateAuthButton(); 
-    
-    // 2. Загружаем данные (или пустую структуру, если не авторизован)
-    data = await loadDataFromAppsScript();
-    
-    // 3. Если данные загрузились, рендерим интерфейс
-    if (data) {
-        data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-        renderAll();
-    }
-}
-
-init();
-
-// Предупреждение перед закрытием страницы
-window.onbeforeunload = function() {
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        return "У вас есть несохраненные изменения! Они будут потеряны, если вы покинете страницу.";
-    }
-};
-
-</script>
-</body>
-</html>
+    document
