@@ -133,11 +133,17 @@ body {
     color: #fff;
     transform: translateY(-2px);
 }
-.account-control-btn img, .save-all-btn img {
-    filter: invert(80%);
+/* ✅ ИСПРАВЛЕНО: Теперь иконка сохранения видна и белая */
+.save-all-btn img {
+    filter: invert(100%); 
     transition: filter 0.2s;
 }
-.account-control-btn:hover img, .save-all-btn:hover img {
+
+.account-control-btn img {
+    filter: invert(80%); /* Чуть серее, для контраста с текстом "Вход" */
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img {
     filter: invert(100%);
 }
 /* Индикатор несохраненных изменений */
@@ -306,10 +312,10 @@ body {
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
 .menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);}
-.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;}
+.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px; color: var(--text-primary);}
 .menu div:hover{background:var(--accent-color); color: #fff;}
-.menu div img { filter: invert(80%); transition: filter 0.2s; }
-.menu div:hover img { filter: invert(100%); }
+/* ✅ ИСПРАВЛЕНО: Белые иконки в меню */
+.menu div img { filter: invert(100%); transition: filter 0.2s; width: 16px; height: 16px; }
 .modal-body{display:flex;flex:1;overflow:hidden;}
 .modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
@@ -337,8 +343,9 @@ body {
 .modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:8px;}
 .modal-goals ul li{background:var(--bg-tertiary);padding:8px 12px;border-radius:8px;transition:0.2s; list-style: none;}
 .modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s;}
-.task-delete:hover { filter: invert(100%); }
+/* ✅ ИСПРАВЛЕНО: Белые иконки удаления задач */
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(100%); width: 14px; transition: filter 0.2s;}
+.task-delete:hover { filter: none; } /* Можно убрать фильтр при наведении, чтобы показать красный цвет */
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 .habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
@@ -700,8 +707,14 @@ body {
             <div class="actions">
             <span id="menuBtn">⋮
                 <div class="menu" id="weekMenu">
-                <div id="deleteWeek"><img src="trash-icon.png" width="16"> Удалить неделю</div>
-                <div id="downloadWeek"><img src="download-icon.png" width="16"> Скачать TXT</div>
+                <div>
+                    <img src="trash-icon.png"> 
+                    <span id="deleteWeek">Удалить неделю</span>
+                </div>
+                <div>
+                    <img src="download-icon.png"> 
+                    <span id="downloadWeek">Скачать TXT</span>
+                </div>
                 </div>
             </span>
             <span id="closeModal">×</span>
@@ -742,7 +755,7 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkThJcgg" width="16" style="filter: invert(80%);"> 
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" style="filter: invert(100%);"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -766,9 +779,9 @@ body {
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername'; // Храним для отображения (будет перезаписан сервером)
+const STORAGE_KEY_USERNAME = 'plannerUsername'; 
 const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; 
-const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges'; // НОВЫЙ ФЛАГ
+const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges'; 
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
@@ -1157,8 +1170,8 @@ const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
-const menuBtn = document.getElementById('menuBtn'); // ✅ Добавлено
-const weekMenu = document.getElementById('weekMenu'); // ✅ Добавлено
+const menuBtn = document.getElementById('menuBtn'); 
+const weekMenu = document.getElementById('weekMenu'); 
 let currentWeek=null;
 
 function openWeekModal(id){
