@@ -93,11 +93,16 @@ body {
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
-/* --- КНОПКА ЛИЧНЫЙ КАБИНЕТ (ACCOUNT CONTROL) --- */
-.account-control-btn{
+/* --- КНОПКИ УПРАВЛЕНИЯ (НОВЫЙ БЛОК) --- */
+.top-controls {
     position: fixed;
     top: 15px;
     right: 20px;
+    display: flex;
+    gap: 10px; 
+    z-index: 10000;
+}
+.save-all-btn, .account-control-btn {
     background: var(--bg-tertiary);
     color: var(--text-primary);
     padding: 8px 15px;
@@ -105,25 +110,36 @@ body {
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    z-index: 10000;
     transition: background 0.2s, color 0.2s, transform 0.1s; 
     border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     gap: 8px;
 }
+.save-all-btn:hover {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    transform: translateY(-2px);
+}
 .account-control-btn:hover{
     background: var(--accent-color);
     color: #fff;
     transform: translateY(-2px);
 }
-.account-control-btn img {
+.account-control-btn img, .save-all-btn img {
     filter: invert(80%);
     transition: filter 0.2s;
 }
-.account-control-btn:hover img {
+.account-control-btn:hover img, .save-all-btn:hover img {
     filter: invert(100%);
 }
+/* Индикатор несохраненных изменений */
+.save-all-btn.unsaved {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
 
 /* --- ЦЕЛИ (Goal Styles) --- */
 .goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
@@ -564,7 +580,14 @@ body {
     .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
     .right { padding: 15px; overflow-y: visible; }
     .months-wrapper { overflow-x: auto; } 
-    .account-control-btn { font-size: 12px; padding: 6px 10px; top: 10px; right: 10px; }
+    .top-controls { 
+        top: 10px; 
+        right: 10px; 
+        gap: 5px;
+        flex-direction: column-reverse; /* Аккаунт снизу, Сохранить сверху */
+        align-items: flex-end;
+    }
+    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content { width: 100%; height: 100%; border-radius: 0; }
     .modal-body { flex-direction: column; }
@@ -584,9 +607,15 @@ body {
 </head>
 <body>
 
-<div id="accountControl" class="account-control-btn" onclick="openProfileModal()">
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
-    <span id="usernameDisplay">Вход</span>
+<div class="top-controls">
+    <button id="saveAllBtn" class="save-all-btn">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAkvACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
+        Сохранить все
+    </button>
+    <div id="accountControl" class="account-control-btn" onclick="openProfileModal()">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
+        <span id="usernameDisplay">Вход</span>
+    </div>
 </div>
 
 <div class="banner">
@@ -687,7 +716,7 @@ body {
             </div>
         </div>
         <div class="modal-footer">
-            <button class="save-btn" id="saveBtn">Сохранить</button>
+            <button class="save-btn" id="saveBtn">Закрыть</button>
         </div>
     </div>
 </div>
@@ -707,7 +736,7 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFThJcgg==" width="16" style="filter: invert(80%);"> 
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTThJcgg=" width="16" style="filter: invert(80%);"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -733,6 +762,7 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJT
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername'; // Храним для отображения (будет перезаписан сервером)
 const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; 
+const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges'; // НОВЫЙ ФЛАГ
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
@@ -747,7 +777,9 @@ const MOOD_EMOJIS = {
 let data = null; 
 let dragId = null;
 
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (НОВЫЕ) --- */
+const saveAllBtn = document.getElementById('saveAllBtn');
+
+/* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() {
     loadingOverlay.style.display = 'flex';
@@ -757,6 +789,57 @@ function hideLoading() {
     loadingOverlay.style.opacity = '0';
     setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); // 300ms соответствует CSS transition
 }
+
+/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ (ОБНОВЛЕННЫЕ) --- */
+
+// Устанавливает/снимает флаг о несохраненных данных и обновляет вид кнопки
+function setUnsaved(isUnsaved) {
+    if (isUnsaved) {
+        localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
+        saveAllBtn.classList.add('unsaved');
+        saveAllBtn.textContent = 'Сохранить все (!)';
+    } else {
+        localStorage.removeItem(STORAGE_KEY_UNSAVED);
+        saveAllBtn.classList.remove('unsaved');
+        saveAllBtn.textContent = 'Сохранить все';
+    }
+}
+
+// НОВАЯ save(): Сохраняет ТОЛЬКО в локальное хранилище и ставит флаг
+function save() {
+    if (!data) return;
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
+    setUnsaved(true);
+}
+
+// НОВАЯ saveDataToAppsScript(): Сохраняет на сервер и снимает флаг
+async function saveDataToAppsScript() {
+    if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
+    
+    // Сначала сохраняем локально, чтобы убедиться, что все последние изменения есть
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
+
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        console.error("Нет ключа авторизации для сохранения данных.");
+        return { status: "error", message: "Нет ключа авторизации." };
+    }
+    
+    const jsonString = JSON.stringify(data);
+    const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
+    
+    if (result.status === 'success') {
+        setUnsaved(false); // Снимаем флаг только после успешного сохранения на сервер
+        alert("Данные успешно сохранены на сервер!");
+    } else {
+        console.error("Ошибка сохранения данных:", result.message);
+        alert(`Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.`);
+    }
+    return result;
+}
+
+// Обработчик кнопки "Сохранить все"
+saveAllBtn.onclick = saveDataToAppsScript;
 
 /* --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С APPS SCRIPT --- */
 
@@ -783,10 +866,26 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
+        // Если нет ключа, возвращаем пустые локальные данные
         const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}}; 
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
+
+    // Проверяем локальное хранилище, если есть несохраненные изменения
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
+            // Пользователь отказался, загружаем локальные данные
+            setUnsaved(true);
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL));
+            } catch (e) {
+                console.error("Ошибка парсинга локальных данных, загружаем пустые.");
+            }
+        }
+    }
+
+    // Если согласились, или нет несохраненных изменений, загружаем с сервера
     const result = await sendRequest("load", { dataKey: dataKey });
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
@@ -794,6 +893,8 @@ async function loadDataFromAppsScript() {
         months.forEach(m=>{if(!emptyData.months[m]) emptyData.months[m]=[];});
         return emptyData; 
     }
+    
+    setUnsaved(false); // Данные свежие, флаг сброшен
     const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
@@ -807,22 +908,7 @@ async function loadDataFromAppsScript() {
     return loadedData;
 }
 
-async function saveDataToAppsScript() {
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!dataKey) {
-        console.error("Нет ключа авторизации для сохранения данных.");
-        return { status: "error", message: "Нет ключа авторизации." };
-    }
-    const jsonString = JSON.stringify(data);
-    const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
-    if (result.status === 'error') {
-        console.error("Ошибка сохранения данных:", result.message);
-    }
-    return result;
-}
-
-// ✅ ОБНОВЛЕННАЯ ФУНКЦИЯ: Удаление профиля
+// Удаление профиля
 async function deleteProfileAndData() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
@@ -853,10 +939,6 @@ async function deleteProfileAndData() {
 }
 
 
-function save(){
-    saveDataToAppsScript(); 
-}
-
 /* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) --- */
 
 const usernameDisplay = document.getElementById('usernameDisplay');
@@ -871,6 +953,8 @@ function updateAuthButton() {
 function goToAuth() {
     localStorage.removeItem(STORAGE_KEY_AUTH); 
     localStorage.removeItem(STORAGE_KEY_USERNAME); 
+    localStorage.removeItem(STORAGE_KEY_LOCAL); 
+    localStorage.removeItem(STORAGE_KEY_UNSAVED); 
     window.location.href = 'login.html'; 
 }
 
@@ -885,7 +969,7 @@ function closeProfileModal() {
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
-// ✅ НОВАЯ ФУНКЦИЯ: Смена ника через сервер
+// Смена ника через сервер
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
@@ -919,6 +1003,12 @@ document.getElementById('saveNickBtn').onclick = async () => {
 
 document.getElementById('logoutBtn').onclick = () => {
     if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
+        // Проверяем флаг несохраненных данных перед выходом
+        if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+            if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) {
+                return; 
+            }
+        }
         goToAuth();
     }
 };
@@ -951,13 +1041,13 @@ function renderGoals(){
         }
 
         data.goals[i] = cleanText; 
-        save();
+        save(); // Локальное сохранение
     });
 
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
     rm.onclick=()=>{
         data.goals.splice(i,1);
-        save();
+        save(); // Локальное сохранение
         renderGoals(); 
     };
     div.appendChild(rm); 
@@ -997,7 +1087,7 @@ unassignedContainer.ondrop = e => {
 
     if (weekToMove) {
         data.unassigned.push(weekToMove);
-        save();
+        save(); // Локальное сохранение
         renderAll();
     }
     dragId = null;
@@ -1037,7 +1127,7 @@ function renderMonths(){
       if(idx>=0){
         const w=data.unassigned.splice(idx,1)[0];
         data.months[m].push(w);
-        save(); renderAll();
+        save(); renderAll(); // Локальное сохранение
       }
       dragId = null;
     };
@@ -1052,7 +1142,7 @@ function renderMonths(){
 createWeekBtn.onclick=()=>{
   const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
   data.unassigned.push(week);
-  save(); renderAll();
+  save(); renderAll(); // Локальное сохранение
 };
 
 const weekModal=document.getElementById('weekModal');
@@ -1071,6 +1161,11 @@ function openWeekModal(id){
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
+  
+  // Привязка событий к полям ввода
+  weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
+  weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
+
   modalGoalsList.innerHTML='';
   data.goals.forEach(t=>{
     const li=document.createElement('li'); li.textContent=t;
@@ -1096,7 +1191,7 @@ function openWeekModal(id){
       if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
       currentWeek.tasks[d].push('');
       renderWeekModal();
-      save();
+      save(); // Локальное сохранение
     };
     dayDiv.appendChild(taskContainer);
     dayDiv.appendChild(addBtn);
@@ -1110,27 +1205,19 @@ document.getElementById('closeModal').onclick=()=>{
     weekModal.classList.remove('visible');
     setTimeout(() => { weekModal.style.display='none'; }, 300); 
 };
+// Кнопка "Сохранить" в модалке недели теперь просто "Закрыть"
 document.getElementById('saveBtn').onclick=()=>{
-  if(currentWeek){
-    currentWeek.title=weekTitle.value;
-    currentWeek.desc=weekDesc.value;
-    save();
-    renderAll();
     weekModal.classList.remove('visible');
     setTimeout(() => { weekModal.style.display='none'; }, 300);
-  }
 };
-const menuBtn=document.getElementById('menuBtn');
-const weekMenu=document.getElementById('weekMenu');
-menuBtn.onclick=e=>{e.stopPropagation(); weekMenu.style.display=weekMenu.style.display==='flex'?'none':'flex';};
-document.addEventListener('click',()=>{weekMenu.style.display='none';});
+
 document.getElementById('deleteWeek').onclick=()=>{
   if(!currentWeek) return;
   ['unassigned',...months].forEach(k=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
     else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderAll(); 
+  save(); renderAll(); // Локальное сохранение
   weekModal.classList.remove('visible');
   setTimeout(() => { weekModal.style.display='none'; }, 300);
 };
@@ -1170,7 +1257,7 @@ function renderHabitTracker() {
         th.innerText = habit;
         th.addEventListener('blur', () => {
             data.habits[index] = th.innerText.trim();
-            save();
+            save(); // Локальное сохранение
         });
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
@@ -1186,7 +1273,7 @@ function renderHabitTracker() {
                         delete record.tasks[deletedHabit]; 
                     }
                 });
-                save();
+                save(); // Локальное сохранение
                 renderHabitTracker();
             }
         };
@@ -1196,7 +1283,6 @@ function renderHabitTracker() {
     
     habitBody.innerHTML = '';
 
-    // Определяем, сколько строк нужно показать
     const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 5) : data.habitRecords;
     
     recordsToShow.forEach(record => {
@@ -1219,7 +1305,7 @@ function renderHabitTracker() {
             }
             checkbox.onchange = () => {
                 record.tasks[habit] = checkbox.checked;
-                save();
+                save(); // Локальное сохранение
                 renderHabitTracker();
             };
             td.appendChild(checkbox);
@@ -1267,7 +1353,7 @@ document.getElementById('addHabitBtn').onclick=()=>{
         data.habits.push(habitText);
         newHabitInput.value='';
         data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
-        save();
+        save(); // Локальное сохранение
         renderHabitTracker();
     }
 };
@@ -1281,7 +1367,7 @@ document.getElementById('newDayBtn').onclick=()=>{
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
     data.habitRecords.push(newRecord);
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    save();
+    save(); // Локальное сохранение
     renderHabitTracker();
 };
 
@@ -1387,7 +1473,7 @@ function updateMoodSelection() {
 function selectMood(mood) {
     const todayKey = getDayKey(new Date());
     data.moodRecords[todayKey] = mood;
-    save();
+    save(); // Локальное сохранение
     updateMoodSelection();
     renderMoodCalendar();
 }
@@ -1402,6 +1488,7 @@ function renderAll() {
     updateMoodSelect();
     updateMoodSelection();
     renderMoodCalendar();
+    setUnsaved(localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true'); // Обновляем кнопку при рендере
 }
 async function init() {
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
@@ -1414,6 +1501,14 @@ async function init() {
     renderAll();
 }
 init();
+
+// Предупреждение перед закрытием страницы
+window.onbeforeunload = function() {
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        return "У вас есть несохраненные изменения! Они будут потеряны, если вы покинете страницу.";
+    }
+};
+
 </script>
 </body>
 </html>
