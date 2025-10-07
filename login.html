@@ -1490,24 +1490,21 @@ function renderAll() {
     renderMoodCalendar();
     setUnsaved(localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true'); // Обновляем кнопку при рендере
 }
+// ✅ ИСПРАВЛЕНА init - теперь она просто вызывает проверку и сразу выходит
 async function init() {
+    // 1. Проверяем ключ авторизации
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
-        window.location.href = 'login.html';
-        return;
+        // Если ключа нет, вызываем перенаправление.
+        goToAuth();
+        return; // <--- КРИТИЧНО! Выходим из функции, чтобы не загружать данные.
     }
+    
+    // 2. Если ключ есть, продолжаем загрузку данных
     updateAuthButton(); 
     data = await loadDataFromAppsScript();
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
     renderAll();
 }
-init();
-
-// Предупреждение перед закрытием страницы
-window.onbeforeunload = function() {
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        return "У вас есть несохраненные изменения! Они будут потеряны, если вы покинете страницу.";
-    }
-};
 
 </script>
 </body>
