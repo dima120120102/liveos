@@ -77,12 +77,6 @@ body {
     position:relative; 
     flex-shrink: 0;
 }
-/* ✅ ИСПРАВЛЕНЫ ОТСТУПЫ МЕЖДУ ЦЕЛЯМИ */
-.goals #goalsList {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Добавлен отступ между целями */
-}
 .right{
     flex:1;
     display:flex;
@@ -133,17 +127,11 @@ body {
     color: #fff;
     transform: translateY(-2px);
 }
-/* ✅ ИСПРАВЛЕНО: Теперь иконка сохранения видна и белая */
-.save-all-btn img {
-    filter: invert(100%); 
+.account-control-btn img, .save-all-btn img {
+    filter: invert(80%);
     transition: filter 0.2s;
 }
-
-.account-control-btn img {
-    filter: invert(80%); /* Чуть серее, для контраста с текстом "Вход" */
-    transition: filter 0.2s;
-}
-.account-control-btn:hover img {
+.account-control-btn:hover img, .save-all-btn:hover img {
     filter: invert(100%);
 }
 /* Индикатор несохраненных изменений */
@@ -302,6 +290,12 @@ body {
     flex-direction: column;
 }
 
+/* 🚨 СТИЛЬ ДЛЯ АВТОРИЗАЦИИ: Выше всех модалок */
+#authModal {
+    z-index: 10002; 
+}
+
+
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
 .modal-header input{
     background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
@@ -312,10 +306,10 @@ body {
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
 .menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);}
-.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px; color: var(--text-primary);}
+.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;}
 .menu div:hover{background:var(--accent-color); color: #fff;}
-/* ✅ ИСПРАВЛЕНО: Белые иконки в меню */
-.menu div img { filter: invert(100%); transition: filter 0.2s; width: 16px; height: 16px; }
+.menu div img { filter: invert(80%); transition: filter 0.2s; }
+.menu div:hover img { filter: invert(100%); }
 .modal-body{display:flex;flex:1;overflow:hidden;}
 .modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
@@ -343,9 +337,8 @@ body {
 .modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:8px;}
 .modal-goals ul li{background:var(--bg-tertiary);padding:8px 12px;border-radius:8px;transition:0.2s; list-style: none;}
 .modal-goals ul li:hover{background:var(--bg-hover);}
-/* ✅ ИСПРАВЛЕНО: Белые иконки удаления задач */
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(100%); width: 14px; transition: filter 0.2s;}
-.task-delete:hover { filter: none; } /* Можно убрать фильтр при наведении, чтобы показать красный цвет */
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s;}
+.task-delete:hover { filter: invert(100%); }
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 .habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
@@ -622,11 +615,11 @@ body {
 
 <div class="top-controls">
     <button id="saveAllBtn" class="save-all-btn">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAksACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAkvACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
         Сохранить все
     </button>
     <div id="accountControl" class="account-control-btn" onclick="openProfileModal()">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQBJREFUSEvNlbFNwzAMRQdiA3oDUgFdgG4gG9gb0AnYgGwgbkCbARhBNkgG9gb0An0GqY+xPImR40+K8y/vK046F4jR+gZ+AM/mB5wBO3APrJAH0gL8/HlHILjZz5v0QAnYgbc1V1XgCXwF57UCbsAOrIBNqAIn4AT8CzwIN18D7gX89wkoBx/BucAduAFv4A7ewQ34gD/sVwO+AfY6B3n/DtgE7+E/9BfwAb7BLpCC3X8Bv4B/wA2YBX8zX7gG3gPPYAvc7R/8BvjE/wM+Qz0O4h/2gB/A9w2w3i+gC2TgG9T829/9wG3gB3gMvj9yY/4BAqQf8g5T+u+m4Rj9g8p7w/5Xk+sBAAAAAElFTSuQmCC" width="16" alt="account.png">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTkSuQmCC" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Вход</span>
     </div>
 </div>
@@ -707,14 +700,8 @@ body {
             <div class="actions">
             <span id="menuBtn">⋮
                 <div class="menu" id="weekMenu">
-                <div>
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII="> 
-                    <span id="deleteWeek">Удалить неделю</span>
-                </div>
-                <div>
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlZJb7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII="> 
-                    <span id="downloadWeek">Скачать TXT</span>
-                </div>
+                <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII=" width="16"> Удалить неделю</div>
+                <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTkSuQmCC" width="16"> Скачать TXT</div>
                 </div>
             </span>
             <span id="closeModal">×</span>
@@ -755,13 +742,13 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" style="filter: invert(100%);"> 
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" style="filter: invert(80%);"> 
                 Выйти из аккаунта
             </button>
         </div>
 
         <button id="deleteProfileBtn" class="btn btn-delete">
-            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII=" width="16" style="filter: invert(100%);">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII=" width="16" style="filter: invert(100%);">
             Удалить профиль и все данные
         </button>
 
@@ -769,6 +756,27 @@ body {
     </div>
 </div>
 
+<div class="modal" id="authModal">
+    <div class="modal-content small-modal-content">
+        <h2 id="authModalTitle">Вход</h2>
+        
+        <div class="auth-section">
+            <input type="text" id="authUsernameInput" placeholder="Имя пользователя (ник)">
+            <input type="password" id="authPasswordInput" placeholder="Пароль">
+            <input type="password" id="authConfirmPasswordInput" placeholder="Повторите пароль" style="display:none;">
+            
+            <p id="authMessage" style="color:var(--danger-color); font-size: 14px; min-height: 20px;"></p>
+
+            <button id="authPrimaryBtn" class="btn create-week" style="margin-top: 10px;">Войти</button>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <a href="#" id="toggleAuthMode" style="color: var(--accent-color); font-size: 14px;">Нужен аккаунт? Регистрация</a>
+            </div>
+        </div>
+
+        <button class="btn" onclick="closeAuthModal()" id="authCloseBtn" style="display:none;">Закрыть</button>
+    </div>
+</div>
 <div id="loadingOverlay">
     <div class="spinner"></div>
     <div>Пожалуйста, подождите...</div>
@@ -776,7 +784,7 @@ body {
 
 
 <script>
-// --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
+
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername'; 
@@ -802,16 +810,13 @@ const saveAllBtn = document.getElementById('saveAllBtn');
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() {
     loadingOverlay.style.display = 'flex';
-    setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10); // Задержка для анимации
+    setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10); 
 }
 function hideLoading() {
     loadingOverlay.style.opacity = '0';
-    setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); // 300ms соответствует CSS transition
+    setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); 
 }
 
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ (ОБНОВЛЕННЫЕ) --- */
-
-// Устанавливает/снимает флаг о несохраненных данных и обновляет вид кнопки
 function setUnsaved(isUnsaved) {
     if (isUnsaved) {
         localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
@@ -824,23 +829,22 @@ function setUnsaved(isUnsaved) {
     }
 }
 
-// НОВАЯ save(): Сохраняет ТОЛЬКО в локальное хранилище и ставит флаг
 function save() {
     if (!data) return;
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
     setUnsaved(true);
 }
 
-// НОВАЯ saveDataToAppsScript(): Сохраняет на сервер и снимает флаг
 async function saveDataToAppsScript() {
     if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
     
-    // Сначала сохраняем локально, чтобы убедиться, что все последние изменения есть
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data)); 
 
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
         console.error("Нет ключа авторизации для сохранения данных.");
+        alert("Нет ключа авторизации. Войдите в систему.");
+        openAuthModal(); // Открываем модалку, если ключа нет
         return { status: "error", message: "Нет ключа авторизации." };
     }
     
@@ -848,7 +852,7 @@ async function saveDataToAppsScript() {
     const result = await sendRequest("save", { dataKey: dataKey, data: jsonString });
     
     if (result.status === 'success') {
-        setUnsaved(false); // Снимаем флаг только после успешного сохранения на сервер
+        setUnsaved(false); 
         alert("Данные успешно сохранены на сервер!");
     } else {
         console.error("Ошибка сохранения данных:", result.message);
@@ -857,13 +861,12 @@ async function saveDataToAppsScript() {
     return result;
 }
 
-// Обработчик кнопки "Сохранить все"
 saveAllBtn.onclick = saveDataToAppsScript;
 
 /* --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С APPS SCRIPT --- */
 
 async function sendRequest(action, params = {}) {
-    showLoading(); // ⬅️ ПОКАЗАТЬ ЗАГРУЗКУ
+    showLoading(); 
     const url = SCRIPT_URL;
     const formData = new URLSearchParams();
     formData.append('action', action);
@@ -873,11 +876,11 @@ async function sendRequest(action, params = {}) {
     try {
         const response = await fetch(url, { method: 'POST', body: formData });
         const result = await response.json();
-        hideLoading(); // ⬅️ СКРЫТЬ ЗАГРУЗКУ
+        hideLoading(); 
         return result;
     } catch (error) {
         console.error("Fetch error:", error);
-        hideLoading(); // ⬅️ СКРЫТЬ ЗАГРУЗКУ В СЛУЧАЕ ОШИБКИ
+        hideLoading(); 
         return { status: "error", message: "Ошибка подключения к серверу Apps Script." };
     }
 }
@@ -885,18 +888,16 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        // Если нет ключа, возвращаем пустые локальные данные
         const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}}; 
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
 
-    // Проверяем локальное хранилище, если есть несохраненные изменения
     if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
         if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
-            // Пользователь отказался, загружаем локальные данные
             setUnsaved(true);
             try {
+                // Если пользователь отказался, пытаемся загрузить из локального хранилища
                 return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL));
             } catch (e) {
                 console.error("Ошибка парсинга локальных данных, загружаем пустые.");
@@ -904,7 +905,6 @@ async function loadDataFromAppsScript() {
         }
     }
 
-    // Если согласились, или нет несохраненных изменений, загружаем с сервера
     const result = await sendRequest("load", { dataKey: dataKey });
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
@@ -913,7 +913,7 @@ async function loadDataFromAppsScript() {
         return emptyData; 
     }
     
-    setUnsaved(false); // Данные свежие, флаг сброшен
+    setUnsaved(false); 
     const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
@@ -927,7 +927,6 @@ async function loadDataFromAppsScript() {
     return loadedData;
 }
 
-// Удаление профиля
 async function deleteProfileAndData() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
@@ -950,41 +949,48 @@ async function deleteProfileAndData() {
     const result = await sendRequest("deleteProfile", { dataKey: dataKey });
 
     if (result.status === 'success') {
-        alert("Ваш профиль и все данные успешно удалены. Вы будете перенаправлены на страницу входа.");
-        goToAuth();
+        alert("Ваш профиль и все данные успешно удалены.");
+        // Выполняем полный выход после удаления
+        localStorage.removeItem(STORAGE_KEY_AUTH); 
+        localStorage.removeItem(STORAGE_KEY_USERNAME); 
+        localStorage.removeItem(STORAGE_KEY_LOCAL); 
+        localStorage.removeItem(STORAGE_KEY_UNSAVED); 
+        window.location.reload(); // Перезагружаем страницу, чтобы запустить init() с пустым ключом
     } else {
         alert(`Ошибка при удалении профиля: ${result.message}`);
     }
 }
 
 
-/* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) --- */
+/* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) и АВТОРИЗАЦИИ --- */
 
 const usernameDisplay = document.getElementById('usernameDisplay');
 const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
+
+// 🚨 НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ АВТОРИЗАЦИИ
+const authModal = document.getElementById('authModal');
+const authModalTitle = document.getElementById('authModalTitle');
+const authUsernameInput = document.getElementById('authUsernameInput');
+const authPasswordInput = document.getElementById('authPasswordInput');
+const authConfirmPasswordInput = document.getElementById('authConfirmPasswordInput');
+const authPrimaryBtn = document.getElementById('authPrimaryBtn');
+const toggleAuthMode = document.getElementById('toggleAuthMode');
+const authMessage = document.getElementById('authMessage');
+
+let isRegistrationMode = false;
 
 function updateAuthButton() {
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
     usernameDisplay.textContent = username || 'Вход';
 }
 
-// ✅ ИСПРАВЛЕНА goToAuth - теперь гарантированно перенаправляет ИЗБЕГАЯ ЗАЦИКЛИВАНИЯ
-function goToAuth() {
-    localStorage.removeItem(STORAGE_KEY_AUTH); 
-    localStorage.removeItem(STORAGE_KEY_USERNAME); 
-    localStorage.removeItem(STORAGE_KEY_LOCAL); 
-    localStorage.removeItem(STORAGE_KEY_UNSAVED); 
-    
-    // ГЛАВНОЕ ИСПРАВЛЕНИЕ: Проверяем, что текущий путь НЕ СОДЕРЖИТ 'login.html'
-    if (window.location.pathname.indexOf('login.html') === -1) {
-        window.location.href = 'login.html'; 
-        // Критично: Прерываем выполнение всего остального кода
-        // в вызывающей функции, чтобы предотвратить дальнейший рендеринг.
-    }
-}
-
 function openProfileModal() {
+    // Открываем ЛК только если пользователь авторизован
+    if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
+        openAuthModal();
+        return;
+    }
     nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
     profileModal.classList.add('visible'); 
     profileModal.style.display='flex';
@@ -995,7 +1001,81 @@ function closeProfileModal() {
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
-// Смена ника через сервер
+
+// 🚨 НОВАЯ: Открывает модалку авторизации и БЛОКИРУЕТ интерфейс
+function openAuthModal() {
+    isRegistrationMode = false;
+    toggleAuthView();
+    authModal.classList.add('visible'); 
+    authModal.style.display='flex';
+    // Кнопка "Закрыть" нужна только, если пользователь может куда-то вернуться (т.е. уже вошел)
+    document.getElementById('authCloseBtn').style.display = localStorage.getItem(STORAGE_KEY_AUTH) ? 'block' : 'none'; 
+}
+
+// 🚨 НОВАЯ: Закрывает модалку авторизации
+function closeAuthModal() {
+    authModal.classList.remove('visible');
+    setTimeout(() => { authModal.style.display='none'; }, 300);
+}
+
+// 🚨 НОВАЯ: Переключение вида Вход/Регистрация
+function toggleAuthView() {
+    authModalTitle.textContent = isRegistrationMode ? 'Вход' : 'Регистрация'; // Смена, т.к. при клике переключаем
+    authPrimaryBtn.textContent = isRegistrationMode ? 'Войти' : 'Зарегистрироваться';
+    toggleAuthMode.textContent = isRegistrationMode ? 'Нужен аккаунт? Регистрация' : 'Уже есть аккаунт? Войти';
+    isRegistrationMode = !isRegistrationMode; // Переключаем режим после установки текста
+    authConfirmPasswordInput.style.display = isRegistrationMode ? 'block' : 'none';
+    authMessage.textContent = '';
+    authUsernameInput.value = '';
+    authPasswordInput.value = '';
+    authConfirmPasswordInput.value = '';
+}
+toggleAuthMode.onclick = toggleAuthView;
+
+// 🚨 НОВАЯ: Главная функция авторизации
+authPrimaryBtn.onclick = async () => {
+    const username = authUsernameInput.value.trim();
+    const password = authPasswordInput.value;
+    const confirmPassword = authConfirmPasswordInput.value;
+    authMessage.textContent = '';
+    
+    if (!username || !password) {
+        authMessage.textContent = 'Пожалуйста, заполните все поля.';
+        return;
+    }
+
+    let action = isRegistrationMode ? "register" : "login";
+    let params = { username, password };
+
+    if (isRegistrationMode) {
+        if (password !== confirmPassword) {
+            authMessage.textContent = 'Пароли не совпадают.';
+            return;
+        }
+        if (password.length < 6) {
+             authMessage.textContent = 'Пароль должен быть не менее 6 символов.';
+            return;
+        }
+    }
+
+    const result = await sendRequest(action, params);
+
+    if (result.status === 'success') {
+        localStorage.setItem(STORAGE_KEY_AUTH, result.dataKey); 
+        localStorage.setItem(STORAGE_KEY_USERNAME, result.username); 
+        
+        authMessage.textContent = `${isRegistrationMode ? 'Регистрация' : 'Вход'} успешен! Загрузка данных...`;
+        
+        closeAuthModal();
+        // Перезапускаем инициализацию, чтобы загрузить данные
+        init(); 
+
+    } else {
+        authMessage.textContent = result.message || `Ошибка ${action}.`;
+    }
+};
+
+
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
@@ -1029,19 +1109,23 @@ document.getElementById('saveNickBtn').onclick = async () => {
 
 document.getElementById('logoutBtn').onclick = () => {
     if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
-        // Проверяем флаг несохраненных данных перед выходом
         if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
             if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) {
                 return; 
             }
         }
-        goToAuth();
+        // Очищаем ключи и перезагружаем страницу, чтобы снова вызвать openAuthModal()
+        localStorage.removeItem(STORAGE_KEY_AUTH); 
+        localStorage.removeItem(STORAGE_KEY_USERNAME); 
+        localStorage.removeItem(STORAGE_KEY_LOCAL); 
+        localStorage.removeItem(STORAGE_KEY_UNSAVED); 
+        window.location.reload();
     }
 };
 
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
+/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА (Оставлено без изменений, кроме save()) --- */
 
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
@@ -1067,14 +1151,13 @@ function renderGoals(){
         }
 
         data.goals[i] = cleanText; 
-        save(); // Локальное сохранение
+        save();
     });
 
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-    rm.onclick=(e)=>{
-        e.stopPropagation(); // Предотвращаем срабатывание contenteditable
+    rm.onclick=()=>{
         data.goals.splice(i,1);
-        save(); // Локальное сохранение
+        save();
         renderGoals(); 
     };
     div.appendChild(rm); 
@@ -1114,7 +1197,7 @@ unassignedContainer.ondrop = e => {
 
     if (weekToMove) {
         data.unassigned.push(weekToMove);
-        save(); // Локальное сохранение
+        save();
         renderAll();
     }
     dragId = null;
@@ -1154,7 +1237,7 @@ function renderMonths(){
       if(idx>=0){
         const w=data.unassigned.splice(idx,1)[0];
         data.months[m].push(w);
-        save(); renderAll(); // Локальное сохранение
+        save(); renderAll();
       }
       dragId = null;
     };
@@ -1169,7 +1252,7 @@ function renderMonths(){
 createWeekBtn.onclick=()=>{
   const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
   data.unassigned.push(week);
-  save(); renderAll(); // Локальное сохранение
+  save(); renderAll();
 };
 
 const weekModal=document.getElementById('weekModal');
@@ -1177,8 +1260,6 @@ const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
-const menuBtn = document.getElementById('menuBtn'); 
-const weekMenu = document.getElementById('weekMenu'); 
 let currentWeek=null;
 
 function openWeekModal(id){
@@ -1191,7 +1272,6 @@ function openWeekModal(id){
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
   
-  // Привязка событий к полям ввода
   weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
   weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
 
@@ -1208,27 +1288,10 @@ function openWeekModal(id){
     dayDiv.appendChild(h4);
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
-      const taskDiv=document.createElement('div'); 
-      taskDiv.contentEditable=true; 
-      taskDiv.innerText=t;
-      
-      const rm=document.createElement('img'); 
-      rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; 
-      rm.className='task-delete';
-      
-      rm.onclick=()=>{
-          currentWeek.tasks[d].splice(i,1);
-          renderWeekModal();
-          save();
-      }
-      
-      taskDiv.addEventListener('input',()=>{
-        // Очищаем от любых символов удаления, которые могут появиться при быстром клике
-        const cleanText = taskDiv.innerText.replace(/[\u00D7]/g, '').trim(); 
-        currentWeek.tasks[d][i]=cleanText;
-        save();
-      });
-      
+      const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSUgozJ7cgg="; rm.className='task-delete';
+      rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
+      taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
     });
@@ -1237,24 +1300,11 @@ function openWeekModal(id){
       if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
       currentWeek.tasks[d].push('');
       renderWeekModal();
-      save(); // Локальное сохранение
+      save();
     };
     dayDiv.appendChild(taskContainer);
     dayDiv.appendChild(addBtn);
     daysContainer.appendChild(dayDiv);
-  });
-
-  // ✅ ИСПРАВЛЕНИЕ МЕНЮ "ТРИ ТОЧКИ"
-  menuBtn.onclick = (e) => {
-      e.stopPropagation(); 
-      weekMenu.style.display = weekMenu.style.display === 'flex' ? 'none' : 'flex';
-  };
-  
-  // Добавляем обработчик для скрытия меню при клике вне его
-  document.addEventListener('click', (e) => {
-      if (weekMenu.style.display === 'flex' && !menuBtn.contains(e.target) && !weekMenu.contains(e.target)) {
-          weekMenu.style.display = 'none';
-      }
   });
 }
 
@@ -1262,14 +1312,12 @@ function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 
 document.getElementById('closeModal').onclick=()=>{
     weekModal.classList.remove('visible');
-    setTimeout(() => { weekModal.style.display='none'; }, 300);
-    weekMenu.style.display = 'none'; // Дополнительно скрываем меню при закрытии модалки
+    setTimeout(() => { weekModal.style.display='none'; }, 300); 
 };
-// Кнопка "Сохранить" в модалке недели теперь просто "Закрыть"
+
 document.getElementById('saveBtn').onclick=()=>{
     weekModal.classList.remove('visible');
     setTimeout(() => { weekModal.style.display='none'; }, 300);
-    weekMenu.style.display = 'none';
 };
 
 document.getElementById('deleteWeek').onclick=()=>{
@@ -1278,7 +1326,7 @@ document.getElementById('deleteWeek').onclick=()=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
     else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderAll(); // Локальное сохранение
+  save(); renderAll(); 
   weekModal.classList.remove('visible');
   setTimeout(() => { weekModal.style.display='none'; }, 300);
 };
@@ -1310,49 +1358,34 @@ function formatDate(date) {
 function renderHabitTracker() {
     habitHeaderRow.innerHTML = '<th>Дата</th><th class="progress-col">Прогресс дня</th>'; 
     
-    // Добавляем TH для привычек
     data.habits.forEach((habit, index) => {
         const th = document.createElement('th');
         th.className = 'habit-col';
         th.contentEditable = true;
         th.innerText = habit;
-
-        // ✅ ИСПРАВЛЕНА ЛОГИКА РЕДАКТИРОВАНИЯ И УДАЛЕНИЯ ПРИВЫЧКИ
         th.addEventListener('blur', () => {
-            // Убедимся, что при блюре удаляем лишние символы
-            const cleanText = th.innerText.replace(/[\u00D7]/g, '').trim(); 
-            th.innerText = cleanText;
-            data.habits[index] = cleanText;
-            save(); // Локальное сохранение
+            data.habits[index] = th.innerText.trim();
+            save(); 
         });
-
-        // Создаем контейнер для крестика (чтобы избежать конфликта с contenteditable)
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
         
         removeBtn.onclick = (e) => {
-            e.stopPropagation(); // <-- КРИТИЧНОЕ ИСПРАВЛЕНИЕ: Предотвращаем активацию contenteditable
-            
+            e.stopPropagation();
             if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.`)) {
-                
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
                 
-                // Удаляем запись о привычке из всех дней
                 data.habitRecords.forEach(record => { 
                     if (record.tasks.hasOwnProperty(deletedHabit)) {
                         delete record.tasks[deletedHabit]; 
                     }
                 });
-                
-                save(); // Локальное сохранение
+                save(); 
                 renderHabitTracker();
             }
         };
-        
-        // Убедимся, что крестик не является частью contenteditable
-        th.appendChild(removeBtn); 
-        
+        th.appendChild(removeBtn);
         habitHeaderRow.insertBefore(th, habitHeaderRow.children[habitHeaderRow.children.length - 1]);
     });
     
@@ -1366,7 +1399,6 @@ function renderHabitTracker() {
         let completedHabits = 0;
         const totalHabits = data.habits.length;
         
-        // Рендерим привычки
         data.habits.forEach(habit => {
             const td = document.createElement('td');
             const checkbox = document.createElement('input');
@@ -1380,7 +1412,7 @@ function renderHabitTracker() {
             }
             checkbox.onchange = () => {
                 record.tasks[habit] = checkbox.checked;
-                save(); // Локальное сохранение
+                save(); 
                 renderHabitTracker();
             };
             td.appendChild(checkbox);
@@ -1400,7 +1432,6 @@ function renderHabitTracker() {
         habitBody.appendChild(tr);
     });
 
-    // Управление кнопкой сворачивания
     if (data.habitRecords.length > 5) {
         toggleHabitHistoryBtn.style.display = 'block';
         if (isHabitHistoryCollapsed) {
@@ -1416,7 +1447,6 @@ function renderHabitTracker() {
     }
 }
 
-// Добавляем логику кнопки разворачивания
 toggleHabitHistoryBtn.onclick = () => {
     isHabitHistoryCollapsed = !isHabitHistoryCollapsed;
     renderHabitTracker();
@@ -1428,7 +1458,7 @@ document.getElementById('addHabitBtn').onclick=()=>{
         data.habits.push(habitText);
         newHabitInput.value='';
         data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
-        save(); // Локальное сохранение
+        save(); 
         renderHabitTracker();
     }
 };
@@ -1442,7 +1472,7 @@ document.getElementById('newDayBtn').onclick=()=>{
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
     data.habitRecords.push(newRecord);
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    save(); // Локальное сохранение
+    save(); 
     renderHabitTracker();
 };
 
@@ -1463,7 +1493,6 @@ function updateMoodSelect() {
     
     moodMonthSelect.innerHTML = '';
 
-    // Сначала добавляем текущий месяц и предыдущие 11 месяцев
     for (let i = 0; i < 12; i++) {
         const monthDate = new Date(currentYear, currentMonth - i, 1);
         const year = monthDate.getFullYear();
@@ -1475,7 +1504,6 @@ function updateMoodSelect() {
         moodMonthSelect.appendChild(option);
     }
     
-    // Выбираем текущий месяц
     moodMonthSelect.value = `${currentYear}-${currentMonth}`;
     moodMonthSelect.onchange = renderMoodCalendar;
 }
@@ -1483,7 +1511,6 @@ function updateMoodSelect() {
 function renderMoodCalendar() {
     moodCalendar.innerHTML = '';
     
-    // Добавляем заголовки дней недели
     ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
         const header = document.createElement('div');
         header.className = 'mood-calendar-day';
@@ -1497,18 +1524,15 @@ function renderMoodCalendar() {
 
     const date = new Date(year, monthIndex, 1);
     
-    // Определяем день недели для первого числа месяца (0=Вс, 1=Пн, ...)
     let firstDayOfWeek = date.getDay(); 
-    if (firstDayOfWeek === 0) firstDayOfWeek = 7; // Делаем Вс последним
+    if (firstDayOfWeek === 0) firstDayOfWeek = 7; 
 
-    // Добавляем пустые ячейки для сдвига
     for (let i = 1; i < firstDayOfWeek; i++) {
         const empty = document.createElement('div');
         empty.className = 'mood-calendar-cell empty';
         moodCalendar.appendChild(empty);
     }
 
-    // Рендерим дни
     while (date.getMonth() === monthIndex) {
         const day = date.getDate();
         const dayKey = getDayKey(date);
@@ -1548,7 +1572,7 @@ function updateMoodSelection() {
 function selectMood(mood) {
     const todayKey = getDayKey(new Date());
     data.moodRecords[todayKey] = mood;
-    save(); // Локальное сохранение
+    save(); 
     updateMoodSelection();
     renderMoodCalendar();
 }
@@ -1563,13 +1587,16 @@ function renderAll() {
     updateMoodSelect();
     updateMoodSelection();
     renderMoodCalendar();
-    setUnsaved(localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true'); // Обновляем кнопку при рендере
+    setUnsaved(localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true');
 }
+
+// 🚨 ИЗМЕНЕННАЯ init(): Проверяет ключ и либо показывает модалку, либо загружает данные
 async function init() {
     // 1. Проверяем ключ авторизации
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
-        // Если ключа нет, перенаправляем на страницу входа и прерываем выполнение
-        goToAuth();
+        // Если ключа нет, открываем модалку авторизации и ПРЕРЫВАЕМ загрузку
+        openAuthModal();
+        // ВАЖНО: Никаких других действий, кроме показа модалки!
         return; 
     }
     
@@ -1579,6 +1606,8 @@ async function init() {
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
     renderAll();
 }
+
+// 🚨 КРИТИЧЕСКОЕ ВЫПОЛНЕНИЕ: Запускаем init() СРАЗУ
 init();
 
 // Предупреждение перед закрытием страницы
