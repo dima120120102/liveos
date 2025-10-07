@@ -71,7 +71,6 @@ body {
     padding:20px;
     display:flex;
     flex-direction:column;
-    /* ✅ ИСПРАВЛЕНИЕ: Добавлено расстояние между целями */
     gap:12px; 
     max-height: 800px; 
     overflow-y: auto; 
@@ -158,12 +157,11 @@ body {
     font-size:24px;
     cursor:pointer;
     display:none; 
-    transition: background-color 0.2s, transform 0.2s ease-out; /* Увеличено время для анимации */
+    transition: background-color 0.2s, transform 0.2s ease-out; 
 }
 .goals:hover .add-goal-btn{display:flex}
 .add-goal-btn:hover { 
     background-color: var(--accent-color); 
-    /* ✅ ИСПРАВЛЕНИЕ: Прыжок вверх */
     transform: translateX(-50%) translateY(-5px) scale(1.05); 
 }
 
@@ -200,7 +198,6 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ✅ ГАРАНТИЯ ГОРИЗОНТАЛЬНОЙ ПРОКРУТКИ: */
 .months-wrapper {
     overflow-x: auto; 
     padding-bottom: 20px; 
@@ -235,6 +232,7 @@ body {
 .drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
 
 /* --- МОДАЛЬНОЕ ОКНО (Modal Edit Styles) --- */
+/* ... (стили модального окна без изменений) ... */
 .modal{
     position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
     opacity: 0; 
@@ -301,7 +299,7 @@ body {
 .task-delete:hover { filter: invert(100%); }
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
-.habit-tracker{background:var(--bg-secondary);padding:25px 20px;}
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
 .habit-tracker h2 { margin-top: 0; color: var(--success-color); }
 .habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
 .habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
@@ -319,7 +317,6 @@ body {
 .progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
 .progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
-/* ✅ ИСПРАВЛЕНИЕ: Кнопка удаления привычки */
 .habit-table th { 
     position: relative; 
     padding-right: 25px; 
@@ -329,7 +326,7 @@ body {
     top: 50%;
     right: 5px;
     transform: translateY(-50%);
-    color: var(--danger-color); /* Красный цвет */
+    color: var(--danger-color); 
     font-size: 18px;
     font-weight: bold;
     cursor: pointer;
@@ -339,6 +336,117 @@ body {
 }
 .remove-habit:hover {
     opacity: 1;
+}
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+.mood-tracker {
+    background: var(--bg-secondary);
+    padding: 25px 20px;
+}
+.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+.mood-selection {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 25px;
+}
+.mood-option {
+    font-size: 40px;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+    opacity: 0.6;
+}
+.mood-option:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+.mood-option.selected {
+    opacity: 1;
+    transform: scale(1.2);
+    border: 3px solid var(--warning-color);
+    border-radius: 50%;
+    padding: 5px;
+}
+
+.mood-history-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+.mood-calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    background: var(--bg-tertiary);
+    padding: 10px;
+    border-radius: 8px;
+}
+.mood-calendar-day {
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+.mood-calendar-cell {
+    padding: 5px 0;
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 40px;
+    cursor: default;
+}
+.mood-calendar-cell.empty {
+    background: var(--bg-main);
+    cursor: default;
+}
+.day-number {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+.day-mood {
+    font-size: 18px;
+    margin-top: 2px;
+}
+.current-month-select {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
+.habit-table-container {
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.5s ease-out;
+    max-height: 500px; /* Достаточно для 5 строк + шапка */
+}
+.habit-table-container.collapsed {
+    max-height: 250px; /* Высота для 5 строк + шапка */
+}
+.toggle-history-btn {
+    width: 100%;
+    text-align: center;
+    background: var(--bg-tertiary);
+    color: var(--accent-color);
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-top: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.2s;
+    border-radius: 0 0 8px 8px;
+}
+.toggle-history-btn:hover {
+    background: var(--bg-hover);
 }
 
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
@@ -355,6 +463,9 @@ body {
     .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 150px; }
     .modal-right { overflow-y: auto; }
     .modal-header input { width: 50%; }
+
+    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
+    .mood-option { font-size: 30px; }
 }
 </style>
 </head>
@@ -393,56 +504,78 @@ body {
 <section class="habit-tracker">
     <h2>✅ Трекер Привычек</h2>
     <div class="habit-controls">
-        <input type="text" id="newHabitInput" placeholder="Введите новую привычку (например, 'Сосать 30 мин')">
+        <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
         <button id="addHabitBtn" class="btn">Добавить привычку</button>
         <button id="newDayBtn" class="btn create-week">Новый день</button>
     </div>
-    <div class="habit-table-wrapper">
-        <table class="habit-table">
-            <thead>
-                <tr id="habitHeaderRow">
-                    <th>Дата</th>
-                    <th class="progress-col">Прогресс дня</th>
-                </tr>
-            </thead>
-            <tbody id="habitBody">
-            </tbody >
-        </table>
+    <div class="habit-table-container" id="habitTableContainer">
+        <div class="habit-table-wrapper">
+            <table class="habit-table">
+                <thead>
+                    <tr id="habitHeaderRow">
+                        <th>Дата</th>
+                        <th class="progress-col">Прогресс дня</th>
+                    </tr>
+                </thead>
+                <tbody id="habitBody">
+                </tbody >
+            </table>
+        </div>
     </div>
+    <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
+        Показать всю историю
+    </button>
+</section>
+
+<section class="mood-tracker">
+    <h2>✨ Трекер Настроения</h2>
+    <p style="text-align:center;">Как твой день?</p>
+    <div class="mood-selection">
+        <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
+        <span class="mood-option" data-mood="normal" title="Нормально">🙂</span>
+        <span class="mood-option" data-mood="great" title="Отлично">😄</span>
+    </div>
+
+    <h3>История настроения</h3>
+    <div class="mood-history-controls">
+        <select id="moodMonthSelect" class="current-month-select"></select>
+    </div>
+    <div id="moodCalendar" class="mood-calendar">
+        </div>
 </section>
 
 <div class="modal" id="weekModal">
-  <div class="modal-content">
-      <div class="modal-header">
-        <input id="weekTitle" placeholder="Название недели">
-        <div class="actions">
-          <span id="menuBtn">⋮
-            <div class="menu" id="weekMenu">
-              <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
-              <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <input id="weekTitle" placeholder="Название недели">
+            <div class="actions">
+            <span id="menuBtn">⋮
+                <div class="menu" id="weekMenu">
+                <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
+                <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAM5JREFUSEvd1dENwjAMBVCbARhBNgAmgA2ACWAb1A0QgQ2ADWQDlEnSS0kKXdpfyY9/KPn1j2NbF2PjVBY/A0wAE5jrBvAE8AJYgATeAZfC7A00z3fA3SdgBfyJt5VcB6AF9oBsWAE2AdsghbVgBIwAF+B94EG+fA0Y2wJulsD/JqAcPAdcBRtgA1yB81sBV+AX3LkGfARs9gXMlTAY7QJ3sAzs0oErYAz8Bb6CK7AW3oLr4AociL/sBjwB9/JQB/wEXACf2sUfk4s03hHkdfAAAAAASUVORK5CYII=" width="16"> Скачать TXT</div>
+                </div>
+            </span>
+            <span id="closeModal">×</span>
             </div>
-          </span>
-          <span id="closeModal">×</span>
         </div>
-      </div>
-      <div class="modal-body">
-        <div class="modal-left">
-          <div class="modal-goals">
-            <h4>Годовые цели</h4>
-            <ul id="modalGoalsList"></ul>
-          </div>
+        <div class="modal-body">
+            <div class="modal-left">
+            <div class="modal-goals">
+                <h4>Годовые цели</h4>
+                <ul id="modalGoalsList"></ul>
+            </div>
+            </div>
+            <div class="modal-right">
+            <div class="modal-description">
+                <textarea id="weekDesc" placeholder="Описание недели"></textarea>
+            </div>
+            <div class="modal-days" id="daysContainer"></div>
+            </div>
         </div>
-        <div class="modal-right">
-          <div class="modal-description">
-            <textarea id="weekDesc" placeholder="Описание недели"></textarea>
-          </div>
-          <div class="modal-days" id="daysContainer"></div>
+        <div class="modal-footer">
+            <button class="save-btn" id="saveBtn">Сохранить</button>
         </div>
-      </div>
-      <div class="modal-footer">
-          <button class="save-btn" id="saveBtn">Сохранить</button>
-      </div>
-  </div>
+    </div>
 </div>
 
 <script>
@@ -450,11 +583,17 @@ body {
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby0IsYUqK3m_aXeEDDgGUf9O9G4ONuwchWGh0oeCd7SgiGOQ2AsBWMnazQcC5kSpA1Z/exec"; 
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername';
-const STORAGE_KEY_LOCAL = 'plannerData_v8_local'; 
+const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; // Обновляем версию для новых данных
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+
+const MOOD_EMOJIS = {
+    bad: '😔',
+    normal: '🙂',
+    great: '😄'
+};
 
 let data = null; 
 let dragId = null;
@@ -480,24 +619,25 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}}; // Добавлено moodRecords
         months.forEach(m=>{emptyData.months[m]=[];}); 
         return emptyData;
     }
     const result = await sendRequest("load", { dataKey: dataKey });
     if (result && result.status === 'error') {
         console.error("Ошибка загрузки данных:", result.message);
-        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+        const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
         months.forEach(m=>{emptyData.months[m]=[];});
         return emptyData; 
     }
-    const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[]};
+    const loadedData = result || {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
     if (!loadedData.months) loadedData.months = {};
     if (!loadedData.unassigned) loadedData.unassigned = [];
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
+    if (!loadedData.moodRecords) loadedData.moodRecords = {}; // Инициализация
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
     return loadedData;
@@ -548,18 +688,13 @@ function renderGoals(){
   data.goals.forEach((t,i)=>{
     const div=document.createElement('div'); div.className='goal'; 
     div.contentEditable=true; 
-    // Устанавливаем чистый текст цели
     div.innerText=t;
     
-    // ИСПРАВЛЕНО: Добавлен обработчик для удаления HTML и лишних переносов
     div.addEventListener('input',()=>{
-        // Получаем чистый текст из элемента, удаляя все HTML-теги и лишние пробелы/переносы
         const cleanText = div.innerText.replace(/[\u00D7]/g, '').trim(); 
         
-        // Это важно: обновляем содержимое div чистым текстом, чтобы удалить вставленные HTML-теги
         if (div.innerHTML !== cleanText) {
             div.innerHTML = cleanText;
-            // Устанавливаем курсор в конец текста после очистки
             const range = document.createRange();
             const sel = window.getSelection();
             if (div.firstChild) {
@@ -578,7 +713,7 @@ function renderGoals(){
     rm.onclick=()=>{
         data.goals.splice(i,1);
         save();
-        renderGoals(); // Перерисовка после удаления
+        renderGoals(); 
     };
     div.appendChild(rm); 
     goalsList.appendChild(div);
@@ -707,7 +842,6 @@ function openWeekModal(id){
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
       const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A18A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-      // ИСПРАВЛЕНИЕ: Используем innerText для сохранения только текста, удаляя HTML при вводе
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/[\u00D7]/g, '').trim();save();});
       taskDiv.appendChild(rm);
       taskContainer.appendChild(taskDiv);
@@ -729,7 +863,6 @@ function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 
 document.getElementById('closeModal').onclick=()=>{
     weekModal.classList.remove('visible');
-    // Небольшая задержка, чтобы анимация завершилась
     setTimeout(() => { weekModal.style.display='none'; }, 300); 
 };
 document.getElementById('saveBtn').onclick=()=>{
@@ -772,12 +905,17 @@ document.getElementById('downloadWeek').onclick=()=>{
 const habitHeaderRow = document.getElementById('habitHeaderRow');
 const habitBody = document.getElementById('habitBody');
 const newHabitInput = document.getElementById('newHabitInput');
+const habitTableContainer = document.getElementById('habitTableContainer');
+const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
+let isHabitHistoryCollapsed = true; 
+
 function formatDate(date) {
     const d = new Date(date);
     return d.toLocaleDateString('ru-RU', { month: '2-digit', day: '2-digit' });
 }
+
 function renderHabitTracker() {
-    habitHeaderRow.innerHTML = '<th>Дата</th><th class="progress-col">Прогресс дня</th>'; // Очищаем и добавляем базовые TH
+    habitHeaderRow.innerHTML = '<th>Дата</th><th class="progress-col">Прогресс дня</th>'; 
     
     // Добавляем TH для привычек
     data.habits.forEach((habit, index) => {
@@ -793,14 +931,11 @@ function renderHabitTracker() {
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
         
-        // ✅ ИСПРАВЛЕНИЕ: Логика удаления привычки
         removeBtn.onclick = (e) => {
             e.stopPropagation();
             if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.`)) {
-                // Удаляем привычку из списка
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
                 
-                // Удаляем записи об этой привычке из всех дней
                 data.habitRecords.forEach(record => { 
                     if (record.tasks.hasOwnProperty(deletedHabit)) {
                         delete record.tasks[deletedHabit]; 
@@ -811,12 +946,15 @@ function renderHabitTracker() {
             }
         };
         th.appendChild(removeBtn);
-        // Вставляем TH перед последним (прогресс дня)
         habitHeaderRow.insertBefore(th, habitHeaderRow.children[habitHeaderRow.children.length - 1]);
     });
     
     habitBody.innerHTML = '';
-    data.habitRecords.forEach(record => {
+
+    // Определяем, сколько строк нужно показать
+    const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 5) : data.habitRecords;
+    
+    recordsToShow.forEach(record => {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td class="date-col">${formatDate(record.date)}</td>`;
         let completedHabits = 0;
@@ -855,7 +993,29 @@ function renderHabitTracker() {
         tr.appendChild(progressTd);
         habitBody.appendChild(tr);
     });
+
+    // Управление кнопкой сворачивания
+    if (data.habitRecords.length > 5) {
+        toggleHabitHistoryBtn.style.display = 'block';
+        if (isHabitHistoryCollapsed) {
+            habitTableContainer.classList.add('collapsed');
+            toggleHabitHistoryBtn.textContent = 'Показать всю историю';
+        } else {
+            habitTableContainer.classList.remove('collapsed');
+            toggleHabitHistoryBtn.textContent = 'Свернуть историю';
+        }
+    } else {
+        toggleHabitHistoryBtn.style.display = 'none';
+        habitTableContainer.classList.remove('collapsed');
+    }
 }
+
+// Добавляем логику кнопки разворачивания
+toggleHabitHistoryBtn.onclick = () => {
+    isHabitHistoryCollapsed = !isHabitHistoryCollapsed;
+    renderHabitTracker();
+};
+
 document.getElementById('addHabitBtn').onclick=()=>{
     const habitText=newHabitInput.value.trim();
     if(habitText && !data.habits.includes(habitText)){
@@ -880,12 +1040,123 @@ document.getElementById('newDayBtn').onclick=()=>{
     renderHabitTracker();
 };
 
+/* --- КОД ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+
+const moodMonthSelect = document.getElementById('moodMonthSelect');
+const moodCalendar = document.getElementById('moodCalendar');
+
+function getDayKey(date) {
+    const d = new Date(date);
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+}
+
+function updateMoodSelect() {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    moodMonthSelect.innerHTML = '';
+
+    // Сначала добавляем текущий месяц и предыдущие 11 месяцев
+    for (let i = 0; i < 12; i++) {
+        const monthDate = new Date(currentYear, currentMonth - i, 1);
+        const year = monthDate.getFullYear();
+        const monthIndex = monthDate.getMonth();
+        
+        const option = document.createElement('option');
+        option.value = `${year}-${monthIndex}`;
+        option.textContent = `${months[monthIndex]} ${year}`;
+        moodMonthSelect.appendChild(option);
+    }
+    
+    // Выбираем текущий месяц
+    moodMonthSelect.value = `${currentYear}-${currentMonth}`;
+    moodMonthSelect.onchange = renderMoodCalendar;
+}
+
+function renderMoodCalendar() {
+    moodCalendar.innerHTML = '';
+    
+    // Добавляем заголовки дней недели
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'mood-calendar-day';
+        header.textContent = day;
+        moodCalendar.appendChild(header);
+    });
+
+    const [yearStr, monthIndexStr] = moodMonthSelect.value.split('-');
+    const year = parseInt(yearStr);
+    const monthIndex = parseInt(monthIndexStr);
+
+    const date = new Date(year, monthIndex, 1);
+    
+    // Определяем день недели для первого числа месяца (0=Вс, 1=Пн, ...)
+    let firstDayOfWeek = date.getDay(); 
+    if (firstDayOfWeek === 0) firstDayOfWeek = 7; // Делаем Вс последним
+
+    // Добавляем пустые ячейки для сдвига
+    for (let i = 1; i < firstDayOfWeek; i++) {
+        const empty = document.createElement('div');
+        empty.className = 'mood-calendar-cell empty';
+        moodCalendar.appendChild(empty);
+    }
+
+    // Рендерим дни
+    while (date.getMonth() === monthIndex) {
+        const day = date.getDate();
+        const dayKey = getDayKey(date);
+        const mood = data.moodRecords[dayKey];
+        
+        const cell = document.createElement('div');
+        cell.className = 'mood-calendar-cell';
+        
+        cell.innerHTML = `
+            <span class="day-number">${day}</span>
+            <span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span>
+        `;
+        moodCalendar.appendChild(cell);
+        
+        date.setDate(day + 1);
+    }
+}
+
+function updateMoodSelection() {
+    const todayKey = getDayKey(new Date());
+    const savedMood = data.moodRecords[todayKey];
+    
+    document.querySelectorAll('.mood-option').forEach(option => {
+        const mood = option.getAttribute('data-mood');
+        option.classList.remove('selected');
+        
+        if (mood === savedMood) {
+            option.classList.add('selected');
+        }
+        
+        option.onclick = () => {
+            selectMood(mood);
+        };
+    });
+}
+
+function selectMood(mood) {
+    const todayKey = getDayKey(new Date());
+    data.moodRecords[todayKey] = mood;
+    save();
+    updateMoodSelection();
+    renderMoodCalendar();
+}
+
+
 /* --- Главная Инициализация --- */
 function renderAll() {
     renderGoals();
     renderUnassigned();
     renderMonths();
     renderHabitTracker();
+    updateMoodSelect();
+    updateMoodSelection();
+    renderMoodCalendar();
 }
 async function init() {
     if (!localStorage.getItem(STORAGE_KEY_AUTH)) {
