@@ -807,6 +807,7 @@ let dragId = null;
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const accountControlBtn = document.getElementById('accountControl'); // Получаем кнопку для привязки
+accountControlBtn.onclick = handleAccountControlClick; 
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
 const loadingOverlay = document.getElementById('loadingOverlay');
