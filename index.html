@@ -779,9 +779,9 @@ let data = null;
 let dragId = null;
 
 const saveAllBtn = document.getElementById('saveAllBtn');
+// ИСПРАВЛЕНИЕ: Получаем элемент span по его ID для надежности
+const saveAllBtnText = document.getElementById('saveAllBtnText'); 
 const accountControlBtn = document.getElementById('accountControl');
-// --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-// Назначаем обработчик для кнопки аккаунта
 accountControlBtn.onclick = handleAccountControlClick;
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
@@ -801,11 +801,12 @@ function setUnsaved(isUnsaved) {
     if (isUnsaved) {
         localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
         saveAllBtn.classList.add('unsaved');
-        saveAllBtn.textContent = 'Сохранить все (!)';
+        // ИСПРАВЛЕНИЕ: Используем прямую ссылку на элемент, чтобы избежать ошибок
+        if (saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все (!)';
     } else {
         localStorage.removeItem(STORAGE_KEY_UNSAVED);
         saveAllBtn.classList.remove('unsaved');
-        saveAllBtn.textContent = 'Сохранить все';
+        if (saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все';
     }
 }
 
@@ -836,7 +837,7 @@ async function saveDataToAppsScript() {
         alert("Данные успешно сохранены на сервер!");
     } else {
         console.error("Ошибка сохранения данных:", result.message);
-        alert(Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.);
+        alert(`Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.`);
     }
     return result;
 }
@@ -868,7 +869,6 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        // Эта ситуация не должна произойти благодаря проверке в init(), но это доп. защита
         console.error("Попытка загрузить данные без авторизации.");
         window.location.href = 'login.html';
         return null;
@@ -920,7 +920,7 @@ async function deleteProfileAndData() {
         return;
     }
 
-    const confirmText = prompt(Для подтверждения удаления введите свой ник: ${currentUsername});
+    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
     if (confirmText !== currentUsername) {
         alert("Введенный ник не совпадает. Удаление отменено.");
         return;
@@ -930,81 +930,61 @@ async function deleteProfileAndData() {
 
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
-        // Выполняем полный выход после удаления
         localStorage.removeItem(STORAGE_KEY_AUTH); 
         localStorage.removeItem(STORAGE_KEY_USERNAME); 
         localStorage.removeItem(STORAGE_KEY_LOCAL); 
         localStorage.removeItem(STORAGE_KEY_UNSAVED); 
         window.location.href = 'login.html'; 
     } else {
-        alert(Ошибка при удалении профиля: ${result.message});
+        alert(`Ошибка при удалении профиля: ${result.message}`);
     }
 }
 
 
 /* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) --- */
-// --- ИЗМЕНЕНИЯ ЗДЕСЬ ---
-// Логика авторизации перенесена на login.html, здесь только управление профилем
-
 const usernameDisplay = document.getElementById('usernameDisplay');
 const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
 
-// Обновляет имя пользователя на кнопке
 function updateAuthButton() {
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
     usernameDisplay.textContent = username || 'Профиль';
 }
-
-// Упрощенная функция: всегда открывает профиль
 function handleAccountControlClick() {
     openProfileModal();
 }
-
 function openProfileModal() {
     nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
     profileModal.classList.add('visible'); 
     profileModal.style.display='flex';
 }
-
 function closeProfileModal() {
     profileModal.classList.remove('visible');
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
-// Функции openAuthModal, closeAuthModal, toggleAuthView, authPrimaryBtn.onclick УДАЛЕНЫ
-
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-
     if (!newNick) {
         alert("Имя пользователя не может быть пустым.");
         return;
     }
-
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) {
         alert("Новый ник совпадает с текущим.");
         closeProfileModal();
         return;
     }
-
-    const result = await sendRequest("changeUsername", { 
-        dataKey: dataKey, 
-        newUsername: newNick 
-    });
-
+    const result = await sendRequest("changeUsername", { dataKey: dataKey, newUsername: newNick });
     if (result.status === 'success') {
         localStorage.setItem(STORAGE_KEY_USERNAME, result.newUsername); 
         updateAuthButton();
-        alert(Имя пользователя успешно изменено на: ${result.newUsername});
+        alert(`Имя пользователя успешно изменено на: ${result.newUsername}`);
         closeProfileModal();
     } else {
-        alert(Ошибка при смене ника: ${result.message});
+        alert(`Ошибка при смене ника: ${result.message}`);
     }
 };
-
-// Обновленная функция выхода
 document.getElementById('logoutBtn').onclick = () => {
     if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
         if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
@@ -1016,15 +996,12 @@ document.getElementById('logoutBtn').onclick = () => {
         localStorage.removeItem(STORAGE_KEY_USERNAME); 
         localStorage.removeItem(STORAGE_KEY_LOCAL); 
         localStorage.removeItem(STORAGE_KEY_UNSAVED); 
-        // Перенаправляем на страницу входа
         window.location.href = 'login.html';
     }
 };
-
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА (Оставлено без изменений, кроме save()) --- */
-// (Этот блок кода остается таким же, как в вашем оригинале)
+/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
   goalsList.innerHTML='';
@@ -1032,10 +1009,8 @@ function renderGoals(){
     const div=document.createElement('div'); div.className='goal'; 
     div.contentEditable=true; 
     div.innerText=t;
-    
     div.addEventListener('input',()=>{
         const cleanText = div.innerText.replace(/[\u00D7]/g, '').trim(); 
-        
         if (div.innerHTML !== cleanText) {
             div.innerHTML = cleanText;
             const range = document.createRange();
@@ -1047,17 +1022,11 @@ function renderGoals(){
                 sel.addRange(range);
             }
         }
-
         data.goals[i] = cleanText; 
         save();
     });
-
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-    rm.onclick=()=>{
-        data.goals.splice(i,1);
-        save();
-        renderGoals(); 
-    };
+    rm.onclick=()=>{data.goals.splice(i,1); save(); renderGoals(); };
     div.appendChild(rm); 
     goalsList.appendChild(div);
   });
@@ -1066,23 +1035,15 @@ document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая �
 
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
-
 const unassignedContainer = unassignedList.parentElement;
-unassignedContainer.ondragover = e => {
-    e.preventDefault();
-    unassignedContainer.classList.add('dragover');
-};
-unassignedContainer.ondragleave = () => {
-    unassignedContainer.classList.remove('dragover');
-};
+unassignedContainer.ondragover = e => { e.preventDefault(); unassignedContainer.classList.add('dragover'); };
+unassignedContainer.ondragleave = () => { unassignedContainer.classList.remove('dragover'); };
 unassignedContainer.ondrop = e => {
     e.preventDefault();
     unassignedContainer.classList.remove('dragover');
     const wId = dragId;
     if (!wId) return;
-
     let weekToMove = null;
-
     for (const monthName of months) {
         if (data.months[monthName]) {
             const weekIndex = data.months[monthName].findIndex(w => w.id === wId);
@@ -1092,28 +1053,19 @@ unassignedContainer.ondrop = e => {
             }
         }
     }
-
-    if (weekToMove) {
-        data.unassigned.push(weekToMove);
-        save();
-        renderAll();
-    }
+    if (weekToMove) { data.unassigned.push(weekToMove); save(); renderAll(); }
     dragId = null;
 };
-
 function createWeekEl(week){
   const div=document.createElement('div'); div.className='week-item';
-  div.innerHTML=<div>${week.title}</div>; div.draggable=true;
+  div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
   div.ondragstart=e=>{dragId=week.id;};
   div.onclick=()=>openWeekModal(week.id);
   return div;
 }
 function renderUnassigned(){
   unassignedList.innerHTML='';
-  data.unassigned.forEach(w=>{
-    const el=createWeekEl(w);
-    unassignedList.appendChild(el);
-  });
+  data.unassigned.forEach(w=>{ const el=createWeekEl(w); unassignedList.appendChild(el); });
 }
 
 const monthsContainer=document.getElementById('months');
@@ -1122,7 +1074,7 @@ function renderMonths(){
   months.forEach((m,i)=>{
     const div=document.createElement('div'); div.className='month';
     div.style.borderColor=monthColors[i%monthColors.length];
-    div.innerHTML=<div class="m-title">${m}</div><div class="month-weeks" id="month-${m}"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>;
+    div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks" id="month-${m}"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
     monthsContainer.appendChild(div);
     const dropZone=div.querySelector('.drop-zone');
     dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
@@ -1140,10 +1092,7 @@ function renderMonths(){
       dragId = null;
     };
     const monthWeeksDiv=div.querySelector('.month-weeks');
-    (data.months[m] || []).forEach(w=>{
-      const el=createWeekEl(w);
-      monthWeeksDiv.appendChild(el);
-    });
+    (data.months[m] || []).forEach(w=>{ const el=createWeekEl(w); monthWeeksDiv.appendChild(el); });
   });
 }
 
@@ -1169,20 +1118,16 @@ function openWeekModal(id){
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
-  
   weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
   weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
 
   modalGoalsList.innerHTML='';
-  data.goals.forEach(t=>{
-    const li=document.createElement('li'); li.textContent=t;
-    modalGoalsList.appendChild(li);
-  });
+  data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
   daysContainer.innerHTML='';
   weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
     const h4=document.createElement('h4');
-    h4.innerHTML=${d} <span>${(currentWeek.tasks[d]||[]).length}</span>;
+    h4.innerHTML=`${d} <span>${(currentWeek.tasks[d]||[]).length}</span>`;
     dayDiv.appendChild(h4);
     const taskContainer=document.createElement('div'); taskContainer.className='tasks';
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
@@ -1197,8 +1142,7 @@ function openWeekModal(id){
     addBtn.onclick=()=>{
       if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
       currentWeek.tasks[d].push('');
-      renderWeekModal();
-      save();
+      renderWeekModal(); save();
     };
     dayDiv.appendChild(taskContainer);
     dayDiv.appendChild(addBtn);
@@ -1207,16 +1151,26 @@ function openWeekModal(id){
 }
 
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
+document.getElementById('closeModal').onclick=()=>closeWeekModal();
+document.getElementById('saveBtn').onclick=()=>closeWeekModal();
 
-document.getElementById('closeModal').onclick=()=>{
+function closeWeekModal() {
     weekModal.classList.remove('visible');
+    document.getElementById('weekMenu').classList.remove('show');
     setTimeout(() => { weekModal.style.display='none'; }, 300); 
-};
+}
 
-document.getElementById('saveBtn').onclick=()=>{
-    weekModal.classList.remove('visible');
-    setTimeout(() => { weekModal.style.display='none'; }, 300);
-};
+const menuBtn = document.getElementById('menuBtn');
+const weekMenu = document.getElementById('weekMenu');
+menuBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); 
+    weekMenu.classList.toggle('show');
+});
+document.addEventListener('click', (e) => {
+    if (weekMenu.classList.contains('show') && !weekMenu.contains(e.target) && !menuBtn.contains(e.target)) {
+        weekMenu.classList.remove('show');
+    }
+});
 
 document.getElementById('deleteWeek').onclick=()=>{
   if(!currentWeek) return;
@@ -1224,23 +1178,20 @@ document.getElementById('deleteWeek').onclick=()=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
     else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderAll(); 
-  weekModal.classList.remove('visible');
-  setTimeout(() => { weekModal.style.display='none'; }, 300);
+  save(); renderAll(); closeWeekModal();
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
-  let text=Название: ${currentWeek.title}\nОписание: ${currentWeek.desc}\n;
+  let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc}\n`;
   weekDays.forEach(d=>{
-    text+=\n${d}:\n;
-    (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=${i+1}. ${t}\n);
+    text+=`\n${d}:\n`;
+    (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=`  - ${t}\n`);
   });
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=${currentWeek.title}.txt; a.click();
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
 /* --- КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
-// (Этот блок кода остается таким же, как в вашем оригинале)
 const habitHeaderRow = document.getElementById('habitHeaderRow');
 const habitBody = document.getElementById('habitBody');
 const newHabitInput = document.getElementById('newHabitInput');
@@ -1256,40 +1207,37 @@ function formatDate(date) {
 function renderHabitTracker() {
     habitTableContainer.innerHTML = `<div class="habit-table-wrapper">
             <table class="habit-table">
-                <thead>
-                    <tr id="habitHeaderRowNew">
-                        <th>Дата</th>
-                        <th class="progress-col">Прогресс дня</th>
-                    </tr>
-                </thead>
-                <tbody id="habitBodyNew">
-                </tbody >
+                <thead> <tr id="habitHeaderRowNew"> <th>Дата</th> </tr> </thead>
+                <tbody id="habitBodyNew"></tbody>
             </table>
         </div>`;
 
     const newHeaderRow = document.getElementById('habitHeaderRowNew');
     const newBody = document.getElementById('habitBodyNew');
+    
+    const progressTh = document.createElement('th');
+    progressTh.className = 'progress-col';
+    progressTh.innerText = 'Прогресс дня';
+    newHeaderRow.appendChild(progressTh);
 
     data.habits.forEach((habit, index) => {
         const th = document.createElement('th');
         th.className = 'habit-col';
         th.contentEditable = true;
         th.innerText = habit;
-        th.addEventListener('blur', () => {
-            data.habits[index] = th.innerText.trim();
-            save(); 
-        });
+        th.addEventListener('blur', () => { data.habits[index] = th.innerText.trim(); save(); });
+        
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
+        removeBtn.title = 'Удалить привычку';
         
         removeBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.)) {
+            if (confirm(`Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.`)) {
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
-                
                 data.habitRecords.forEach(record => { 
-                    if (record.tasks.hasOwnProperty(deletedHabit)) {
+                    if (record.tasks && record.tasks.hasOwnProperty(deletedHabit)) {
                         delete record.tasks[deletedHabit]; 
                     }
                 });
@@ -1298,31 +1246,34 @@ function renderHabitTracker() {
             }
         };
         th.appendChild(removeBtn);
-        newHeaderRow.insertBefore(th, newHeaderRow.children[newHeaderRow.children.length - 1]);
+        newHeaderRow.insertBefore(th, progressTh);
     });
     
     newBody.innerHTML = '';
-
     const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 5) : data.habitRecords;
     
     recordsToShow.forEach(record => {
         const tr = document.createElement('tr');
-        tr.innerHTML = <td class="date-col">${formatDate(record.date)}</td>;
+        const dateTd = document.createElement('td');
+        dateTd.className = 'date-col';
+        dateTd.textContent = formatDate(record.date);
+        tr.appendChild(dateTd);
+
         let completedHabits = 0;
-        const totalHabits = data.habits.length;
         
         data.habits.forEach(habit => {
             const td = document.createElement('td');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            if (typeof record.tasks[habit] === 'undefined') {
-                record.tasks[habit] = false;
+            if(record.tasks && typeof record.tasks[habit] !== 'undefined') {
+                checkbox.checked = !!record.tasks[habit];
+            } else {
+                checkbox.checked = false;
             }
-            checkbox.checked = !!record.tasks[habit];
-            if (checkbox.checked) {
-                completedHabits++;
-            }
+            if (checkbox.checked) completedHabits++;
+            
             checkbox.onchange = () => {
+                if(!record.tasks) record.tasks = {};
                 record.tasks[habit] = checkbox.checked;
                 save(); 
                 renderHabitTracker();
@@ -1331,6 +1282,7 @@ function renderHabitTracker() {
             tr.appendChild(td);
         });
         
+        const totalHabits = data.habits.length;
         const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
         const progressTd = document.createElement('td');
         progressTd.className = 'progress-col';
@@ -1340,6 +1292,7 @@ function renderHabitTracker() {
                 <span class="progress-bar-text">${percentage.toFixed(0)}%</span>
             </div>
         `;
+        // Вставляем ячейку прогресса после всех привычек
         tr.appendChild(progressTd);
         newBody.appendChild(tr);
     });
@@ -1359,19 +1312,14 @@ function renderHabitTracker() {
     }
 }
 
-toggleHabitHistoryBtn.onclick = () => {
-    isHabitHistoryCollapsed = !isHabitHistoryCollapsed;
-    renderHabitTracker();
-};
-
+toggleHabitHistoryBtn.onclick = () => { isHabitHistoryCollapsed = !isHabitHistoryCollapsed; renderHabitTracker(); };
 document.getElementById('addHabitBtn').onclick=()=>{
     const habitText=newHabitInput.value.trim();
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
-        data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
-        save(); 
-        renderHabitTracker();
+        data.habitRecords.forEach(r => { if(r.tasks) r.tasks[habitText] = false; });
+        save(); renderHabitTracker();
     }
 };
 document.getElementById('newDayBtn').onclick=()=>{
@@ -1384,81 +1332,63 @@ document.getElementById('newDayBtn').onclick=()=>{
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
     data.habitRecords.push(newRecord);
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    save(); 
-    renderHabitTracker();
+    save(); renderHabitTracker();
 };
 
 /* --- КОД ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
-// (Этот блок кода остается таким же, как в вашем оригинале)
 const moodMonthSelect = document.getElementById('moodMonthSelect');
 const moodCalendar = document.getElementById('moodCalendar');
 
 function getDayKey(date) {
     const d = new Date(date);
-    return ${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()};
+    return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
 }
 
 function updateMoodSelect() {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-    
     moodMonthSelect.innerHTML = '';
-
     for (let i = 0; i < 12; i++) {
         const monthDate = new Date(currentYear, currentMonth - i, 1);
         const year = monthDate.getFullYear();
         const monthIndex = monthDate.getMonth();
-        
         const option = document.createElement('option');
-        option.value = ${year}-${monthIndex};
-        option.textContent = ${months[monthIndex]} ${year};
+        option.value = `${year}-${monthIndex}`;
+        option.textContent = `${months[monthIndex]} ${year}`;
         moodMonthSelect.appendChild(option);
     }
-    
-    moodMonthSelect.value = ${currentYear}-${currentMonth};
+    moodMonthSelect.value = `${currentYear}-${currentMonth}`;
     moodMonthSelect.onchange = renderMoodCalendar;
 }
 
 function renderMoodCalendar() {
     moodCalendar.innerHTML = '';
-    
     ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
         const header = document.createElement('div');
         header.className = 'mood-calendar-day';
         header.textContent = day;
         moodCalendar.appendChild(header);
     });
-
     const [yearStr, monthIndexStr] = moodMonthSelect.value.split('-');
     const year = parseInt(yearStr);
     const monthIndex = parseInt(monthIndexStr);
-
     const date = new Date(year, monthIndex, 1);
-    
     let firstDayOfWeek = date.getDay(); 
     if (firstDayOfWeek === 0) firstDayOfWeek = 7; 
-
     for (let i = 1; i < firstDayOfWeek; i++) {
         const empty = document.createElement('div');
         empty.className = 'mood-calendar-cell empty';
         moodCalendar.appendChild(empty);
     }
-
     while (date.getMonth() === monthIndex) {
         const day = date.getDate();
         const dayKey = getDayKey(date);
         const mood = data.moodRecords[dayKey];
-        
         const cell = document.createElement('div');
         cell.className = 'mood-calendar-cell';
-        
-        cell.innerHTML = `
-            <span class="day-number">${day}</span>
-            <span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span>
-        `;
+        cell.innerHTML = `<span class="day-number">${day}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span>`;
         moodCalendar.appendChild(cell);
-        
         date.setDate(day + 1);
     }
 }
@@ -1466,19 +1396,15 @@ function renderMoodCalendar() {
 function updateMoodSelection() {
     const todayKey = getDayKey(new Date());
     const savedMood = data.moodRecords[todayKey];
-    
     document.querySelectorAll('.mood-option').forEach(el => {
         el.classList.remove('selected');
-        if (savedMood && el.dataset.mood === savedMood) {
-            el.classList.add('selected');
-        }
+        if (savedMood && el.dataset.mood === savedMood) el.classList.add('selected');
         el.onclick = () => {
             const newMood = el.dataset.mood;
-            // Убираем или устанавливаем настроение при повторном клике
             data.moodRecords[todayKey] = (savedMood === newMood) ? undefined : newMood;
             save();
             updateMoodSelection();
-            renderMoodCalendar(); // Обновляем календарь сразу
+            renderMoodCalendar();
         };
     });
 }
@@ -1491,20 +1417,12 @@ function renderAll(){
   renderMonths();
   updateMoodSelection();
 }
-
-// --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-// Новая главная функция инициализации с проверкой авторизации
 async function init() {
-    // 🔒 Этот блок теперь служит "охранником" вашего приложения
     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!authKey) {
-        // Если ключа нет, немедленно перенаправляем на страницу входа
-        window.location.href = 'login.html'; // Убедитесь, что имя файла верное
-        return; // Прерываем выполнение скрипта, чтобы ничего не загружалось
+        window.location.href = 'login.html';
+        return; 
     }
-
-    // Если мы здесь, значит пользователь авторизован.
-    // Продолжаем обычную загрузку данных.
     updateAuthButton();
     data = await loadDataFromAppsScript();
     if (data) {
@@ -1512,10 +1430,11 @@ async function init() {
         renderHabitTracker();
         updateMoodSelect();
         renderMoodCalendar();
+    } else {
+        // Если данные не загрузились, показываем ошибку
+        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
     }
 }
-
-// Запускаем инициализацию при загрузке страницы
 document.addEventListener('DOMContentLoaded', init);
 
 </script>
