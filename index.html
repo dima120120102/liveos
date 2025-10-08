@@ -44,12 +44,6 @@
   scrollbar-width: thin;
 }
 
-/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
@@ -59,7 +53,6 @@ body {
     flex-direction: column;
     min-height: 100vh;
     overflow-x: hidden; 
-    animation: fadeIn 0.5s ease-in-out;
 }
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
 .banner img{width:100%;height:auto;max-height: 200px; object-fit:cover;display:block;}
@@ -78,7 +71,6 @@ body {
     padding:20px;
     display:flex;
     flex-direction:column;
-    /* УЛУЧШЕНИЕ: Добавлено расстояние между целями */
     gap:12px; 
     max-height: 800px; 
     overflow-y: auto; 
@@ -95,18 +87,9 @@ body {
 }
 
 /* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
-.btn{
-    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
-    /* УЛУЧШЕНИЕ: Плавные переходы для всех кнопок */
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-}
-.btn:hover{
-    background-color: var(--bg-hover);
-    /* УЛУЧШЕНИЕ: Эффект "приподнятия" при наведении */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.btn:active { transform: scale(0.98) translateY(0); } 
+.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; transition: background-color 0.2s ease, transform 0.1s;}
+.btn:hover{background-color: var(--bg-hover);}
+.btn:active { transform: scale(0.98); } 
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
@@ -127,7 +110,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     font-weight: 600;
-    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    transition: background 0.2s, color 0.2s, transform 0.1s; 
     border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -138,13 +121,11 @@ body {
     border-color: var(--success-color);
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 .account-control-btn:hover{
     background: var(--accent-color);
     color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 .account-control-btn img, .save-all-btn img {
     filter: invert(80%);
@@ -157,12 +138,6 @@ body {
 .save-all-btn.unsaved {
     border-color: var(--warning-color);
     box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
 }
 
 
@@ -173,23 +148,19 @@ body {
     border-radius:8px;
     padding:10px;
     position:relative;
-    /* УЛУЧШЕНИЕ: Плавные переходы для целей */
-    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
+    transition:background-color 0.2s, box-shadow 0.2s; 
     min-height: 40px;
     border-left: 4px solid var(--success-color); 
     font-size: 15px;
 }
 .goal:hover{
     background:var(--bg-hover);
-    /* УЛУЧШЕНИЕ: Эффект "приподнятия" */
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3); 
 }
 .goal .goal-remove{
     position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
-    transition: opacity 0.2s, transform 0.2s; 
+    transition: opacity 0.2s; 
 }
-.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
 .goal:hover .goal-remove{opacity:1;}
 /* Стиль для активного редактирования цели */
 .goal[contenteditable]:focus{
@@ -227,7 +198,7 @@ body {
     padding: 15px;
     border: 1px solid var(--border-color);
     max-width: 250px;
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+    transition: 0.2s ease-in-out;
 }
 .unassigned-container.dragover {
     border-color: var(--accent-color);
@@ -244,13 +215,13 @@ body {
 }
 .week-item,.week-card{
     background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
-    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
+    transition: border-color 0.2s, transform 0.1s, box-shadow 0.2s;
     font-weight: 500;
 }
 .week-item:hover { 
     border-color: var(--accent-color);
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transform: translateY(-1px); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
 .months-wrapper {
@@ -275,11 +246,11 @@ body {
     gap: 15px;
     flex-shrink:0; 
     border-top: 4px solid;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+    transition: transform 0.3s ease; 
 }
 .month:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 .month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
@@ -289,7 +260,6 @@ body {
 /* --- МОДАЛЬНОЕ ОКНО (Modal Edit Styles) --- */
 .modal{
     position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
-    /* УЛУЧШЕНИЕ: Анимация появления */
     opacity: 0; 
     transition: opacity 0.3s ease;
 }
@@ -304,9 +274,8 @@ body {
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-color);
-    /* УЛУЧШЕНИЕ: Анимация "вырастания" */
     transform: scale(0.95); 
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: transform 0.3s ease;
 }
 .modal.visible .modal-content { transform: scale(1); } 
 
@@ -324,70 +293,28 @@ body {
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
 .modal-header input{
     background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s;
 }
-/* УЛУЧШЕНИЕ: Более заметный фокус */
-.modal-header input:focus { 
-    border-color: var(--warning-color); 
-    outline: none;
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
+.modal-header input:focus { border-color: var(--warning-color); outline: none; } 
 .modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
-/* УЛУЧШЕНИЕ: Стили для меню недели */
-.menu{
-    position:absolute;
-    top:35px;
-    right:0;
-    background:var(--bg-tertiary);
-    border:1px solid var(--border-color);
-    border-radius:8px;
-    display:flex;
-    flex-direction:column;
-    min-width:180px;
-    z-index:200; 
-    overflow: hidden; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    /* УЛУЧШЕНИЕ: Анимация появления меню */
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
-.menu.show {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-}
-.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
+.menu{position:absolute;top:30px;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;display:none;flex-direction:column;min-width:160px;z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);}
+.menu div{padding:10px 15px;cursor:pointer;transition:0.2s;display:flex;align-items:center;gap:8px;}
 .menu div:hover{background:var(--accent-color); color: #fff;}
 .menu div img { filter: invert(80%); transition: filter 0.2s; }
 .menu div:hover img { filter: invert(100%); }
-
 .modal-body{display:flex;flex:1;overflow:hidden;}
 .modal-left{width:250px;border-right:1px solid var(--border-color);padding:15px;overflow-y:auto;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
 .modal-description textarea{
     width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition: border-color 0.2s;
 }
-/* УЛУЧШЕНИЕ: Более заметный фокус */
-.modal-description textarea:focus { 
-    border-color: var(--warning-color); 
-    outline: none; 
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
+.modal-description textarea:focus { border-color: var(--warning-color); outline: none; } 
 
 .modal-days{display:flex;overflow-x:auto;gap:12px;flex-shrink:0; padding-bottom: 10px;}
-.day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;
-    /* УЛУЧШЕНИЕ: Плавный переход для дня */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.day:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+.day{min-width:180px;background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:8px;transition:0.2s;}
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary);}
 .tasks{display:flex;flex-direction:column;gap:6px;overflow-y:auto;}
 .tasks div{
@@ -395,7 +322,7 @@ body {
     transition: background-color 0.2s;
 }
 .tasks div:hover { background-color: var(--bg-hover); }
-.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-tertiary); } 
 .add-task-btn{margin-top:auto;background:#555;color:var(--text-primary);border:none;padding:6px;border-radius:6px;cursor:pointer;font-size:12px; transition: background-color 0.2s;}
 .add-task-btn:hover { background-color: var(--accent-color); }
 .modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
@@ -404,8 +331,8 @@ body {
 .modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;gap:8px;}
 .modal-goals ul li{background:var(--bg-tertiary);padding:8px 12px;border-radius:8px;transition:0.2s; list-style: none;}
 .modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s;}
-.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s;}
+.task-delete:hover { filter: invert(100%); }
 
 /* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
 .habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
@@ -417,13 +344,13 @@ body {
 .habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
 .habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
 .habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
-.habit-table tr:hover td { background-color: var(--bg-hover); }
+.habit-table tr:hover { background-color: var(--bg-tertiary); }
 .habit-table .total-row{background:var(--bg-hover);font-weight:bold;}
 .habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
 .habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
 .progress-col { width: 150px; }
 .progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
-.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.3s ease; }
 .progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
 .habit-table th { 
@@ -441,11 +368,10 @@ body {
     cursor: pointer;
     line-height: 1;
     opacity: 0.5;
-    transition: opacity 0.2s, transform 0.2s;
+    transition: opacity 0.2s;
 }
 .remove-habit:hover {
     opacity: 1;
-    transform: translateY(-50%) rotate(90deg);
 }
 
 /* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
@@ -495,14 +421,15 @@ body {
     opacity: 0.6;
 }
 .mood-option:hover {
-    transform: scale(1.15) rotate(-5deg);
+    transform: scale(1.1);
     opacity: 1;
 }
 .mood-option.selected {
     opacity: 1;
-    transform: scale(1.25);
-    /* УЛУЧШЕНИЕ: Более явное выделение выбранного настроения */
-    text-shadow: 0 0 15px var(--warning-color);
+    transform: scale(1.2);
+    border: 3px solid var(--warning-color);
+    border-radius: 50%;
+    padding: 5px;
 }
 
 .mood-history-controls {
@@ -536,10 +463,6 @@ body {
     justify-content: center;
     min-height: 40px;
     cursor: default;
-    transition: transform 0.2s;
-}
-.mood-calendar-cell:hover {
-    transform: scale(1.05);
 }
 .mood-calendar-cell.empty {
     background: var(--bg-main);
@@ -687,7 +610,7 @@ body {
 <div class="top-controls">
     <button id="saveAllBtn" class="save-all-btn">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAkvACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
-        <span id="saveAllBtnText">Сохранить все</span>
+        Сохранить все
     </button>
     <div id="accountControl" class="account-control-btn">
         <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
@@ -696,7 +619,7 @@ body {
 </div>
 
 <div class="banner">
-  <img id="bannerImg" src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=2070&auto=format&fit=crop" alt="Баннер">
+  <img id="bannerImg" src="your-banner.jpg" alt="Баннер">
 </div>
 
 <div class="main-container">
@@ -769,13 +692,12 @@ body {
         <div class="modal-header">
             <input id="weekTitle" placeholder="Название недели">
             <div class="actions">
-            <div id="menuContainer" style="position: relative;">
-                <span id="menuBtn">⋮</span>
+            <span id="menuBtn">⋮
                 <div class="menu" id="weekMenu">
-                    <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" alt="Удалить"> Удалить неделю</div>
-                    <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTSuQmCC" width="16" alt="Скачать"> Скачать TXT</div>
+                <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16"> Удалить неделю</div>
+                <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTSuQmCC" width="16"> Скачать TXT</div>
                 </div>
-            </div>
+            </span>
             <span id="closeModal">×</span>
             </div>
         </div>
@@ -794,7 +716,7 @@ body {
             </div>
         </div>
         <div class="modal-footer">
-            <button class="save-btn btn" id="saveBtn">Закрыть</button>
+            <button class="save-btn" id="saveBtn">Закрыть</button>
         </div>
     </div>
 </div>
@@ -857,8 +779,9 @@ let data = null;
 let dragId = null;
 
 const saveAllBtn = document.getElementById('saveAllBtn');
-const saveAllBtnText = document.getElementById('saveAllBtnText'); // Текст внутри кнопки
 const accountControlBtn = document.getElementById('accountControl');
+// --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
+// Назначаем обработчик для кнопки аккаунта
 accountControlBtn.onclick = handleAccountControlClick;
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
@@ -878,11 +801,11 @@ function setUnsaved(isUnsaved) {
     if (isUnsaved) {
         localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
         saveAllBtn.classList.add('unsaved');
-        saveAllBtn.querySelector('span').textContent = 'Сохранить все (!)'; // Ищем span внутри
+        saveAllBtn.textContent = 'Сохранить все (!)';
     } else {
         localStorage.removeItem(STORAGE_KEY_UNSAVED);
         saveAllBtn.classList.remove('unsaved');
-        saveAllBtn.querySelector('span').textContent = 'Сохранить все';
+        saveAllBtn.textContent = 'Сохранить все';
     }
 }
 
@@ -945,6 +868,7 @@ async function sendRequest(action, params = {}) {
 async function loadDataFromAppsScript() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
+        // Эта ситуация не должна произойти благодаря проверке в init(), но это доп. защита
         console.error("Попытка загрузить данные без авторизации.");
         window.location.href = 'login.html';
         return null;
@@ -1006,6 +930,7 @@ async function deleteProfileAndData() {
 
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
+        // Выполняем полный выход после удаления
         localStorage.removeItem(STORAGE_KEY_AUTH); 
         localStorage.removeItem(STORAGE_KEY_USERNAME); 
         localStorage.removeItem(STORAGE_KEY_LOCAL); 
@@ -1018,40 +943,57 @@ async function deleteProfileAndData() {
 
 
 /* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (ACCOUNT CONTROL) --- */
+// --- ИЗМЕНЕНИЯ ЗДЕСЬ ---
+// Логика авторизации перенесена на login.html, здесь только управление профилем
+
 const usernameDisplay = document.getElementById('usernameDisplay');
 const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
 
+// Обновляет имя пользователя на кнопке
 function updateAuthButton() {
     const username = localStorage.getItem(STORAGE_KEY_USERNAME);
     usernameDisplay.textContent = username || 'Профиль';
 }
+
+// Упрощенная функция: всегда открывает профиль
 function handleAccountControlClick() {
     openProfileModal();
 }
+
 function openProfileModal() {
     nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
     profileModal.classList.add('visible'); 
     profileModal.style.display='flex';
 }
+
 function closeProfileModal() {
     profileModal.classList.remove('visible');
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
+// Функции openAuthModal, closeAuthModal, toggleAuthView, authPrimaryBtn.onclick УДАЛЕНЫ
+
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+
     if (!newNick) {
         alert("Имя пользователя не может быть пустым.");
         return;
     }
+
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) {
         alert("Новый ник совпадает с текущим.");
         closeProfileModal();
         return;
     }
-    const result = await sendRequest("changeUsername", { dataKey: dataKey, newUsername: newNick });
+
+    const result = await sendRequest("changeUsername", { 
+        dataKey: dataKey, 
+        newUsername: newNick 
+    });
+
     if (result.status === 'success') {
         localStorage.setItem(STORAGE_KEY_USERNAME, result.newUsername); 
         updateAuthButton();
@@ -1061,6 +1003,8 @@ document.getElementById('saveNickBtn').onclick = async () => {
         alert(Ошибка при смене ника: ${result.message});
     }
 };
+
+// Обновленная функция выхода
 document.getElementById('logoutBtn').onclick = () => {
     if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
         if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
@@ -1072,12 +1016,15 @@ document.getElementById('logoutBtn').onclick = () => {
         localStorage.removeItem(STORAGE_KEY_USERNAME); 
         localStorage.removeItem(STORAGE_KEY_LOCAL); 
         localStorage.removeItem(STORAGE_KEY_UNSAVED); 
+        // Перенаправляем на страницу входа
         window.location.href = 'login.html';
     }
 };
+
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА --- */
+/* --- КОД ДЛЯ ЦЕЛЕЙ, НЕДЕЛЬ, МОДАЛЬНОГО ОКНА (Оставлено без изменений, кроме save()) --- */
+// (Этот блок кода остается таким же, как в вашем оригинале)
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
   goalsList.innerHTML='';
@@ -1085,8 +1032,10 @@ function renderGoals(){
     const div=document.createElement('div'); div.className='goal'; 
     div.contentEditable=true; 
     div.innerText=t;
+    
     div.addEventListener('input',()=>{
         const cleanText = div.innerText.replace(/[\u00D7]/g, '').trim(); 
+        
         if (div.innerHTML !== cleanText) {
             div.innerHTML = cleanText;
             const range = document.createRange();
@@ -1098,11 +1047,17 @@ function renderGoals(){
                 sel.addRange(range);
             }
         }
+
         data.goals[i] = cleanText; 
         save();
     });
+
     const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-    rm.onclick=()=>{data.goals.splice(i,1); save(); renderGoals(); };
+    rm.onclick=()=>{
+        data.goals.splice(i,1);
+        save();
+        renderGoals(); 
+    };
     div.appendChild(rm); 
     goalsList.appendChild(div);
   });
@@ -1111,15 +1066,23 @@ document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая �
 
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
+
 const unassignedContainer = unassignedList.parentElement;
-unassignedContainer.ondragover = e => { e.preventDefault(); unassignedContainer.classList.add('dragover'); };
-unassignedContainer.ondragleave = () => { unassignedContainer.classList.remove('dragover'); };
+unassignedContainer.ondragover = e => {
+    e.preventDefault();
+    unassignedContainer.classList.add('dragover');
+};
+unassignedContainer.ondragleave = () => {
+    unassignedContainer.classList.remove('dragover');
+};
 unassignedContainer.ondrop = e => {
     e.preventDefault();
     unassignedContainer.classList.remove('dragover');
     const wId = dragId;
     if (!wId) return;
+
     let weekToMove = null;
+
     for (const monthName of months) {
         if (data.months[monthName]) {
             const weekIndex = data.months[monthName].findIndex(w => w.id === wId);
@@ -1129,9 +1092,15 @@ unassignedContainer.ondrop = e => {
             }
         }
     }
-    if (weekToMove) { data.unassigned.push(weekToMove); save(); renderAll(); }
+
+    if (weekToMove) {
+        data.unassigned.push(weekToMove);
+        save();
+        renderAll();
+    }
     dragId = null;
 };
+
 function createWeekEl(week){
   const div=document.createElement('div'); div.className='week-item';
   div.innerHTML=<div>${week.title}</div>; div.draggable=true;
@@ -1141,7 +1110,10 @@ function createWeekEl(week){
 }
 function renderUnassigned(){
   unassignedList.innerHTML='';
-  data.unassigned.forEach(w=>{ const el=createWeekEl(w); unassignedList.appendChild(el); });
+  data.unassigned.forEach(w=>{
+    const el=createWeekEl(w);
+    unassignedList.appendChild(el);
+  });
 }
 
 const monthsContainer=document.getElementById('months');
@@ -1168,7 +1140,10 @@ function renderMonths(){
       dragId = null;
     };
     const monthWeeksDiv=div.querySelector('.month-weeks');
-    (data.months[m] || []).forEach(w=>{ const el=createWeekEl(w); monthWeeksDiv.appendChild(el); });
+    (data.months[m] || []).forEach(w=>{
+      const el=createWeekEl(w);
+      monthWeeksDiv.appendChild(el);
+    });
   });
 }
 
@@ -1194,11 +1169,15 @@ function openWeekModal(id){
   weekModal.style.display='flex';
   weekTitle.value=currentWeek.title;
   weekDesc.value=currentWeek.desc;
+  
   weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
   weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
 
   modalGoalsList.innerHTML='';
-  data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
+  data.goals.forEach(t=>{
+    const li=document.createElement('li'); li.textContent=t;
+    modalGoalsList.appendChild(li);
+  });
   daysContainer.innerHTML='';
   weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
@@ -1218,7 +1197,8 @@ function openWeekModal(id){
     addBtn.onclick=()=>{
       if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
       currentWeek.tasks[d].push('');
-      renderWeekModal(); save();
+      renderWeekModal();
+      save();
     };
     dayDiv.appendChild(taskContainer);
     dayDiv.appendChild(addBtn);
@@ -1227,30 +1207,16 @@ function openWeekModal(id){
 }
 
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
-document.getElementById('closeModal').onclick=()=>closeWeekModal();
-document.getElementById('saveBtn').onclick=()=>closeWeekModal();
 
-function closeWeekModal() {
+document.getElementById('closeModal').onclick=()=>{
     weekModal.classList.remove('visible');
-    // Закрываем меню, если оно было открыто
-    document.getElementById('weekMenu').classList.remove('show');
     setTimeout(() => { weekModal.style.display='none'; }, 300); 
-}
+};
 
-// ИСПРАВЛЕНИЕ: Логика для меню недели
-const menuBtn = document.getElementById('menuBtn');
-const weekMenu = document.getElementById('weekMenu');
-menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // Предотвращаем закрытие меню сразу после открытия
-    weekMenu.classList.toggle('show');
-});
-// Закрываем меню при клике в любом другом месте
-document.addEventListener('click', (e) => {
-    if (!weekMenu.contains(e.target) && !menuBtn.contains(e.target)) {
-        weekMenu.classList.remove('show');
-    }
-});
-
+document.getElementById('saveBtn').onclick=()=>{
+    weekModal.classList.remove('visible');
+    setTimeout(() => { weekModal.style.display='none'; }, 300);
+};
 
 document.getElementById('deleteWeek').onclick=()=>{
   if(!currentWeek) return;
@@ -1258,20 +1224,23 @@ document.getElementById('deleteWeek').onclick=()=>{
     if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
     else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
   });
-  save(); renderAll(); closeWeekModal();
+  save(); renderAll(); 
+  weekModal.classList.remove('visible');
+  setTimeout(() => { weekModal.style.display='none'; }, 300);
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
   let text=Название: ${currentWeek.title}\nОписание: ${currentWeek.desc}\n;
   weekDays.forEach(d=>{
     text+=\n${d}:\n;
-    (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=`  - ${t}\n`);
+    (currentWeek.tasks[d]||[]).forEach((t,i)=>text+=${i+1}. ${t}\n);
   });
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=${currentWeek.title}.txt; a.click();
 };
 
 /* --- КОД ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+// (Этот блок кода остается таким же, как в вашем оригинале)
 const habitHeaderRow = document.getElementById('habitHeaderRow');
 const habitBody = document.getElementById('habitBody');
 const newHabitInput = document.getElementById('newHabitInput');
@@ -1287,40 +1256,40 @@ function formatDate(date) {
 function renderHabitTracker() {
     habitTableContainer.innerHTML = `<div class="habit-table-wrapper">
             <table class="habit-table">
-                <thead> <tr id="habitHeaderRowNew"> <th>Дата</th> </tr> </thead>
-                <tbody id="habitBodyNew"></tbody>
+                <thead>
+                    <tr id="habitHeaderRowNew">
+                        <th>Дата</th>
+                        <th class="progress-col">Прогресс дня</th>
+                    </tr>
+                </thead>
+                <tbody id="habitBodyNew">
+                </tbody >
             </table>
         </div>`;
 
     const newHeaderRow = document.getElementById('habitHeaderRowNew');
     const newBody = document.getElementById('habitBodyNew');
-    
-    // Добавляем заголовок для прогресса
-    const progressTh = document.createElement('th');
-    progressTh.className = 'progress-col';
-    progressTh.innerText = 'Прогресс дня';
-    newHeaderRow.appendChild(progressTh);
 
     data.habits.forEach((habit, index) => {
         const th = document.createElement('th');
         th.className = 'habit-col';
         th.contentEditable = true;
         th.innerText = habit;
-        th.addEventListener('blur', () => { data.habits[index] = th.innerText.trim(); save(); });
-        
+        th.addEventListener('blur', () => {
+            data.habits[index] = th.innerText.trim();
+            save(); 
+        });
         const removeBtn = document.createElement('span');
         removeBtn.innerText = '×';
         removeBtn.className = 'remove-habit';
-        removeBtn.title = 'Удалить привычку';
         
         removeBtn.onclick = (e) => {
             e.stopPropagation();
             if (confirm(Вы уверены, что хотите удалить привычку "${habit}"? Это действие необратимо и удалит все записи о ней.)) {
-                // ИСПРАВЛЕНИЕ: Логика удаления привычки. Она корректна.
                 const deletedHabit = data.habits.splice(index, 1)[0]; 
-                // Важно: Удаляем свойство привычки из каждой записи в истории
+                
                 data.habitRecords.forEach(record => { 
-                    if (record.tasks && record.tasks.hasOwnProperty(deletedHabit)) {
+                    if (record.tasks.hasOwnProperty(deletedHabit)) {
                         delete record.tasks[deletedHabit]; 
                     }
                 });
@@ -1329,46 +1298,49 @@ function renderHabitTracker() {
             }
         };
         th.appendChild(removeBtn);
-        newHeaderRow.insertBefore(th, progressTh); // Вставляем перед прогрессом
+        newHeaderRow.insertBefore(th, newHeaderRow.children[newHeaderRow.children.length - 1]);
     });
     
     newBody.innerHTML = '';
+
     const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 5) : data.habitRecords;
     
     recordsToShow.forEach(record => {
         const tr = document.createElement('tr');
         tr.innerHTML = <td class="date-col">${formatDate(record.date)}</td>;
         let completedHabits = 0;
+        const totalHabits = data.habits.length;
         
-        const progressTd = document.createElement('td'); // Создаем ячейку прогресса
-        progressTd.className = 'progress-col';
-        tr.appendChild(progressTd); // Добавляем ее сразу после даты
-
         data.habits.forEach(habit => {
             const td = document.createElement('td');
             const checkbox = document.createElement('input');
             checkbox.type = 'checkbox';
-            if (typeof record.tasks[habit] === 'undefined') record.tasks[habit] = false;
+            if (typeof record.tasks[habit] === 'undefined') {
+                record.tasks[habit] = false;
+            }
             checkbox.checked = !!record.tasks[habit];
-            if (checkbox.checked) completedHabits++;
+            if (checkbox.checked) {
+                completedHabits++;
+            }
             checkbox.onchange = () => {
                 record.tasks[habit] = checkbox.checked;
                 save(); 
                 renderHabitTracker();
             };
             td.appendChild(checkbox);
-            tr.insertBefore(td, progressTd); // Вставляем ячейку привычки перед прогрессом
+            tr.appendChild(td);
         });
         
-        const totalHabits = data.habits.length;
         const percentage = totalHabits > 0 ? (completedHabits / totalHabits) * 100 : 0;
-        
+        const progressTd = document.createElement('td');
+        progressTd.className = 'progress-col';
         progressTd.innerHTML = `
             <div class="progress-bar-container">
                 <div class="progress-bar" style="width: ${percentage}%;"></div>
                 <span class="progress-bar-text">${percentage.toFixed(0)}%</span>
             </div>
         `;
+        tr.appendChild(progressTd);
         newBody.appendChild(tr);
     });
 
@@ -1387,14 +1359,19 @@ function renderHabitTracker() {
     }
 }
 
-toggleHabitHistoryBtn.onclick = () => { isHabitHistoryCollapsed = !isHabitHistoryCollapsed; renderHabitTracker(); };
+toggleHabitHistoryBtn.onclick = () => {
+    isHabitHistoryCollapsed = !isHabitHistoryCollapsed;
+    renderHabitTracker();
+};
+
 document.getElementById('addHabitBtn').onclick=()=>{
     const habitText=newHabitInput.value.trim();
     if(habitText && !data.habits.includes(habitText)){
         data.habits.push(habitText);
         newHabitInput.value='';
-        data.habitRecords.forEach(r => { if(r.tasks) r.tasks[habitText] = false; });
-        save(); renderHabitTracker();
+        data.habitRecords.forEach(r => { r.tasks[habitText] = false; });
+        save(); 
+        renderHabitTracker();
     }
 };
 document.getElementById('newDayBtn').onclick=()=>{
@@ -1407,10 +1384,12 @@ document.getElementById('newDayBtn').onclick=()=>{
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
     data.habitRecords.push(newRecord);
     data.habitRecords.sort((a,b)=>new Date(b.date)-new Date(a.date));
-    save(); renderHabitTracker();
+    save(); 
+    renderHabitTracker();
 };
 
 /* --- КОД ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+// (Этот блок кода остается таким же, как в вашем оригинале)
 const moodMonthSelect = document.getElementById('moodMonthSelect');
 const moodCalendar = document.getElementById('moodCalendar');
 
@@ -1423,47 +1402,63 @@ function updateMoodSelect() {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
+    
     moodMonthSelect.innerHTML = '';
+
     for (let i = 0; i < 12; i++) {
         const monthDate = new Date(currentYear, currentMonth - i, 1);
         const year = monthDate.getFullYear();
         const monthIndex = monthDate.getMonth();
+        
         const option = document.createElement('option');
         option.value = ${year}-${monthIndex};
         option.textContent = ${months[monthIndex]} ${year};
         moodMonthSelect.appendChild(option);
     }
+    
     moodMonthSelect.value = ${currentYear}-${currentMonth};
     moodMonthSelect.onchange = renderMoodCalendar;
 }
 
 function renderMoodCalendar() {
     moodCalendar.innerHTML = '';
+    
     ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
         const header = document.createElement('div');
         header.className = 'mood-calendar-day';
         header.textContent = day;
         moodCalendar.appendChild(header);
     });
+
     const [yearStr, monthIndexStr] = moodMonthSelect.value.split('-');
     const year = parseInt(yearStr);
     const monthIndex = parseInt(monthIndexStr);
+
     const date = new Date(year, monthIndex, 1);
+    
     let firstDayOfWeek = date.getDay(); 
     if (firstDayOfWeek === 0) firstDayOfWeek = 7; 
+
     for (let i = 1; i < firstDayOfWeek; i++) {
         const empty = document.createElement('div');
         empty.className = 'mood-calendar-cell empty';
         moodCalendar.appendChild(empty);
     }
+
     while (date.getMonth() === monthIndex) {
         const day = date.getDate();
         const dayKey = getDayKey(date);
         const mood = data.moodRecords[dayKey];
+        
         const cell = document.createElement('div');
         cell.className = 'mood-calendar-cell';
-        cell.innerHTML = <span class="day-number">${day}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span>;
+        
+        cell.innerHTML = `
+            <span class="day-number">${day}</span>
+            <span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span>
+        `;
         moodCalendar.appendChild(cell);
+        
         date.setDate(day + 1);
     }
 }
@@ -1471,15 +1466,19 @@ function renderMoodCalendar() {
 function updateMoodSelection() {
     const todayKey = getDayKey(new Date());
     const savedMood = data.moodRecords[todayKey];
+    
     document.querySelectorAll('.mood-option').forEach(el => {
         el.classList.remove('selected');
-        if (savedMood && el.dataset.mood === savedMood) el.classList.add('selected');
+        if (savedMood && el.dataset.mood === savedMood) {
+            el.classList.add('selected');
+        }
         el.onclick = () => {
             const newMood = el.dataset.mood;
+            // Убираем или устанавливаем настроение при повторном клике
             data.moodRecords[todayKey] = (savedMood === newMood) ? undefined : newMood;
             save();
             updateMoodSelection();
-            renderMoodCalendar();
+            renderMoodCalendar(); // Обновляем календарь сразу
         };
     });
 }
@@ -1492,12 +1491,20 @@ function renderAll(){
   renderMonths();
   updateMoodSelection();
 }
+
+// --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
+// Новая главная функция инициализации с проверкой авторизации
 async function init() {
+    // 🔒 Этот блок теперь служит "охранником" вашего приложения
     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!authKey) {
-        window.location.href = 'login.html';
-        return; 
+        // Если ключа нет, немедленно перенаправляем на страницу входа
+        window.location.href = 'login.html'; // Убедитесь, что имя файла верное
+        return; // Прерываем выполнение скрипта, чтобы ничего не загружалось
     }
+
+    // Если мы здесь, значит пользователь авторизован.
+    // Продолжаем обычную загрузку данных.
     updateAuthButton();
     data = await loadDataFromAppsScript();
     if (data) {
@@ -1507,6 +1514,8 @@ async function init() {
         renderMoodCalendar();
     }
 }
+
+// Запускаем инициализацию при загрузке страницы
 document.addEventListener('DOMContentLoaded', init);
 
 </script>
