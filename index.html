@@ -1026,7 +1026,7 @@ document.getElementById('deleteWeek').onclick=()=>{
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
-  let text=Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n;
+  let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
   weekDays.forEach(d=>{
     text+=\n${d}:\n;
     (currentWeek.tasks[d]||[]).forEach((t)=>text+=`  - ${t || 'Без названия'}\n`);
