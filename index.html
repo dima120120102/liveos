@@ -736,7 +736,7 @@ async function saveDataToAppsScript(){
     if(!dataKey){ alert("Ошибка авторизации"); window.location.href='login.html'; return {status:'error',message:'Нет ключа'}; }
     const result = await sendRequest('save',{dataKey,data:JSON.stringify(data)});
     if(result.status==='success'){ setUnsaved(false); alert('Данные успешно сохранены!'); }
-    else alert(Ошибка: ${result.message}. Локальные данные сохранены.);
+    else alert(`Ошибка: ${result.message}. Локальные данные сохранены.`);
     return result;
 }
 saveAllBtn?.addEventListener('click', saveDataToAppsScript);
