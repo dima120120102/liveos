@@ -975,7 +975,7 @@ function openWeekModal(id){
   daysContainer.innerHTML='';
   weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
-    dayDiv.innerHTML = <h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>;
+    dayDiv.innerHTML = `<h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
     const taskContainer=dayDiv.querySelector('.tasks');
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
