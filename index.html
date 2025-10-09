@@ -1142,7 +1142,7 @@ document.getElementById('newDayBtn').onclick=()=>{
 /* --- ТРЕКЕР НАСТРОЕНИЯ --- */
 const moodMonthSelect = document.getElementById('moodMonthSelect');
 const moodCalendar = document.getElementById('moodCalendar');
-function getDayKey(date) { return ${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}; }
+function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
 function updateMoodSelect() {
     const now = new Date();
     moodMonthSelect.innerHTML = '';
