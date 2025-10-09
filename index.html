@@ -922,7 +922,7 @@ function renderMonths(){
   months.forEach((m,i)=>{
     const div=document.createElement('div'); div.className='month';
     div.style.borderColor=monthColors[i%monthColors.length];
-    div.innerHTML=<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>;
+    div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
     monthsContainer.appendChild(div);
     const dropZone=div.querySelector('.drop-zone');
     dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
