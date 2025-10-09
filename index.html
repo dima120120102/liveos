@@ -440,37 +440,6 @@ body {
 .btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
 .btn-delete:hover { background: #c32727; }
 
-/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
-#aiButtonContainer {
-    position: fixed;
-    bottom: 20px; /* Отступ от нижнего края */
-    left: 20px; /* Отступ от левого края */
-    z-index: 9999; /* Поверх остальных элементов */
-}
-#aiButtonContainer .btn {
-    background: #39556d; /* Цвет, чтобы отличался */
-    border-color: #39556d; 
-    color: #fff;
-    padding: 12px 20px;
-    font-size: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-#aiButtonContainer .btn:hover {
-    background: #476a8a;
-    border-color: #476a8a;
-}
-
-@media (max-width: 768px) {
-    #aiButtonContainer {
-        bottom: 15px;
-        left: 15px;
-    }
-    #aiButtonContainer .btn {
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-}
-
 /* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
 #loadingOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
@@ -652,20 +621,6 @@ body {
     <div>Пожалуйста, подождите...</div>
 </div>
 
-<div class="modal" id="aiAdviceModal">
-    <div class="modal-content small-modal-content" style="max-width: 600px; padding: 30px;">
-        <h2 style="color: var(--accent-color);">🤖 AI Совет</h2>
-        <p id="aiAdviceText" style="white-space: pre-wrap; margin-bottom: 20px; line-height: 1.6;"></p>
-        <button class="btn" onclick="closeAiAdviceModal()">Закрыть</button>
-    </div>
-</div>
-
-<div id="aiButtonContainer">
-    <button id="getAISuggestionBtn" class="btn">
-        🤖 Получить AI совет
-    </button>
-</div>
-    
 <script>
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
@@ -680,13 +635,6 @@ const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 const MOOD_EMOJIS = { bad: '😔', normal: '🙂', great: '😄' };
 
-// --- КОНСТАНТЫ DEEPSEEK API (ВНИМАНИЕ: ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ТЕСТИРОВАНИЯ) ---
-const DEEPSEEK_API_KEY = 'sk-daf19f7d7a3442389d5f97ad0cc797b2'; // ЗАМЕНИТЕ ЭТО!
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'; 
-const DEEPSEEK_MODEL = 'deepseek-chat';
-// --- КОНЕЦ КОНСТАНТ DEEPSEEK API ---
-
-
 let data = null; 
 let dragId = null;
 
@@ -694,12 +642,6 @@ const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText'); 
 const accountControlBtn = document.getElementById('accountControl');
 accountControlBtn.onclick = handleAccountControlClick;
-
-// Элементы для ИИ
-const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
-const aiAdviceModal = document.getElementById('aiAdviceModal');
-const aiAdviceText = document.getElementById('aiAdviceText');
-
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -747,7 +689,7 @@ async function saveDataToAppsScript() {
         setUnsaved(false); 
         alert("Данные успешно сохранены на сервер!");
     } else {
-        alert("Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.");
+        alert(Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.);
     }
     return result;
 }
@@ -807,13 +749,13 @@ async function deleteProfileAndData() {
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
     if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
     if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
-    const confirmText = prompt("Для подтверждения удаления введите свой ник: ${currentUsername}");
+    const confirmText = prompt(Для подтверждения удаления введите свой ник: ${currentUsername});
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
 
     const result = await sendRequest("deleteProfile", { dataKey: dataKey });
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey);
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey));
         window.location.href = 'login.html'; 
     } else {
         alert(Ошибка при удалении профиля: ${result.message});
@@ -978,7 +920,7 @@ function openWeekModal(id){
     const taskContainer=dayDiv.querySelector('.tasks');
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A38A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTORK5CYII'; rm.className='task-delete';
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A38A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
       taskDiv.appendChild(rm);
@@ -1182,146 +1124,6 @@ function updateMoodSelection() {
     });
 }
 
-/* --- AI ФУНКЦИОНАЛ (ПРЯМОЙ DEEPSEEK API) --- */
-
-function closeAiAdviceModal() {
-    aiAdviceModal.classList.remove('visible');
-    setTimeout(() => { aiAdviceModal.style.display='none'; }, 300);
-}
-
-function generateAIPrompt() {
-    let prompt = "Проанализируй данные планировщика и дай полезный, конструктивный совет. Сосредоточься на балансе между целями, привычками и недельными задачами. Ответ должен быть на русском языке, в дружелюбном, но профессиональном тоне, в формате краткого, структурированного текста (используй абзацы и списки с эмодзи).";
-
-    // 1. Цели
-    prompt += "\n\n## 🎯 Годовые цели\n";
-    if (data.goals && data.goals.length > 0) {
-        data.goals.forEach((goal, i) => { prompt += ${i + 1}. ${goal}\n; });
-    } else {
-        prompt += "Отсутствуют.\n";
-    }
-
-    // 2. Привычки
-    prompt += "\n## ✅ Привычки и их прогресс за последнюю неделю\n";
-    const recentRecords = data.habitRecords.slice(0, 7);
-    if (data.habits && data.habits.length > 0 && recentRecords.length > 0) {
-        const habitsStatus = {};
-        data.habits.forEach(h => habitsStatus[h] = { total: 0, completed: 0 });
-
-        recentRecords.forEach(record => {
-            Object.keys(record.tasks || {}).forEach(habit => {
-                if (habitsStatus[habit]) {
-                    habitsStatus[habit].total++;
-                    if (record.tasks[habit]) { habitsStatus[habit].completed++; }
-                }
-            });
-        });
-
-        Object.keys(habitsStatus).forEach((habit) => {
-            const status = habitsStatus[habit];
-            const percent = status.total > 0 ? ((status.completed / status.total) * 100).toFixed(0) : 0;
-            prompt += - Привычка "${habit}": выполнена ${status.completed} из ${status.total} дней (${percent}%)\n;
-        });
-    } else {
-        prompt += "Отсутствуют или нет недавних записей.\n";
-    }
-    
-    // 3. Настроение
-    prompt += "\n## ✨ Записи настроения за последние 7 дней\n";
-    const today = new Date();
-    let moodReport = '';
-    for(let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        const dayKey = getDayKey(date);
-        const mood = data.moodRecords[dayKey];
-        if (mood) {
-             moodReport += - ${date.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}: ${MOOD_EMOJIS[mood] || mood}\n;
-        }
-    }
-    prompt += moodReport || "Нет недавних записей настроения.\n";
-    
-    // 4. Текущие задачи
-    prompt += "\n## 📅 Текущие недели и задачи\n";
-    let weekReport = '';
-    const allWeeks = Object.values(data.months).flat().slice(0, 3); 
-    if (allWeeks.length > 0) {
-        allWeeks.forEach(week => {
-            weekReport += --- Неделя: ${week.title} ---\n;
-            weekDays.forEach(day => {
-                const tasks = week.tasks[day] || [];
-                if (tasks.length > 0) {
-                    weekReport += `  - ${day}: ${tasks.join('; ')}\n`;
-                }
-            });
-            weekReport += "\n";
-        });
-    } else {
-        weekReport += "Нет запланированных недель.\n";
-    }
-    prompt += weekReport;
-
-    return prompt;
-}
-
-async function callDeepSeekAPI(prompt) {
-    showLoading();
-    
-    if (DEEPSEEK_API_KEY === 'ВАШ_РЕАЛЬНЫЙ_DEEPSEEK_API_КЛЮЧ_ЗДЕСЬ') {
-         hideLoading();
-         return { status: "error", message: "Пожалуйста, замените 'ВАШ_РЕАЛЬНЫЙ_DEEPSEEK_API_КЛЮЧ_ЗДЕСЬ' в коде на ваш ключ DeepSeek." };
-    }
-
-    try {
-        const response = await fetch(DEEPSEEK_API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': Bearer ${DEEPSEEK_API_KEY}
-            },
-            body: JSON.stringify({
-                model: DEEPSEEK_MODEL,
-                messages: [
-                    { role: "system", content: "You are a helpful and experienced personal assistant planner. Analyze the user's data and provide structured, actionable advice. Output only the advice text, without any pre-amble." },
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 500
-            })
-        });
-
-        const result = await response.json();
-        hideLoading();
-
-        if (response.ok && result.choices && result.choices.length > 0) {
-            return { status: "success", suggestion: result.choices[0].message.content };
-        } else {
-             // Обработка ошибок API
-             const errorMessage = result.error ? result.error.message : 'Неизвестная ошибка API. Проверьте ключ и лимиты.';
-             console.error("DeepSeek API Error:", result);
-             return { status: "error", message: errorMessage };
-        }
-
-    } catch (error) {
-        hideLoading();
-        console.error("Network or Fetch Error:", error);
-        return { status: "error", message: Ошибка сети: ${error.message} };
-    }
-}
-
-getAISuggestionBtn.onclick = async () => {
-    const promptText = generateAIPrompt();
-    const result = await callDeepSeekAPI(promptText);
-
-    if (result.status === 'success' && result.suggestion) {
-        aiAdviceText.innerHTML = result.suggestion.replace(/\n/g, '<br>');
-        aiAdviceModal.style.display = 'flex';
-        setTimeout(()=>aiAdviceModal.classList.add('visible'), 10);
-    } else {
-        alert(Ошибка при получении совета от AI: ${result.message});
-    }
-};
-
-/* --- ИНИЦИАЛИЗАЦИЯ --- */
 /* --- ИНИЦИАЛИЗАЦИЯ --- */
 function renderAll(){
   renderGoals();
@@ -1333,27 +1135,19 @@ async function init() {
     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!authKey) { window.location.href = 'login.html'; return; }
     
-    // 1. Показываем загрузку и обновляем кнопку профиля
     updateAuthButton();
-    
-    // 2. Загружаем данные
-    // Примечание: Функция loadDataFromAppsScript вызывает showLoading/hideLoading сама
     data = await loadDataFromAppsScript();
     
-    // 3. Проверяем, что данные загружены
     if (data) {
-        // Убедитесь, что ВСЕ функции отрисовки вызываются
         renderAll();
         renderHabitTracker();
         updateMoodSelect();
         renderMoodCalendar();
     } else {
-        // Если данные NULL, выводим сообщение об ошибке
         document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
     }
 }
 document.addEventListener('DOMContentLoaded', init);
-
 </script>
 </body>
 </html>
