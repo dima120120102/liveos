@@ -1324,6 +1324,7 @@ getAISuggestionBtn.onclick = async () => {
 };
 
 /* --- ИНИЦИАЛИЗАЦИЯ --- */
+/* --- ИНИЦИАЛИЗАЦИЯ --- */
 function renderAll(){
   renderGoals();
   renderUnassigned();
@@ -1334,19 +1335,27 @@ async function init() {
     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!authKey) { window.location.href = 'login.html'; return; }
     
+    // 1. Показываем загрузку и обновляем кнопку профиля
     updateAuthButton();
+    
+    // 2. Загружаем данные
+    // Примечание: Функция loadDataFromAppsScript вызывает showLoading/hideLoading сама
     data = await loadDataFromAppsScript();
     
+    // 3. Проверяем, что данные загружены
     if (data) {
+        // Убедитесь, что ВСЕ функции отрисовки вызываются
         renderAll();
         renderHabitTracker();
         updateMoodSelect();
         renderMoodCalendar();
     } else {
+        // Если данные NULL, выводим сообщение об ошибке
         document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
     }
 }
 document.addEventListener('DOMContentLoaded', init);
+
 </script>
 </body>
 </html>
