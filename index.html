@@ -1042,7 +1042,7 @@ const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
 let isHabitHistoryCollapsed = true; 
 
 function renderHabitTracker() {
-    habitTableContainer.innerHTML = <div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>;
+    habitTableContainer.innerHTML = `<div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>`;
     const headerRow = document.getElementById('habitHeaderRow');
     const body = document.getElementById('habitBody');
 
@@ -1089,7 +1089,7 @@ function renderHabitTracker() {
     const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 7) : data.habitRecords;
     recordsToShow.forEach(record => {
         const tr = document.createElement('tr');
-        tr.innerHTML = <td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>;
+        tr.innerHTML = `<td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>`;
         let completed = 0;
 
         data.habits.forEach(habit => {
@@ -1158,16 +1158,16 @@ function updateMoodSelect() {
 }
 function renderMoodCalendar() {
     moodCalendar.innerHTML = '';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += <div class="mood-calendar-day">${day}</div>; });
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += `<div class="mood-calendar-day">${day}</div>`; });
     const [year, month] = moodMonthSelect.value.split('-').map(Number);
     const date = new Date(year, month, 1);
     let firstDay = date.getDay();
     if (firstDay === 0) firstDay = 7;
-    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += <div class="mood-calendar-cell empty"></div>; }
+    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += `<div class="mood-calendar-cell empty"></div>`; }
     while (date.getMonth() === month) {
         const dayKey = getDayKey(date);
         const mood = data.moodRecords[dayKey];
-        moodCalendar.innerHTML += <div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>;
+        moodCalendar.innerHTML += `<div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>`;
         date.setDate(date.getDate() + 1);
     }
 }
