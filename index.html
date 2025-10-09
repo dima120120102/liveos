@@ -836,7 +836,7 @@ async function saveDataToAppsScript() {
         alert("Данные успешно сохранены на сервер!");
     } else {
         console.error("Ошибка сохранения данных:", result.message);
-        alert(Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.);
+        alert(`Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.`);
     }
     return result;
 }
