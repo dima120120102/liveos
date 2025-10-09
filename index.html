@@ -1028,11 +1028,11 @@ document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
   let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
   weekDays.forEach(d=>{
-    text+=\n${d}:\n;
+    text+=`\n${d}:\n`;
     (currentWeek.tasks[d]||[]).forEach((t)=>text+=`  - ${t || 'Без названия'}\n`);
   });
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=${currentWeek.title}.txt; a.click();
+  const a=`document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=${currentWeek.title}.txt; a.click()`;
 };
 
 /* --- ТРЕКЕР ПРИВЫЧЕК --- */
