@@ -1103,7 +1103,7 @@ unassignedContainer.ondrop = e => {
 
 function createWeekEl(week){
   const div=document.createElement('div'); div.className='week-item';
-  div.innerHTML=<div>${week.title}</div>; div.draggable=true;
+  div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
   div.ondragstart=e=>{dragId=week.id;};
   div.onclick=()=>openWeekModal(week.id);
   return div;
