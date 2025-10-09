@@ -808,7 +808,7 @@ async function deleteProfileAndData() {
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
     if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
     if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
-    const confirmText = prompt(Для подтверждения удаления введите свой ник: ${currentUsername});
+    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
 
     const result = await sendRequest("deleteProfile", { dataKey: dataKey });
