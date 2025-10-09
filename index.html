@@ -937,7 +937,7 @@ async function deleteProfileAndData() {
         localStorage.removeItem(STORAGE_KEY_UNSAVED); 
         window.location.href = 'login.html'; 
     } else {
-        alert(Ошибка при удалении профиля: ${result.message});
+        alert(`Ошибка при удалении профиля: ${result.message}`);
     }
 }
 
@@ -997,10 +997,10 @@ document.getElementById('saveNickBtn').onclick = async () => {
     if (result.status === 'success') {
         localStorage.setItem(STORAGE_KEY_USERNAME, result.newUsername); 
         updateAuthButton();
-        alert(Имя пользователя успешно изменено на: ${result.newUsername});
+        alert(`Имя пользователя успешно изменено на: ${result.newUsername}`);
         closeProfileModal();
     } else {
-        alert(Ошибка при смене ника: ${result.message});
+        alert(`Ошибка при смене ника: ${result.message}`);
     }
 };
 
