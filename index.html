@@ -1196,7 +1196,7 @@ function generateAIPrompt() {
     // 1. Цели
     prompt += "\n\n## 🎯 Годовые цели\n";
     if (data.goals && data.goals.length > 0) {
-        data.goals.forEach((goal, i) => { prompt += ${i + 1}. ${goal}\n; });
+        data.goals.forEach((goal, i) => { `prompt += ${i + 1}. ${goal}\n`; });
     } else {
         prompt += "Отсутствуют.\n";
     }
@@ -1220,7 +1220,7 @@ function generateAIPrompt() {
         Object.keys(habitsStatus).forEach((habit) => {
             const status = habitsStatus[habit];
             const percent = status.total > 0 ? ((status.completed / status.total) * 100).toFixed(0) : 0;
-            prompt += - Привычка "${habit}": выполнена ${status.completed} из ${status.total} дней (${percent}%)\n;
+            prompt += `- Привычка "${habit}": выполнена ${status.completed} из ${status.total} дней (${percent}%)\n`;
         });
     } else {
         prompt += "Отсутствуют или нет недавних записей.\n";
@@ -1236,7 +1236,7 @@ function generateAIPrompt() {
         const dayKey = getDayKey(date);
         const mood = data.moodRecords[dayKey];
         if (mood) {
-             moodReport += - ${date.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}: ${MOOD_EMOJIS[mood] || mood}\n;
+             moodReport += `- ${date.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}: ${MOOD_EMOJIS[mood] || mood}\n`;
         }
     }
     prompt += moodReport || "Нет недавних записей настроения.\n";
@@ -1247,7 +1247,7 @@ function generateAIPrompt() {
     const allWeeks = Object.values(data.months).flat().slice(0, 3); 
     if (allWeeks.length > 0) {
         allWeeks.forEach(week => {
-            weekReport += --- Неделя: ${week.title} ---\n;
+            weekReport += `--- Неделя: ${week.title} ---\n`;
             weekDays.forEach(day => {
                 const tasks = week.tasks[day] || [];
                 if (tasks.length > 0) {
