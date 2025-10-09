@@ -1063,7 +1063,7 @@ function renderHabitTracker() {
         removeBtn.title = 'Удалить привычку';
         removeBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(Удалить привычку "${habit}"? Это действие необратимо.)) {
+            if (confirm(`Удалить привычку "${habit}"? Это действие необратимо.`)) {
                 data.habits.splice(index, 1);
                 data.habitRecords.forEach(record => { 
                     if (record.tasks && record.tasks.hasOwnProperty(habit)) {
