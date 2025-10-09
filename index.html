@@ -920,7 +920,7 @@ async function deleteProfileAndData() {
         return;
     }
 
-    const confirmText = prompt(Для подтверждения удаления введите свой ник: ${currentUsername});
+    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
     if (confirmText !== currentUsername) {
         alert("Введенный ник не совпадает. Удаление отменено.");
         return;
