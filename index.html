@@ -793,7 +793,7 @@ document.getElementById('saveNickBtn')?.addEventListener('click',async()=>{
     const dataKey=localStorage.getItem(STORAGE_KEY_AUTH);
     const res=await sendRequest('changeUsername',{dataKey,newUsername:newNick});
     if(res.status==='success'){ localStorage.setItem(STORAGE_KEY_USERNAME,res.newUsername); updateAuthButton(); alert(`Имя изменено: ${res.newUsername}`); closeProfileModal(); }
-    else alert(Ошибка смены ника: ${res.message});
+    else alert(`Ошибка смены ника: ${res.message}`);
 });
 
 document.getElementById('logoutBtn')?.addEventListener('click',()=>{
