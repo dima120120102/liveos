@@ -1318,7 +1318,7 @@ getAISuggestionBtn.onclick = async () => {
         aiAdviceModal.style.display = 'flex';
         setTimeout(()=>aiAdviceModal.classList.add('visible'), 10);
     } else {
-        alert(Ошибка при получении совета от AI: ${result.message});
+        alert(`Ошибка при получении совета от AI: ${result.message}`);
     }
 };
 
