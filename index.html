@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Планер недели с улучшениями</title>
+<title>Планер недели с улучшениями V3.2 Exp</title>
 <style>
 /* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
 :root {
@@ -449,6 +449,27 @@ body {
 .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА СОВЕТА ОТ ИИ (NEW) --- */
+#aiSuggestionModal .modal-content {
+    max-width: 600px;
+}
+#aiSuggestionContent {
+    padding: 20px;
+    white-space: pre-wrap; /* Сохраняет переносы строк и пробелы из ответа ИИ */
+    max-height: 70vh;
+    overflow-y: auto;
+    background: var(--bg-tertiary);
+    border-radius: 0 0 12px 12px;
+    line-height: 1.6;
+    font-size: 15px;
+}
+#aiSuggestionModal .modal-footer {
+    border-top: none;
+    background: var(--bg-tertiary);
+}
+#aiSuggestionModal .modal-header {
+    border-bottom: none;
+}
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
@@ -479,7 +500,7 @@ body {
         <span id="saveAllBtnText">Сохранить все</span>
     </button>
     <div id="accountControl" class="account-control-btn">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTORK5CYCC" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Профиль</span>
     </div>
 </div>
@@ -493,6 +514,10 @@ body {
     <h2>Годовые цели</h2>
     <div id="goalsList"></div>
     <div id="addGoalBtn" class="add-goal-btn">＋</div>
+    
+    <button id="getAiSuggestionBtn" class="btn create-week" style="margin-top: 20px; width: 100%;">
+        🤖 Получить совет от ИИ
+    </button>
   </aside>
 
   <main class="right">
@@ -561,8 +586,8 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTSuQmCC" width="16" alt="Скачать"> Скачать TXT</div>
+                        <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTORK5CYII=" width="16" alt="Удалить"> Удалить неделю</div>
+                        <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTORK5CYII=" width="16" alt="Скачать"> Скачать TXT</div>
                     </div>
                 </div>
                 <span id="closeModal">×</span>
@@ -607,7 +632,7 @@ body {
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" style="filter: invert(80%);"> 
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTORK5CYCC" width="16" style="filter: invert(80%);"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -619,6 +644,19 @@ body {
 <div id="loadingOverlay">
     <div class="spinner"></div>
     <div>Пожалуйста, подождите...</div>
+</div>
+
+<div class="modal" id="aiSuggestionModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="margin:0; color: var(--accent-color);">Совет от 🤖 DeepSeek AI</h2>
+            <span id="closeAiModal" onclick="closeAiModal()">×</span>
+        </div>
+        <div id="aiSuggestionContent">Загрузка совета...</div>
+        <div class="modal-footer">
+            <button class="save-btn btn" onclick="closeAiModal()">Закрыть</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -637,6 +675,13 @@ const MOOD_EMOJIS = { bad: '😔', normal: '🙂', great: '😄' };
 
 let data = null; 
 let dragId = null;
+
+// --- НОВЫЕ КОНСТАНТЫ ДЛЯ OPENROUTER API ---
+const OPENROUTER_API_KEY = "sk-daf19f7d7a3442389d5f97ad0cc797b2"; // <-- ВСТАВЬТЕ СЮДА СВОЙ КЛЮЧ
+const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
+const AI_MODEL = "deepseek/deepseek-v3.1:free"; // Бесплатная модель DeepSeek
+// ------------------------------------------
+
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText'); 
@@ -689,7 +734,7 @@ async function saveDataToAppsScript() {
         setUnsaved(false); 
         alert("Данные успешно сохранены на сервер!");
     } else {
-        alert(`Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.`);
+        alert(Ошибка сохранения: ${result.message}. Данные сохранены локально. Попробуйте еще раз.);
     }
     return result;
 }
@@ -749,16 +794,16 @@ async function deleteProfileAndData() {
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
     if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
     if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
-    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
+    const confirmText = prompt(Для подтверждения удаления введите свой ник: ${currentUsername});
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
 
     const result = await sendRequest("deleteProfile", { dataKey: dataKey });
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey));
         window.location.href = 'login.html'; 
     } else {
-        alert(`Ошибка при удалении профиля: ${result.message}`);
+        alert(Ошибка при удалении профиля: ${result.message});
     }
 }
 
@@ -792,10 +837,10 @@ document.getElementById('saveNickBtn').onclick = async () => {
     if (result.status === 'success') {
         localStorage.setItem(STORAGE_KEY_USERNAME, result.newUsername); 
         updateAuthButton();
-        alert(`Имя пользователя успешно изменено на: ${result.newUsername}`);
+        alert(Имя пользователя успешно изменено на: ${result.newUsername});
         closeProfileModal();
     } else {
-        alert(`Ошибка при смене ника: ${result.message}`);
+        alert(Ошибка при смене ника: ${result.message});
     }
 };
 document.getElementById('logoutBtn').onclick = () => {
@@ -803,7 +848,7 @@ document.getElementById('logoutBtn').onclick = () => {
         if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
             if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) return;
         }
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey));
         window.location.href = 'login.html';
     }
 };
@@ -847,7 +892,7 @@ unassignedContainer.ondrop = e => {
 };
 function createWeekEl(week){
   const div=document.createElement('div'); div.className='week-item';
-  div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
+  div.innerHTML=<div>${week.title}</div>; div.draggable=true;
   div.ondragstart=()=>{dragId=week.id;};
   div.onclick=()=>openWeekModal(week.id);
   return div;
@@ -863,7 +908,7 @@ function renderMonths(){
   months.forEach((m,i)=>{
     const div=document.createElement('div'); div.className='month';
     div.style.borderColor=monthColors[i%monthColors.length];
-    div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
+    div.innerHTML=<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>;
     monthsContainer.appendChild(div);
     const dropZone=div.querySelector('.drop-zone');
     dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
@@ -916,11 +961,11 @@ function openWeekModal(id){
   daysContainer.innerHTML='';
   weekDays.forEach(d=>{
     const dayDiv=document.createElement('div'); dayDiv.className='day';
-    dayDiv.innerHTML = `<h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
+    dayDiv.innerHTML = <h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>;
     const taskContainer=dayDiv.querySelector('.tasks');
     (currentWeek.tasks[d]||[]).forEach((t,i)=>{
       const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A38A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSuQmCC'; rm.className='task-delete';
+      const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A38A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTSUQK5CYII'; rm.className='task-delete';
       rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
       taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
       taskDiv.appendChild(rm);
@@ -967,13 +1012,13 @@ document.getElementById('deleteWeek').onclick=()=>{
 };
 document.getElementById('downloadWeek').onclick=()=>{
   if(!currentWeek) return;
-  let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
+  let text=Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n;
   weekDays.forEach(d=>{
-    text+=`\n${d}:\n`;
+    text+=\n${d}:\n;
     (currentWeek.tasks[d]||[]).forEach((t)=>text+=`  - ${t || 'Без названия'}\n`);
   });
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=${currentWeek.title}.txt; a.click();
 };
 
 /* --- ТРЕКЕР ПРИВЫЧЕК --- */
@@ -983,7 +1028,7 @@ const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
 let isHabitHistoryCollapsed = true; 
 
 function renderHabitTracker() {
-    habitTableContainer.innerHTML = `<div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>`;
+    habitTableContainer.innerHTML = <div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>;
     const headerRow = document.getElementById('habitHeaderRow');
     const body = document.getElementById('habitBody');
 
@@ -1004,7 +1049,7 @@ function renderHabitTracker() {
         removeBtn.title = 'Удалить привычку';
         removeBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm(`Удалить привычку "${habit}"? Это действие необратимо.`)) {
+            if (confirm(Удалить привычку "${habit}"? Это действие необратимо.)) {
                 data.habits.splice(index, 1);
                 data.habitRecords.forEach(record => { 
                     if (record.tasks && record.tasks.hasOwnProperty(habit)) {
@@ -1030,7 +1075,7 @@ function renderHabitTracker() {
     const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 7) : data.habitRecords;
     recordsToShow.forEach(record => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>`;
+        tr.innerHTML = <td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>;
         let completed = 0;
 
         data.habits.forEach(habit => {
@@ -1051,7 +1096,7 @@ function renderHabitTracker() {
 
         const percentage = data.habits.length > 0 ? (completed / data.habits.length) * 100 : 0;
         const progressTd = document.createElement('td');
-        progressTd.innerHTML = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${percentage}%;"></div><span class="progress-bar-text">${percentage.toFixed(0)}%</span></div>`;
+        progressTd.innerHTML = <div class="progress-bar-container"><div class="progress-bar" style="width: ${percentage}%;"></div><span class="progress-bar-text">${percentage.toFixed(0)}%</span></div>;
         tr.appendChild(progressTd);
         body.appendChild(tr);
     });
@@ -1083,32 +1128,32 @@ document.getElementById('newDayBtn').onclick=()=>{
 /* --- ТРЕКЕР НАСТРОЕНИЯ --- */
 const moodMonthSelect = document.getElementById('moodMonthSelect');
 const moodCalendar = document.getElementById('moodCalendar');
-function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
+function getDayKey(date) { return ${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}; }
 function updateMoodSelect() {
     const now = new Date();
     moodMonthSelect.innerHTML = '';
     for (let i = 0; i < 12; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const option = document.createElement('option');
-        option.value = `${date.getFullYear()}-${date.getMonth()}`;
-        option.textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
+        option.value = ${date.getFullYear()}-${date.getMonth()};
+        option.textContent = ${months[date.getMonth()]} ${date.getFullYear()};
         moodMonthSelect.appendChild(option);
     }
-    moodMonthSelect.value = `${now.getFullYear()}-${now.getMonth()}`;
+    moodMonthSelect.value = ${now.getFullYear()}-${now.getMonth()};
     moodMonthSelect.onchange = renderMoodCalendar;
 }
 function renderMoodCalendar() {
     moodCalendar.innerHTML = '';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += `<div class="mood-calendar-day">${day}</div>`; });
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += <div class="mood-calendar-day">${day}</div>; });
     const [year, month] = moodMonthSelect.value.split('-').map(Number);
     const date = new Date(year, month, 1);
     let firstDay = date.getDay();
     if (firstDay === 0) firstDay = 7;
-    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += `<div class="mood-calendar-cell empty"></div>`; }
+    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += <div class="mood-calendar-cell empty"></div>; }
     while (date.getMonth() === month) {
         const dayKey = getDayKey(date);
         const mood = data.moodRecords[dayKey];
-        moodCalendar.innerHTML += `<div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>`;
+        moodCalendar.innerHTML += <div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>;
         date.setDate(date.getDate() + 1);
     }
 }
@@ -1122,6 +1167,135 @@ function updateMoodSelection() {
             save(); updateMoodSelection(); renderMoodCalendar();
         };
     });
+}
+
+/* --- ФУНКЦИИ ИИ (DEEPSEEK VIA OPENROUTER) --- */
+const aiSuggestionModal = document.getElementById('aiSuggestionModal');
+const aiSuggestionContent = document.getElementById('aiSuggestionContent');
+document.getElementById('getAiSuggestionBtn').onclick = getAISuggestion;
+
+function openAiModal() {
+    aiSuggestionModal.style.display = 'flex';
+    setTimeout(() => aiSuggestionModal.classList.add('visible'), 10);
+}
+
+function closeAiModal() {
+    aiSuggestionModal.classList.remove('visible');
+    setTimeout(() => { aiSuggestionModal.style.display = 'none'; }, 300);
+}
+
+function generateAIPrompt() {
+    const today = new Date();
+    const todayKey = getDayKey(today);
+    const moodToday = data.moodRecords[todayKey] || 'Нет данных';
+
+    // 1. Форматирование целей
+    const goalsList = data.goals.length > 0 ? data.goals.map((g, i) => ${i + 1}. ${g}).join('\n') : 'Нет заданных годовых целей.';
+
+    // 2. Форматирование привычек
+    const habitsList = data.habits.length > 0 ? data.habits.join(', ') : 'Нет отслеживаемых привычек.';
+    const todayHabitRecord = data.habitRecords.find(r => new Date(r.date).setHours(0,0,0,0) === today.setHours(0,0,0,0));
+    let habitProgress = 'Нет данных за сегодня.';
+    if (todayHabitRecord) {
+        const completed = Object.values(todayHabitRecord.tasks).filter(Boolean).length;
+        const total = data.habits.length;
+        const percent = total > 0 ? ((completed / total) * 100).toFixed(0) : 0;
+        habitProgress = Сегодня выполнено ${completed} из ${total} (${percent}%) привычек.;
+    }
+
+    // 3. Форматирование задач на ближайшую неделю (не более 7 дней вперед)
+    const weeksData = [...data.unassigned, ...Object.values(data.months).flat()];
+    const tasksSummary = [];
+    weeksData.slice(0, 3).forEach(week => { // Берем первые 3 недели
+        let weekTasks = --- Неделя: ${week.title} ---\n;
+        let hasTasks = false;
+        weekDays.forEach(day => {
+            const tasks = week.tasks[day] || [];
+            if (tasks.length > 0) {
+                weekTasks += ${day}: ${tasks.join('; ')}\n;
+                hasTasks = true;
+            }
+        });
+        if (hasTasks) tasksSummary.push(weekTasks.trim());
+    });
+    const tasksFinal = tasksSummary.length > 0 ? tasksSummary.join('\n\n') : 'Нет запланированных задач в ближайших неделях.';
+
+    const prompt = `
+Твоя задача — выступить в роли личного консультанта по продуктивности. 
+Проанализируй предоставленные данные и дай полезный, конструктивный и мотивирующий совет.
+
+*Данные пользователя:*
+
+1.  *Годовые цели:*
+${goalsList}
+
+2.  *Трекер привычек:*
+    * Отслеживаемые привычки: ${habitsList}
+    * Прогресс за сегодня: ${habitProgress}
+
+3.  *Трекер настроения:*
+    * Настроение за сегодня: ${moodToday}
+
+4.  *Задачи на ближайшие недели:*
+${tasksFinal}
+
+*Инструкции для тебя:*
+* Оцени, как текущие задачи и привычки соотносятся с годовыми целями.
+* Дай конкретные рекомендации по балансу задач и отдыха.
+* Если настроение плохое/нормальное, предложи, как его можно улучшить через изменение плана.
+* Ответ должен быть структурированным, мотивирующим и содержать не более 5-7 предложений.
+    `;
+    return prompt;
+}
+
+async function getAISuggestion() {
+    if (OPENROUTER_API_KEY === "<ВАШ_API_КЛЮЧ_OPENROUTER>" || !OPENROUTER_API_KEY) {
+        alert("Пожалуйста, замените <ВАШ_API_КЛЮЧ_OPENROUTER> в коде на ваш реальный OpenRouter API Key.");
+        return;
+    }
+
+    aiSuggestionContent.innerHTML = 'Запрос отправлен, ожидание ответа от ИИ... ⏳';
+    openAiModal();
+    showLoading(); 
+
+    const prompt = generateAIPrompt();
+    
+    try {
+        const response = await fetch(OPENROUTER_URL, {
+            method: 'POST',
+            headers: {
+                'Authorization': Bearer ${OPENROUTER_API_KEY},
+                'Content-Type': 'application/json',
+                // OpenRouter рекомендует эти заголовки
+                'HTTP-Referer': 'https://your-planner-domain.com', 
+                'X-Title': 'Weekly Planner with DeepSeek',
+            },
+            body: JSON.stringify({
+                model: AI_MODEL,
+                messages: [
+                    { role: "system", content: "Ты — личный консультант по продуктивности. Твоя задача — анализировать данные пользователя и давать мотивирующие и конструктивные советы по планированию." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.7,
+            })
+        });
+
+        const result = await response.json();
+        hideLoading();
+
+        if (result.choices && result.choices.length > 0) {
+            aiSuggestionContent.textContent = result.choices[0].message.content;
+        } else if (result.error) {
+            aiSuggestionContent.innerHTML = **Ошибка от OpenRouter:** ${result.error.message}.<br><br>Проверьте ваш API-ключ и лимиты запросов.;
+        } else {
+            aiSuggestionContent.textContent = "Не удалось получить совет от ИИ. Ответ API не содержит данных.";
+        }
+
+    } catch (error) {
+        hideLoading();
+        console.error("OpenRouter Fetch Error:", error);
+        aiSuggestionContent.textContent = Критическая ошибка сети или сервера: ${error.message}. Попробуйте позже.;
+    }
 }
 
 /* --- ИНИЦИАЛИЗАЦИЯ --- */
