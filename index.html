@@ -814,7 +814,7 @@ async function deleteProfileAndData() {
     const result = await sendRequest("deleteProfile", { dataKey: dataKey });
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey));
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
         window.location.href = 'login.html'; 
     } else {
         alert(`Ошибка при удалении профиля: ${result.message}`);
@@ -862,7 +862,7 @@ document.getElementById('logoutBtn').onclick = () => {
         if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
             if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) return;
         }
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(planner${key}DataKey));
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
         window.location.href = 'login.html';
     }
 };
