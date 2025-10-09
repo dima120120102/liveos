@@ -1149,11 +1149,11 @@ function updateMoodSelect() {
     for (let i = 0; i < 12; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const option = document.createElement('option');
-        option.value = ${date.getFullYear()}-${date.getMonth()};
-        option.textContent = ${months[date.getMonth()]} ${date.getFullYear()};
+        option.value = `${date.getFullYear()}-${date.getMonth()}`;
+        option.textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
         moodMonthSelect.appendChild(option);
     }
-    moodMonthSelect.value = ${now.getFullYear()}-${now.getMonth()};
+    moodMonthSelect.value = `${now.getFullYear()}-${now.getMonth()}`;
     moodMonthSelect.onchange = renderMoodCalendar;
 }
 function renderMoodCalendar() {
