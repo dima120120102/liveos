@@ -1277,7 +1277,7 @@ async function callDeepSeekAPI(prompt) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': Bearer ${DEEPSEEK_API_KEY}
+                'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
             },
             body: JSON.stringify({
                 model: DEEPSEEK_MODEL,
@@ -1305,7 +1305,7 @@ async function callDeepSeekAPI(prompt) {
     } catch (error) {
         hideLoading();
         console.error("Network or Fetch Error:", error);
-        return { status: "error", message: Ошибка сети: ${error.message} };
+        return { status: "error", message: `Ошибка сети: ${error.message}` };
     }
 }
 
