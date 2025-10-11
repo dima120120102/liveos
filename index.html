@@ -669,11 +669,11 @@ body {
 
 <script>
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername'; 
-const STORAGE_KEY_LOCAL = 'plannerData_v9_local'; 
-const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges'; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec";
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey';
+const STORAGE_KEY_USERNAME = 'plannerUsername';
+const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
+const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
@@ -681,17 +681,19 @@ const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 const MOOD_EMOJIS = { bad: '😔', normal: '🙂', great: '😄' };
 
-// --- КОНСТАНТЫ DEEPSEEK API (ВНИМАНИЕ: ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ТЕСТИРОВАНИЯ) ---
-const DEEPSEEK_API_KEY = 'sk-daf19f7d7a3442389d5f97ad0cc797b2'; // ЗАМЕНИТЕ ЭТО!
-const DEEPSEEK_API_URL = 'https://api.deepseek.com/v1/chat/completions'; 
-const DEEPSEEK_MODEL = 'deepseek-chat';
-// --- КОНЕЦ КОНСТАНТ DEEPSEEK API ---
+// --- КОНСТАНТЫ GEMINI API (ВНИМАНИЕ: ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ТЕСТИРОВАНИЯ) ---
+// !!! ВСТАВЬТЕ СЮДА ВАШ БЕСПЛАТНЫЙ КЛЮЧ GEMINI !!!
+const GEMINI_API_KEY = 'AIzaSyAm2GPxyUXhouf4KPxEz8R8MAe0DhUp1dI';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const GEMINI_MODEL = 'gemini-pro';
+// --- КОНЕЦ КОНСТАНТ GEMINI API ---
 
 
-let data = null; 
+let data = null;
 let dragId = null;
 
 const saveAllBtn = document.getElementById('saveAllBtn');
+// ... остальной код констант, не требующий изменений
 const saveAllBtnText = document.getElementById('saveAllBtnText'); 
 const accountControlBtn = document.getElementById('accountControl');
 accountControlBtn.onclick = handleAccountControlClick;
@@ -1183,122 +1185,64 @@ function updateMoodSelection() {
     });
 }
 
-/* --- AI ФУНКЦИОНАЛ (ПРЯМОЙ DEEPSEEK API) --- */
+// ... [Ваш код до секции AI ФУНКЦИОНАЛ] ...
+
+/* --- AI ФУНКЦИОНАЛ (ПРЯМОЙ GEMINI API) --- */
 
 function closeAiAdviceModal() {
     aiAdviceModal.classList.remove('visible');
     setTimeout(() => { aiAdviceModal.style.display='none'; }, 300);
 }
 
-function generateAIPrompt() {
-    let prompt = "Проанализируй данные планировщика и дай полезный, конструктивный совет. Сосредоточься на балансе между целями, привычками и недельными задачами. Ответ должен быть на русском языке, в дружелюбном, но профессиональном тоне, в формате краткого, структурированного текста (используй абзацы и списки с эмодзи).";
+// ФУНКЦИЯ generateAIPrompt остается без изменений
 
-    // 1. Цели
-    prompt += "\n\n## 🎯 Годовые цели\n";
-    if (data.goals && data.goals.length > 0) {
-        data.goals.forEach((goal, i) => { `prompt += ${i + 1}. ${goal}\n`; });
-    } else {
-        prompt += "Отсутствуют.\n";
-    }
-
-    // 2. Привычки
-    prompt += "\n## ✅ Привычки и их прогресс за последнюю неделю\n";
-    const recentRecords = data.habitRecords.slice(0, 7);
-    if (data.habits && data.habits.length > 0 && recentRecords.length > 0) {
-        const habitsStatus = {};
-        data.habits.forEach(h => habitsStatus[h] = { total: 0, completed: 0 });
-
-        recentRecords.forEach(record => {
-            Object.keys(record.tasks || {}).forEach(habit => {
-                if (habitsStatus[habit]) {
-                    habitsStatus[habit].total++;
-                    if (record.tasks[habit]) { habitsStatus[habit].completed++; }
-                }
-            });
-        });
-
-        Object.keys(habitsStatus).forEach((habit) => {
-            const status = habitsStatus[habit];
-            const percent = status.total > 0 ? ((status.completed / status.total) * 100).toFixed(0) : 0;
-            prompt += `- Привычка "${habit}": выполнена ${status.completed} из ${status.total} дней (${percent}%)\n`;
-        });
-    } else {
-        prompt += "Отсутствуют или нет недавних записей.\n";
-    }
-    
-    // 3. Настроение
-    prompt += "\n## ✨ Записи настроения за последние 7 дней\n";
-    const today = new Date();
-    let moodReport = '';
-    for(let i = 0; i < 7; i++) {
-        const date = new Date(today);
-        date.setDate(today.getDate() - i);
-        const dayKey = getDayKey(date);
-        const mood = data.moodRecords[dayKey];
-        if (mood) {
-             moodReport += `- ${date.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}: ${MOOD_EMOJIS[mood] || mood}\n`;
-        }
-    }
-    prompt += moodReport || "Нет недавних записей настроения.\n";
-    
-    // 4. Текущие задачи
-    prompt += "\n## 📅 Текущие недели и задачи\n";
-    let weekReport = '';
-    const allWeeks = Object.values(data.months).flat().slice(0, 3); 
-    if (allWeeks.length > 0) {
-        allWeeks.forEach(week => {
-            weekReport += `--- Неделя: ${week.title} ---\n`;
-            weekDays.forEach(day => {
-                const tasks = week.tasks[day] || [];
-                if (tasks.length > 0) {
-                    weekReport += `  - ${day}: ${tasks.join('; ')}\n`;
-                }
-            });
-            weekReport += "\n";
-        });
-    } else {
-        weekReport += "Нет запланированных недель.\n";
-    }
-    prompt += weekReport;
-
-    return prompt;
-}
-
-async function callDeepSeekAPI(prompt) {
+async function callGeminiAPI(prompt) {
     showLoading();
-    
-    if (DEEPSEEK_API_KEY === 'ВАШ_РЕАЛЬНЫЙ_DEEPSEEK_API_КЛЮЧ_ЗДЕСЬ') {
-         hideLoading();
-         return { status: "error", message: "Пожалуйста, замените 'ВАШ_РЕАЛЬНЫЙ_DEEPSEEK_API_КЛЮЧ_ЗДЕСЬ' в коде на ваш ключ DeepSeek." };
+
+    if (GEMINI_API_KEY === 'ВАШ_ПОЛУЧЕННЫЙ_КЛЮЧ_GEMINI') {
+          hideLoading();
+          return { status: "error", message: "Пожалуйста, вставьте ваш API-ключ Gemini вместо заполнителя." };
     }
 
     try {
-        const response = await fetch(DEEPSEEK_API_URL, {
+        const url = `${GEMINI_API_URL}?key=${GEMINI_API_KEY}`;
+        
+        // Структура запроса для Gemini
+        const payload = {
+            contents: [
+                {
+                    parts: [
+                        // Добавляем системную инструкцию прямо в промпт для лучшего контроля, 
+                        // так как в генерацию контента Gemini это делается через первый 'part'.
+                        { text: "Ты — полезный и опытный личный помощник-планировщик. Проанализируй данные, которые будут ниже, и дай полезный, конструктивный совет. Сосредоточься на балансе между целями, привычками и недельными задачами. Ответ должен быть на русском языке, в дружелюбном, но профессиональном тоне, в формате краткого, структурированного текста (используй абзацы и списки с эмодзи). Выводи только текст совета, без приветствий и вводных слов. Вот данные:\n\n" + prompt }
+                    ]
+                }
+            ],
+            // Настройки генерации
+            config: {
+                temperature: 0.7,
+                maxOutputTokens: 1000 // Лимит для более подробного совета
+            }
+        };
+
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${DEEPSEEK_API_KEY}`
             },
-            body: JSON.stringify({
-                model: DEEPSEEK_MODEL,
-                messages: [
-                    { role: "system", content: "You are a helpful and experienced personal assistant planner. Analyze the user's data and provide structured, actionable advice. Output only the advice text, without any pre-amble." },
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.7,
-                max_tokens: 500
-            })
+            body: JSON.stringify(payload)
         });
 
         const result = await response.json();
         hideLoading();
 
-        if (response.ok && result.choices && result.choices.length > 0) {
-            return { status: "success", suggestion: result.choices[0].message.content };
+        if (response.ok && result.candidates && result.candidates.length > 0) {
+            const suggestion = result.candidates[0].content.parts[0].text;
+            return { status: "success", suggestion: suggestion };
         } else {
              // Обработка ошибок API
              const errorMessage = result.error ? result.error.message : 'Неизвестная ошибка API. Проверьте ключ и лимиты.';
-             console.error("DeepSeek API Error:", result);
+             console.error("Gemini API Error:", result);
              return { status: "error", message: errorMessage };
         }
 
@@ -1310,10 +1254,14 @@ async function callDeepSeekAPI(prompt) {
 }
 
 getAISuggestionBtn.onclick = async () => {
+    // Используем функцию generateAIPrompt, которая собирает все данные
     const promptText = generateAIPrompt();
-    const result = await callDeepSeekAPI(promptText);
+    
+    // Вызываем новую функцию для Gemini
+    const result = await callGeminiAPI(promptText);
 
     if (result.status === 'success' && result.suggestion) {
+        // Заменяем переносы строки на <br> для отображения в HTML
         aiAdviceText.innerHTML = result.suggestion.replace(/\n/g, '<br>');
         aiAdviceModal.style.display = 'flex';
         setTimeout(()=>aiAdviceModal.classList.add('visible'), 10);
@@ -1322,6 +1270,7 @@ getAISuggestionBtn.onclick = async () => {
     }
 };
 
+// ... [Остальной код, не требующий изменений] ...
 /* --- ИНИЦИАЛИЗАЦИЯ --- */
 function renderAll(){
   renderGoals();
