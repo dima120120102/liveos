@@ -292,7 +292,7 @@ body {
 }
 .modal.visible .modal-content { transform: scale(1); } 
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
-.modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
+.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
 .modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
@@ -480,6 +480,87 @@ body {
 .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+.advice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Более темный оверлей */
+    display: none;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.advice-modal-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+
+.advice-modal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0; /* Выдвигаем справа */
+    width: 400px; /* Ширина бокового окна */
+    max-width: 90%; 
+    height: 100%;
+    background-color: var(--bg-secondary);
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    /* Изначально за экраном */
+    transform: translateX(100%); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.advice-modal-overlay.visible .advice-modal-drawer {
+    transform: translateX(0);
+}
+
+.advice-drawer-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+.advice-drawer-header h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.3em;
+}
+
+.advice-drawer-close {
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+    transition: color 0.2s;
+}
+.advice-drawer-close:hover {
+    color: var(--danger-color);
+}
+
+.advice-drawer-content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; /* Прокрутка для текста совета */
+}
+/* Стиль для текста совета, чтобы он выглядел красиво */
+.advice-drawer-content p {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-primary);
+    padding-right: 5px; /* Немного места для скроллбара */
+}
+
+
 /* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { font-size: 14px; }
@@ -499,6 +580,15 @@ body {
     .mood-calendar { grid-template-columns: repeat(4, 1fr); }
     .mood-option { font-size: 30px; }
     .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    
+    /* Адаптация боковой панели AI для мобильных */
+    .advice-modal-drawer {
+        width: 100%;
+        max-width: 100%;
+        /* При мобильной версии можно сделать, чтобы выезжало снизу */
+        /* transform: translateY(100%); */
+        /* right: 0; bottom: 0; top: auto; height: 80vh; */
+    }
 }
 </style>
 </head>
@@ -510,7 +600,7 @@ body {
         <span id="saveAllBtnText">Сохранить все</span>
     </button>
     <div id="accountControl" class="account-control-btn">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTSuQmCC" width="16" height="16" alt="Profile">
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTkSuQmCC" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Профиль</span>
     </div>
 </div>
@@ -592,8 +682,8 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTSuQmCC" width="16" alt="Скачать"> Скачать TXT</div>
+                        <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" alt="Удалить"> Удалить неделю</div>
+                        <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTkSuQmCC" width="16" alt="Скачать"> Скачать TXT</div>
                     </div>
                 </div>
                 <span id="closeModal">×</span>
@@ -634,7 +724,7 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G/2E/m88X6gW97+e/x7h49/8A4372o811d5YAAAAASUVORK5CYII=" width="16" style="filter: invert(100%);">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTSuQmCC" width="16" style="filter: invert(100%);">
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
@@ -652,11 +742,15 @@ body {
     <div>Пожалуйста, подождите...</div>
 </div>
 
-<div class="modal" id="aiAdviceModal">
-    <div class="modal-content small-modal-content" style="max-width: 600px; padding: 30px;">
-        <h2 style="color: var(--accent-color);">🤖 AI Совет</h2>
-        <p id="aiAdviceText" style="white-space: pre-wrap; margin-bottom: 20px; line-height: 1.6;"></p>
-        <button class="btn" onclick="closeAiAdviceModal()">Закрыть</button>
+<div id="aiAdviceModalOverlay" class="advice-modal-overlay">
+    <div id="aiAdviceModal" class="advice-modal-drawer">
+        <div class="advice-drawer-header">
+            <h2>🤖 AI Совет</h2>
+            <button class="advice-drawer-close" onclick="closeAiAdviceModal()">&times;</button>
+        </div>
+        <div class="advice-drawer-content">
+            <p id="aiAdviceText"></p>
+        </div>
     </div>
 </div>
 
@@ -686,9 +780,6 @@ const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 
 const MOOD_EMOJIS = { bad: '😔', normal: '🙂', great: '😄' };
 
-// --- КОНСТАНТЫ GEMINI API (УДАЛЕНЫ, ТЕПЕРЬ ВСЕ НА СЕРВЕРЕ) ---
-// УДАЛЕНЫ: GEMINI_API_KEY, GEMINI_API_URL, GEMINI_MODEL
-
 let data = null;
 let dragId = null;
 
@@ -697,9 +788,10 @@ const saveAllBtnText = document.getElementById('saveAllBtnText');
 const accountControlBtn = document.getElementById('accountControl');
 accountControlBtn.onclick = handleAccountControlClick;
 
-// Элементы для ИИ
+// Элементы для ИИ (Обновлено)
 const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
-const aiAdviceModal = document.getElementById('aiAdviceModal');
+const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay'); // Новый оверлей
+const aiAdviceModal = document.getElementById('aiAdviceModal'); // Сам Drawer
 const aiAdviceText = document.getElementById('aiAdviceText');
 
 
@@ -1188,9 +1280,31 @@ function updateMoodSelection() {
 // 2. AI ФУНКЦИОНАЛ (GEMINI PRO - ПЕРЕКЛЮЧЕНИЕ НА APPS SCRIPT)
 // =================================================================
 
+/**
+ * [ОБНОВЛЕНО] Управляет закрытием боковой панели AI-совета.
+ */
 function closeAiAdviceModal() {
-    aiAdviceModal.classList.remove('visible');
-    setTimeout(() => { aiAdviceModal.style.display='none'; }, 300);
+    aiAdviceModalOverlay.classList.remove('visible');
+    // Не нужно скрывать display сразу, чтобы увидеть анимацию.
+    setTimeout(() => { aiAdviceModalOverlay.style.display = 'none'; }, 300);
+}
+
+// Закрытие по клику вне панели
+aiAdviceModalOverlay.addEventListener('click', (e) => {
+    // Проверяем, что клик был по оверлею, а не по самой панели
+    if (e.target === aiAdviceModalOverlay) {
+        closeAiAdviceModal();
+    }
+});
+
+/**
+ * [ОБНОВЛЕНО] Управляет открытием боковой панели AI-совета.
+ */
+function openAiAdviceModal(suggestion) {
+    aiAdviceText.innerHTML = suggestion.replace(/\n/g, '<br>');
+    aiAdviceModalOverlay.style.display = 'block';
+    // Небольшая задержка, чтобы браузер успел применить display: block
+    setTimeout(() => { aiAdviceModalOverlay.classList.add('visible'); }, 10);
 }
 
 /**
@@ -1299,9 +1413,8 @@ getAISuggestionBtn.onclick = async () => {
     const result = await callGeminiAPI(promptText);
 
     if (result.status === 'success' && result.suggestion) {
-        aiAdviceText.innerHTML = result.suggestion.replace(/\n/g, '<br>');
-        aiAdviceModal.style.display = 'flex';
-        setTimeout(()=>aiAdviceModal.classList.add('visible'), 10);
+        // Используем новую функцию для боковой панели
+        openAiAdviceModal(result.suggestion);
     } else {
         // Убрано "от AI", так как ошибка может быть на уровне Apps Script
         alert(`Ошибка при получении совета: ${result.message}`);
