@@ -382,6 +382,90 @@ body {
     padding: 20px;
     gap: 15px;
 }
+/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
+
+/* Контейнер для недель и корзины */
+.top-plan-controls {
+    display: flex;
+    gap: 15px; /* Расстояние между нераспределёнными и корзиной */
+    align-items: flex-start; /* Выравнивание сверху */
+    flex-wrap: wrap; /* Для адаптивности */
+}
+
+/* Корзина */
+.trash-container {
+    min-width: 150px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px dashed var(--danger-color); /* Стиль корзины */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s, border-color 0.2s;
+    height: 100%; /* Занимает всю высоту */
+    max-height: 250px; /* Чтобы не растягивалась слишком сильно */
+}
+.trash-container .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); /* Красный цвет */
+    transition: transform 0.2s;
+}
+.trash-container.dragover {
+    background-color: rgba(229, 57, 53, 0.15); /* Красный фон при наведении */
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-container.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+.trash-hint {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+/* Рекламный блок */
+.ad-space {
+    width: 100%;
+    margin-top: 20px;
+    padding: 20px 10px;
+    background: var(--bg-tertiary);
+    border: 2px dashed var(--warning-color);
+    border-radius: 8px;
+    text-align: center;
+    color: var(--warning-color);
+    font-size: 1.1em;
+    font-weight: 600;
+    line-height: 1.4;
+    cursor: help;
+}
+.ad-space:hover {
+    background: var(--bg-hover);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .top-plan-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .trash-container {
+        width: 100%;
+        max-height: 100px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 20px;
+    }
+    .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
+}
 
 /* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
 #aiButtonContainer {
@@ -687,21 +771,33 @@ body {
     <h2>Годовые цели</h2>
     <div id="goalsList"></div>
     <div id="addGoalBtn" class="add-goal-btn">＋</div>
+
+    <div class="ad-space">
+        Здесь могла быть<br>Ваша Реклама
+    </div>
   </aside>
 
-  <main class="right">
+<main class="right">
     <div>
       <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
     </div>
-    <div class="unassigned-container">
-      <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
-      <div id="unassignedList" class="unassigned-list"></div>
+    
+    <div class="top-plan-controls">
+        <div class="unassigned-container">
+            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
+            <div id="unassignedList" class="unassigned-list"></div>
+        </div>
+        
+        <div id="trashContainer" class="trash-container">
+            <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAALJJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTkSuQmCC" width="30" height="30" alt="Trash" class="trash-icon">
+            <div class="trash-label">Корзина</div>
+            <div class="trash-hint">Перетащи неделю сюда для удаления</div>
+        </div>
     </div>
-
     <div class="months-wrapper">
         <div class="months" id="months"></div>
     </div>
-  </main>
+</main>
 </div>
 
 <section class="habit-tracker">
@@ -1054,6 +1150,49 @@ function renderGoals(){
         div.appendChild(rm);
         goalsList.appendChild(div);
     });
+    /* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
+// ... (существующий код)
+
+// --- НОВЫЙ БЛОК: КОРЗИНА ---
+const trashContainer = document.getElementById('trashContainer');
+trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
+trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
+trashContainer.ondrop = e => {
+    e.preventDefault(); trashContainer.classList.remove('dragover');
+    if (!dragId) return;
+
+    if (confirm("Вы уверены, что хотите безвозвратно удалить эту неделю?")) {
+        // Удаление из Unassigned
+        const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
+        if (unassignedIndex !== -1) {
+            data.unassigned.splice(unassignedIndex, 1);
+            save(); renderAll();
+            dragId = null;
+            return;
+        }
+
+        // Удаление из Месяцев
+        for (const monthName of months) {
+            if (data.months[monthName]) {
+                const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+                if (weekIndex !== -1) {
+                    data.months[monthName].splice(weekIndex, 1);
+                    save(); renderAll();
+                    dragId = null;
+                    return;
+                }
+            }
+        }
+    }
+    dragId = null;
+};
+// --- КОНЕЦ БЛОКА: КОРЗИНА ---
+
+const unassignedList=document.getElementById('unassignedList');
+const createWeekBtn=document.getElementById('createWeekBtn');
+const unassignedContainer = unassignedList.parentElement;
+
+// ... (остальной код)
 }
 document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
 
