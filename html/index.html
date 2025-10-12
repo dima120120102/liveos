@@ -827,7 +827,7 @@ body {
         <span id="saveAllBtnText">Сохранить все</span>
     </button>
     <div id="accountControl" class="account-control-btn">
-        <img src="account.png" width="16" height="16" alt="Profile">
+        <img src="pictures/account.png" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Профиль</span>
     </div>
 </div>
@@ -918,8 +918,8 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="trash.png" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
+                        <div id="deleteWeek"><img src="pictures/trash.png" width="16" alt="Удалить"> Удалить неделю</div>
+                        <div id="downloadWeek"><img src="pictures/download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
                     </div>
                 </div>
                 <span id="closeModal">×</span>
@@ -960,11 +960,11 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="trash.png" width="16" alt="Удалить">
+                <img src="pictures/trash.png" width="16" alt="Удалить">
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="logout.png" width="16" alt="Выход"> 
+                <img src="pictures/logout.png" width="16" alt="Выход"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -1471,7 +1471,7 @@ function openWeekModal(id){
         const taskContainer=dayDiv.querySelector('.tasks');
         (currentWeek.tasks[d]||[]).forEach((t,i)=>{
             const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-            const rm=document.createElement('img'); rm.src='trash.png'; rm.className='task-delete';
+            const rm=document.createElement('img'); rm.src='pictures/trash.png'; rm.className='task-delete';
             rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
             taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
             taskDiv.appendChild(rm);
