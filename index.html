@@ -224,8 +224,9 @@ body {
     border-radius: 8px;
     padding: 15px;
     border: 1px solid var(--border-color);
-    max-width: none; /* Убран лимит ширины */
-    flex-grow: 1; /* Занимает всю доступную ширину */
+    max-width: none; 
+    /* ИЗМЕНЕНО: Сужение области нераспределенных недель */
+    flex: 1 1 300px; 
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 .unassigned-container.dragover {
@@ -390,30 +391,50 @@ body {
     display: flex;
     gap: 15px; /* Расстояние между нераспределёнными и корзиной */
     align-items: flex-start; /* Выравнивание сверху */
-    flex-wrap: wrap; /* Для адаптивности */
+    flex-wrap: wrap; 
+    /* NEW: Убеждаемся, что корзина будет справа, когда она видна */
+    justify-content: flex-start; 
+}
+
+/* ИЗМЕНЕНИЕ: Сужение области нераспределенных недель */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    /* ИЗМЕНЕНО: Новое flex-правило для сужения */
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
 }
 
 /* ИЗМЕНЕНИЕ: Скрытая корзина */
 .trash-container {
-    /* min-width: 150px; - Убрано, т.к. ширина не нужна при скрытии */
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 15px;
     border: 1px dashed var(--danger-color); /* Стиль корзины */
-    display: none; /* ИЗМЕНЕНИЕ: Скрываем по умолчанию */
+    /* ИЗМЕНЕНО: Теперь корзина не display: none, а управляется flex-grow и opacity */
+    flex: 0 0 200px; /* Фиксированная/минимальная ширина на десктопе */
+    display: flex; /* Постоянный flex для анимации */
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s;
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease;
     height: 100%; 
     max-height: 250px;
     opacity: 0;
-    width: 100%;
+    /* Уменьшаем размер и убираем кликабельность, когда скрыта */
+    pointer-events: none;
 }
 .trash-container.visible { /* Класс для отображения */
-    display: flex;
     opacity: 1;
+    pointer-events: auto; /* Возвращаем кликабельность */
 }
 
 .trash-container .trash-icon {
@@ -469,6 +490,7 @@ body {
         padding: 10px 20px;
         width: 100%;
         min-height: auto;
+        flex: 1 1 100%; /* Занимает всю ширину на мобильных */
     }
     .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
     
@@ -1064,11 +1086,11 @@ function setUnsaved(isUnsaved) {
     if (isUnsaved) {
         localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
         saveAllBtn.classList.add('unsaved');
-        if (saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все (!)';
+        if (saveAllBtnText) saveAllBtn.textContent = 'Сохранить все (!)'; // ИЗМЕНЕНИЕ: Упрощено
     } else {
         localStorage.removeItem(STORAGE_KEY_UNSAVED);
         saveAllBtn.classList.remove('unsaved');
-        if (saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все';
+        if (saveAllBtnText) saveAllBtn.textContent = 'Сохранить все'; // ИЗМЕНЕНИЕ: Упрощено
     }
 }
 function save() {
