@@ -218,12 +218,14 @@ body {
 }
 
 /* --- НЕДЕЛИ И МЕСЯЦЫ --- */
+/* ИЗМЕНЕНИЕ: Увеличен максимальный размер и flex-grow для нераспределенных */
 .unassigned-container {
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 15px;
     border: 1px solid var(--border-color);
-    max-width: 250px;
+    max-width: none; /* Убран лимит ширины */
+    flex-grow: 1; /* Занимает всю доступную ширину */
     transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
 .unassigned-container.dragover {
@@ -231,7 +233,7 @@ body {
     background: rgba(0, 123, 255, 0.08);
 }
 .unassigned-list{
-    max-height: 200px;
+    max-height: 250px; /* Немного увеличена высота */
     overflow-y: auto;
     display:flex;
     flex-direction:column;
@@ -391,22 +393,29 @@ body {
     flex-wrap: wrap; /* Для адаптивности */
 }
 
-/* Корзина */
+/* ИЗМЕНЕНИЕ: Скрытая корзина */
 .trash-container {
-    min-width: 150px;
+    /* min-width: 150px; - Убрано, т.к. ширина не нужна при скрытии */
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 15px;
     border: 1px dashed var(--danger-color); /* Стиль корзины */
-    display: flex;
+    display: none; /* ИЗМЕНЕНИЕ: Скрываем по умолчанию */
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
-    transition: background-color 0.2s, border-color 0.2s;
-    height: 100%; /* Занимает всю высоту */
-    max-height: 250px; /* Чтобы не растягивалась слишком сильно */
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s;
+    height: 100%; 
+    max-height: 250px;
+    opacity: 0;
+    width: 100%;
 }
+.trash-container.visible { /* Класс для отображения */
+    display: flex;
+    opacity: 1;
+}
+
 .trash-container .trash-icon {
     filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); /* Красный цвет */
     transition: transform 0.2s;
@@ -430,7 +439,21 @@ body {
     margin-top: 5px;
 }
 
-
+/* ИЗМЕНЕНИЕ: Группа кнопок над нераспределёнными неделями */
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.open-trash-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.open-trash-btn:hover {
+    background: #c32727;
+    border-color: #c32727;
+}
 
 /* Адаптивность для мобильных */
 @media (max-width: 768px) {
@@ -438,14 +461,20 @@ body {
         flex-direction: column;
         gap: 10px;
     }
+    /* ИЗМЕНЕНИЕ: Корзина на мобильных */
     .trash-container {
-        width: 100%;
         max-height: 100px;
         flex-direction: row;
         justify-content: space-around;
         padding: 10px 20px;
+        width: 100%;
+        min-height: auto;
     }
     .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
+    
+    .top-buttons {
+        flex-wrap: wrap;
+    }
 }
 
 /* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
@@ -549,6 +578,44 @@ body {
 }
 .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
+.confirm-modal-content {
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+}
+.confirm-modal-content h2 {
+    color: var(--danger-color);
+    margin-top: 0;
+}
+.confirm-modal-content p {
+    margin-bottom: 25px;
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.confirm-actions .btn {
+    flex: 1;
+}
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--danger-color);
+}
+
 
 /* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
 .advice-modal-overlay {
@@ -755,20 +822,21 @@ body {
   </aside>
 
 <main class="right">
-    <div>
-      <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+    <div class="top-buttons">
+        <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+        <button id="openTrashBtn" class="btn open-trash-btn">Открыть Корзину</button>
     </div>
     
     <div class="top-plan-controls">
         <div class="unassigned-container">
-            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые</div>
+            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели (перетащите в корзину для удаления)</div>
             <div id="unassignedList" class="unassigned-list"></div>
         </div>
         
         <div id="trashContainer" class="trash-container">
             <img src="trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
-            <div class="trash-label">Корзина</div>
-            <div class="trash-hint">Перетащи неделю сюда для удаления</div>
+            <div class="trash-label">Корзина (удаление)</div>
+            <div class="trash-hint">Перетащи неделю сюда для безвозвратного удаления</div>
         </div>
     </div>
     <div class="months-wrapper">
@@ -828,7 +896,7 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="trash.png"Удалить"> Удалить неделю</div>
+                        <div id="deleteWeek"><img src="trash.png" width="16" alt="Удалить"> Удалить неделю</div>
                         <div id="downloadWeek"><img src="download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
                     </div>
                 </div>
@@ -870,11 +938,11 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="trash.png" width="16";">
+                <img src="trash.png" width="16" alt="Удалить">
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="logout.png" width="16";"> 
+                <img src="logout.png" width="16" alt="Выход"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -882,6 +950,24 @@ body {
         <button class="btn" onclick="closeProfileModal()">Закрыть</button>
     </div>
 </div>
+
+<div class="modal" id="confirmModal">
+    <div class="modal-content small-modal-content confirm-modal-content">
+        <h2>⚠️ Подтверждение удаления</h2>
+        <p id="confirmMessage"></p>
+        
+        <div class="confirm-actions">
+            <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
+            <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="dontAskAgain">
+            <label for="dontAskAgain">Больше не спрашивать при удалении</label>
+        </div>
+    </div>
+</div>
+
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
@@ -921,12 +1007,13 @@ body {
 // =================================================================
 
 // --- ОБЯЗАТЕЛЬНЫЕ КОНСТАНТЫ ---
-// Ссылка на Apps Script остается основной точкой входа
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvt7wgR2TMyPY0W3g3dLdxYE7uzEhRhVUGfoCSQlkl32qne1_Mnw9zXTm90xSr8J55/exec";
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey';
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
 const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
+// NEW: Ключ для "Больше не спрашивать"
+const STORAGE_KEY_CONFIRM_DELETE = 'plannerConfirmDelete_v1';
 
 const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
@@ -936,6 +1023,7 @@ const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
 
 let data = null;
 let dragId = null;
+let dragTitle = null; // NEW: Для отображения в корзине
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText');
@@ -948,6 +1036,17 @@ const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay'); //
 const aiAdviceModal = document.getElementById('aiAdviceModal'); // Сам Drawer
 const aiAdviceText = document.getElementById('aiAdviceText');
 
+// NEW: Элементы для Корзины
+const openTrashBtn = document.getElementById('openTrashBtn');
+const trashContainer = document.getElementById('trashContainer');
+
+// NEW: Элементы для модального окна подтверждения
+const confirmModal = document.getElementById('confirmModal');
+const confirmMessage = document.getElementById('confirmMessage');
+const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const dontAskAgainCheckbox = document.getElementById('dontAskAgain');
+let currentDeleteResolve = null; // Функция для завершения Promise удаления
 
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
 const loadingOverlay = document.getElementById('loadingOverlay');
@@ -1001,7 +1100,7 @@ async function saveDataToAppsScript() {
 }
 saveAllBtn.onclick = saveDataToAppsScript;
 
-/* --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С APPS SCRIPT --- */
+/* --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С APPS SCRIPT (без изменений) --- */
 async function sendRequest(action, params = {}) {
     showLoading();
     const url = SCRIPT_URL;
@@ -1062,13 +1161,15 @@ async function deleteProfileAndData() {
     if (result.status === 'success') {
         alert("Ваш профиль и все данные успешно удалены.");
         ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
+        // NEW: Очищаем настройку удаления
+        localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
         window.location.href = 'login.html';
     } else {
         alert(`Ошибка при удалении профиля: ${result.message}`);
     }
 }
 
-/* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА --- */
+/* --- ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (без изменений) --- */
 const usernameDisplay = document.getElementById('usernameDisplay');
 const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
@@ -1110,12 +1211,123 @@ document.getElementById('logoutBtn').onclick = () => {
             if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) return;
         }
         ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
+        // NEW: Очищаем настройку удаления
+        localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
         window.location.href = 'login.html';
     }
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-/* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
+/* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ (NEW) --- */
+
+/**
+ * NEW: Открывает/скрывает контейнер корзины.
+ */
+function toggleTrashContainer() {
+    const isVisible = trashContainer.classList.contains('visible');
+    if (isVisible) {
+        trashContainer.classList.remove('visible');
+        openTrashBtn.textContent = 'Открыть Корзину';
+    } else {
+        trashContainer.classList.add('visible');
+        openTrashBtn.textContent = 'Скрыть Корзину';
+    }
+}
+openTrashBtn.onclick = toggleTrashContainer;
+
+/**
+ * NEW: Отображает кастомное модальное окно подтверждения удаления.
+ * @param {string} title - Название элемента для удаления.
+ * @returns {Promise<boolean>} - Резолвится true, если подтверждено, false, если отменено.
+ */
+function showConfirmDeleteModal(title) {
+    return new Promise(resolve => {
+        // Проверяем, нужно ли показывать модальное окно
+        if (localStorage.getItem(STORAGE_KEY_CONFIRM_DELETE) === 'skip') {
+            resolve(true);
+            return;
+        }
+
+        currentDeleteResolve = resolve;
+        confirmMessage.textContent = `Вы уверены, что хотите безвозвратно удалить элемент "${title}"?`;
+        dontAskAgainCheckbox.checked = false; // Сбрасываем чекбокс
+        
+        confirmModal.style.display = 'flex';
+        setTimeout(() => confirmModal.classList.add('visible'), 10);
+    });
+}
+
+/**
+ * NEW: Скрывает модальное окно подтверждения.
+ */
+function closeConfirmDeleteModal() {
+    confirmModal.classList.remove('visible');
+    setTimeout(() => { confirmModal.style.display = 'none'; }, 300);
+}
+
+// NEW: Обработчики кнопок модального окна подтверждения
+confirmDeleteBtn.onclick = () => {
+    if (dontAskAgainCheckbox.checked) {
+        localStorage.setItem(STORAGE_KEY_CONFIRM_DELETE, 'skip');
+    }
+    closeConfirmDeleteModal();
+    if (currentDeleteResolve) {
+        currentDeleteResolve(true);
+    }
+    currentDeleteResolve = null;
+};
+confirmCancelBtn.onclick = () => {
+    closeConfirmDeleteModal();
+    if (currentDeleteResolve) {
+        currentDeleteResolve(false);
+    }
+    currentDeleteResolve = null;
+};
+
+trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
+trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
+trashContainer.ondrop = async e => {
+    e.preventDefault(); trashContainer.classList.remove('dragover');
+    if (!dragId || !dragTitle) return;
+
+    // Используем кастомное модальное окно
+    const confirmed = await showConfirmDeleteModal(dragTitle);
+    
+    if (confirmed) {
+        // Логика удаления (повтор из `deleteWeek`, но для drag and drop)
+        let deleted = false;
+        // Удаление из Unassigned
+        const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
+        if (unassignedIndex !== -1) {
+            data.unassigned.splice(unassignedIndex, 1);
+            deleted = true;
+        }
+
+        // Удаление из Месяцев
+        if (!deleted) {
+            for (const monthName of months) {
+                if (data.months[monthName]) {
+                    const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+                    if (weekIndex !== -1) {
+                        data.months[monthName].splice(weekIndex, 1);
+                        deleted = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (deleted) {
+            save(); 
+            renderAll();
+        }
+    }
+    
+    dragId = null;
+    dragTitle = null;
+};
+
+/* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ (с изменениями для drag and drop) --- */
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
     goalsList.innerHTML='';
@@ -1127,55 +1339,13 @@ function renderGoals(){
         div.appendChild(rm);
         goalsList.appendChild(div);
     });
-    /* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
-// ... (существующий код)
-
-// --- НОВЫЙ БЛОК: КОРЗИНА ---
-const trashContainer = document.getElementById('trashContainer');
-trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
-trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
-trashContainer.ondrop = e => {
-    e.preventDefault(); trashContainer.classList.remove('dragover');
-    if (!dragId) return;
-
-    if (confirm("Вы уверены, что хотите безвозвратно удалить эту неделю?")) {
-        // Удаление из Unassigned
-        const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
-        if (unassignedIndex !== -1) {
-            data.unassigned.splice(unassignedIndex, 1);
-            save(); renderAll();
-            dragId = null;
-            return;
-        }
-
-        // Удаление из Месяцев
-        for (const monthName of months) {
-            if (data.months[monthName]) {
-                const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
-                if (weekIndex !== -1) {
-                    data.months[monthName].splice(weekIndex, 1);
-                    save(); renderAll();
-                    dragId = null;
-                    return;
-                }
-            }
-        }
-    }
-    dragId = null;
-};
-// --- КОНЕЦ БЛОКА: КОРЗИНА ---
-
-const unassignedList=document.getElementById('unassignedList');
-const createWeekBtn=document.getElementById('createWeekBtn');
-const unassignedContainer = unassignedList.parentElement;
-
-// ... (остальной код)
 }
 document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
 
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
 const unassignedContainer = unassignedList.parentElement;
+
 unassignedContainer.ondragover = e => { e.preventDefault(); unassignedContainer.classList.add('dragover'); };
 unassignedContainer.ondragleave = () => { unassignedContainer.classList.remove('dragover'); };
 unassignedContainer.ondrop = e => {
@@ -1193,11 +1363,20 @@ unassignedContainer.ondrop = e => {
         }
     }
     dragId = null;
+    dragTitle = null;
 };
+function getWeekById(id) {
+    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
+    return allWeeks.find(w => w.id === id);
+}
 function createWeekEl(week){
     const div=document.createElement('div'); div.className='week-item';
     div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
-    div.ondragstart=()=>{dragId=week.id;};
+    // ИЗМЕНЕНИЕ: Сохраняем dragTitle при начале перетаскивания
+    div.ondragstart=()=>{
+        dragId=week.id;
+        dragTitle=week.title;
+    };
     div.onclick=()=>openWeekModal(week.id);
     return div;
 }
@@ -1228,6 +1407,7 @@ function renderMonths(){
                 save(); renderAll();
             }
             dragId = null;
+            dragTitle = null;
         };
         const monthWeeksDiv=div.querySelector('.month-weeks');
         (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w)); });
@@ -1306,14 +1486,27 @@ document.addEventListener('click', (e) => {
     }
 });
 
-document.getElementById('deleteWeek').onclick=()=>{
+// ИЗМЕНЕНИЕ: Использование кастомного модального окна подтверждения
+document.getElementById('deleteWeek').onclick=async()=>{
     if(!currentWeek) return;
-    ['unassigned',...months].forEach(k=>{
-        if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
-        else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
-    });
-    save(); renderAll(); closeWeekModal();
+    
+    // Получаем название недели для модалки
+    const weekTitle = currentWeek.title;
+
+    // Показываем кастомное модальное окно
+    const confirmed = await showConfirmDeleteModal(weekTitle);
+
+    if (confirmed) {
+        ['unassigned',...months].forEach(k=>{
+            if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
+            else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
+        });
+        save(); 
+        renderAll(); 
+        closeWeekModal();
+    }
 };
+
 document.getElementById('downloadWeek').onclick=()=>{
     if(!currentWeek) return;
     let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
@@ -1325,7 +1518,7 @@ document.getElementById('downloadWeek').onclick=()=>{
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
 };
 
-/* --- ТРЕКЕР ПРИВЫЧЕК --- */
+/* --- ТРЕКЕР ПРИВЫЧЕК (без изменений) --- */
 const newHabitInput = document.getElementById('newHabitInput');
 const habitTableContainer = document.getElementById('habitTableContainer');
 const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
@@ -1429,7 +1622,7 @@ document.getElementById('newDayBtn').onclick=()=>{
     save(); renderHabitTracker();
 };
 
-/* --- ТРЕКЕР НАСТРОЕНИЯ --- */
+/* --- ТРЕКЕР НАСТРОЕНИЯ (без изменений) --- */
 const moodMonthSelect = document.getElementById('moodMonthSelect');
 const moodCalendar = document.getElementById('moodCalendar');
 function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
