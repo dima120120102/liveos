@@ -851,7 +851,7 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="trash-icon.png"Удалить"> Удалить неделю</div>
+                        <div id="deleteWeek"><img src="trash.png"Удалить"> Удалить неделю</div>
                         <div id="downloadWeek"><img src="download-icon.png" width="16" alt="Скачать"> Скачать TXT</div>
                     </div>
                 </div>
@@ -893,11 +893,11 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="trash-icon.png" width="16" style="filter: invert(100%);">
+                <img src="trash.png" width="16";">
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="logout.png" width="16" style="filter: invert(80%);"> 
+                <img src="logout.png" width="16";"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -1292,7 +1292,7 @@ function openWeekModal(id){
         const taskContainer=dayDiv.querySelector('.tasks');
         (currentWeek.tasks[d]||[]).forEach((t,i)=>{
             const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-            const rm=document.createElement('img'); rm.src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvt1csRwjAMRdGTSigBHaQj0kE6SCeoBCLQBV0gK8j2y5I3M5L9yX/yJsGw4/s9x+MhM8/jZwAmgKk6WwQ8AbwALiAEnoCPyewl0N9/uGkH2AErYUgpxT4GkAPfQRssAVYBN1AFK2AEjAEX4DvgQX4J+FsCrlLg8wgoB58A18AF2ABX4AxcwBfgiRfsA9zLeW3T9A38A5bA1zLzB/ADeADX6Qf8XG5iAAAAAElFTORK5CYII'; rm.className='task-delete';
+            const rm=document.createElement('img'); rm.src='trash.png'; rm.className='task-delete';
             rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
             taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
             taskDiv.appendChild(rm);
