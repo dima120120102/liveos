@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Планер недели с улучшениями</title>
+<title>Time Owner</title>
 <style>
 /* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
 :root {
@@ -753,11 +753,11 @@ body {
 
 <div class="top-controls">
     <button id="saveAllBtn" class="save-all-btn">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAOJJREFUSEvtltENwCAIRVd2gV0gXSALdIFdIF3AGjYwGJJ8W8wQ/7w9v49yVzW3Q8Q+SfwG3AU24FwJvAE8ADyACLiAPzB3E/h2P890gw0gBw7g0XlqAfwAPp4jWwFbgA3QAkvACRgCLsCXwIN8GvA1A17G1jLwBwIewNfgCbgCbsAFuIFPsA3+kANewP48b5W3gM/ALdgF/v5b+Qd8AN/gDqgC9m+yXf4H5hK+D3gDNsDf1uI3YA84Af62jT8Hnu6F+wO+hW92i8v7Cfx/uXoAAAAASUVORK5CYII=" width="16" height="16" alt="Save">
+        <img src="save.png" width="16" height="16" alt="Save">
         <span id="saveAllBtnText">Сохранить все</span>
     </button>
     <div id="accountControl" class="account-control-btn">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAQJJREFUSEvt1a0xRUEUBuDvC6EgBAJChBAIEBGhB0RABERgBIQICRGhgIQgIARCIICr4aR7k2x3uXu3J+F+k8/kOuecM/t6f97O9rYqgA24hWncxTqM4F+cw1kcwQ6e4Q1e8z/u4gWv8x838Q0f8Q6f4S4u4hI3cxv/3MSbOMU5bOADx3EHX3ESF/E+n3EXD/EGX/EV13AbP3EMV3EHF/Eb7uEuvmYV5/gC26T6cQ3f8RWz+IYj/Mv42S7v4A8Wccp+0/rXy+4Dq2+f4Ddu4C7u4h/e5v+0O/YfGMS1p/XvG64G8+fHn7iO33EHv/G4QxT/eX38H7iG+hS+hJ9xRz9j/4Jv/gD+Adn+h0u0iJ5XAAAAAElFTkSuQmCC" width="16" height="16" alt="Profile">
+        <img src="account.png" width="16" height="16" alt="Profile">
         <span id="usernameDisplay">Профиль</span>
     </div>
 </div>
@@ -851,8 +851,8 @@ body {
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
                     <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAKlJREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAMpJREFUSEvtlcENwCAQA70YJ6UTGYmJmEhMpGYiJjIzK7wQhFj3V5b7g4v8976p41J1Oq4BPALwAKgGZgARcAD+gCtwA94B/p0LMAJuwBH4B+zAL/AFvQYl8P2E3gC/gN+7d2ABXsAX+AGvwA04AN9N4AewAJ8AH8BL3AF4AC/gATyA8z+C3wNfwHdgA7yA0z+CLgC83TtwAb4CbuAL8AMF/h/gBPj9/v8D7wBvwJ/A/Qv/5v//l+8HlI+H+Q4eUj2UAAAAAElFTkSuQmCC" width="16" alt="Скачать"> Скачать TXT</div>
+                        <div id="deleteWeek"><img src="trash-icon.png"Удалить"> Удалить неделю</div>
+                        <div id="downloadWeek"><img src="download-icon.png" width="16" alt="Скачать"> Скачать TXT</div>
                     </div>
                 </div>
                 <span id="closeModal">×</span>
@@ -893,11 +893,11 @@ body {
         <div class="profile-section">
             <h3>Управление аккаунтом</h3>
             <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAK5JREFUSEvtlT0RgCAQhF0nghPQiRzoSAc60Z0OdKQjncgEBEv/hG/5QjM+8iFp4c3755s7t30Sj+YFjgBNf818D2ABZAF+wAW8wV/CbwkEbwVwAZ4Bv1lR7QGwAYYBR/D7rICf0O0JgH4NIF9pAf5eA9CgT8AV+E9yC/gN/D782wR8Af7d/X4Dv4B/5j03gO8C/oA34C9g7z/G6/2gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" style="filter: invert(100%);">
+                <img src="trash-icon.png" width="16" style="filter: invert(100%);">
                 Удалить профиль и все данные
             </button>
             <button id="logoutBtn" class="btn btn-logout">
-                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAANhJREFUSEvtleENgzAMhq1uE6oJ4AR8Ak7gJHAH8Ak8wUnqWpTSIYc39gYJkv10z3WcTqZkI0d+B+ABvP8G2uGbwAM82QJd0Acdb38h2I92s0d05VsgB97+dFdwBXaA4/8GbgAH2L8t0AnbAD/Y7lYwAfaw3a2D1cAT+N42gAnQ1U5ABGg1c+EACdA/d3wO0ALd3R28AC1AD642AX/wH/t3/QGzgW4e4Abc1c7tA9yA9/q6NXCAdtBf1oDvdnFfAH+0gX/T7R1iP8z/oB70C+Yh68XoAAAAAElFTkSuQmCC" width="16" style="filter: invert(80%);"> 
+                <img src="logout.png" width="16" style="filter: invert(80%);"> 
                 Выйти из аккаунта
             </button>
         </div>
@@ -933,8 +933,8 @@ body {
     <div id="particles-js"></div> 
 
     <div class="footer-content">
-        <p>&copy; 2025 dimavenv - разработчик. Все права на сайт принадлежат мне.</p>
-        <p>&copy; Все права защищены бла-бла-бла</p>
+        <p>&copy; 2025 dimavenv - разработчик. Все права на Time Owner принадлежат мне.</p>
+        <p>&copy; Все права защищены</p>
     </div>
 </footer>
 
