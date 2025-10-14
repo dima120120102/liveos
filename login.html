@@ -151,6 +151,8 @@
 </div>
 
 <script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
 // =================================================================
 // 1. КОНСТАНТЫ SUPABASE (ОБЯЗАТЕЛЬНО ЗАМЕНИТЬ)
 // =================================================================
@@ -161,40 +163,30 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // =================================================================
 // 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
 // =================================================================
-// Теперь мы храним UUID, который заменяет старый dataKey
-const STORAGE_KEY_AUTH = 'plannerAuthUserID'; 
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Хранит сгенерированный data_key
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
-// --- ЭЛЕМЕНТЫ UI (оставлены как в вашем оригинальном коде) ---
+// --- ЭЛЕМЕНТЫ UI (сокращено) ---
 const authContainer = document.getElementById('authContainer');
-
-// Элементы входа
 const loginUsername = document.getElementById('loginUsername');
 const loginPassword = document.getElementById('loginPassword');
 const loginMessage = document.getElementById('loginMessage');
 const loginBtn = document.getElementById('loginBtn');
-const showRegisterBtn = document.getElementById('showRegisterBtn');
-
-// Элементы регистрации
 const registerUsername = document.getElementById('registerUsername');
 const registerPassword = document.getElementById('registerPassword');
 const registerPasswordConfirm = document.getElementById('registerPasswordConfirm');
 const registerMessage = document.getElementById('registerMessage');
 const registerBtn = document.getElementById('registerBtn');
+const showRegisterBtn = document.getElementById('showRegisterBtn');
 const showLoginBtn = document.getElementById('showLoginBtn');
 
-// --- ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С ФОРМАМИ ---
-
+// --- ФУНКЦИИ УПРАВЛЕНИЯ ФОРМОЙ (оставлены без изменений) ---
 function showForm(formId) {
-    if (formId === 'register') {
-        authContainer.classList.add('show-register');
-    } else {
-        authContainer.classList.remove('show-register');
-    }
+    if (formId === 'register') { authContainer.classList.add('show-register'); } 
+    else { authContainer.classList.remove('show-register'); }
     loginMessage.textContent = '';
     registerMessage.textContent = '';
 }
-
 showRegisterBtn.onclick = () => showForm('register');
 showLoginBtn.onclick = () => showForm('login');
 
@@ -204,99 +196,18 @@ function setAuthMessage(el, text, isError = true) {
     el.classList.toggle('success-msg', !isError);
 }
 
-
-// =================================================================
-// 3. ВХОД (LOGIN) - ОБНОВЛЕНО ДЛЯ ПРОВЕРКИ ЛОГИНА/ПАРОЛЯ В DB
-// =================================================================
-
-async function handleLogin() {
-    const username = loginUsername.value.trim();
-    const password = loginPassword.value.trim();
-
-    if (username.length < 3 || password.length < 6) {
-        setAuthMessage(loginMessage, 'Логин (мин. 3) и пароль (мин. 6) слишком короткие.');
-        return;
-    }
-
-    setAuthMessage(loginMessage, 'Проверка...', false); 
-    loginBtn.disabled = true;
-
-    // 1. SELECT из таблицы user_keys, проверяя логин и пароль через встроенную функцию
-    // Примечание: 'password_hash' - это имя поля, где хранится хеш пароля
-    const { data, error } = await supabase
-        .from('user_keys')
-        // Используем SQL-функцию (rpc) или специальный фильтр Supabase для проверки хеша.
-        // Так как прямого фильтра 'password = crypt(input, hash)' в Supabase-JS нет,
-        // мы делаем простой SELECT по username и проверяем на стороне клиента.
-        // ЭТО МЕНЕЕ БЕЗОПАСНО, но проще для браузера.
-
-        // БЕЗОПАСНЫЙ (но требующий настройки) ВАРИАНТ - ИСПОЛЬЗОВАТЬ RPC:
-        // const { data, error } = await supabase.rpc('verify_user_credentials', {
-        //     user_name: username,
-        //     password_input: password
-        // });
-        
-        // ВАРИАНТ С ПРОСТЫМ SELECT (ТРЕБУЕТ RLS, КОТОРЫЙ ВЫДАЕТ ТОЛЬКО UUID И НИК)
-        // Чтобы избежать выдачи хеша на клиент, в RLS 'SELECT' должен возвращать 
-        // только 'user_id' и 'username'.
-        .select('user_id, username, password_hash') // Временный SELECT для примера
-        .eq('username', username)
-        .single();
-        
-    loginBtn.disabled = false;
-
-    if (error && error.code === 'PGRST116') { // No rows found
-        setAuthMessage(loginMessage, 'Ошибка: Неверный логин или пароль.');
-        return;
-    }
-    
-    if (error) {
-        console.error("Supabase Login Error:", error);
-        setAuthMessage(loginMessage, `Ошибка сервера: ${error.message}`);
-        return;
-    }
-    
-    // 2. Эмуляция проверки пароля (БЕЗ использования Supabase Auth)
-    // ВНИМАНИЕ: ЭТОТ ЭТАП НУЖНО ВЫПОЛНЯТЬ ЧЕРЕЗ RPC (Custom SQL Function),
-    // чтобы не передавать хеш пароля на клиент.
-    // Если у вас нет RPC, вы не сможете безопасно сравнить пароли.
-    // Давайте предположим, что вы настроили RPC 'verify_user_login'
-    
-    // ПРИМЕР АЛЬТЕРНАТИВНОГО ВЫЗОВА RPC (НАСТОЯТЕЛЬНО РЕКОМЕНДУЕТСЯ):
-    const { data: verified, error: verifyError } = await supabase.rpc('verify_user_login', {
-        user_name: username,
-        pass_input: password
-    });
-
-    if (verifyError || !verified || verified.length === 0) {
-        setAuthMessage(loginMessage, 'Ошибка: Неверный логин или пароль.');
-        return;
-    }
-
-    // RPC вернул нам user_id и username
-    const userAuthData = verified[0];
-    const userId = userAuthData.user_id; 
-    const loggedInUsername = userAuthData.username;
-    
-    // 3. Сохраняем ключи и перенаправляем
-    localStorage.setItem(STORAGE_KEY_AUTH, userId); // Сохраняем UUID
-    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // Сохраняем никнейм
-    
-    setAuthMessage(loginMessage, 'Успешный вход! Перенаправление...', false);
-    setTimeout(() => { window.location.href = 'index.html'; }, 500);
-}
-
-loginBtn.onclick = handleLogin;
+// --- ФУНКЦИЯ-ЗАГЛУШКА ДЛЯ ИНИЦИАЛИЗАЦИИ ПУСТЫХ ДАННЫХ ---
+const getInitialData = () => {
+    const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+    const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
+    months.forEach(m=>{if(!emptyData.months[m]) emptyData.months[m]=[];});
+    return emptyData;
+};
 
 
 // =================================================================
-// 4. РЕГИСТРАЦИЯ (REGISTER) - ОБНОВЛЕНО ДЛЯ СОХРАНЕНИЯ В DB
+// 3. РЕГИСТРАЦИЯ (REGISTER) - ОБНОВЛЕНО ДЛЯ ПРЯМОГО INSERT
 // =================================================================
-
-function validatePassword(password) {
-    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
-    return regex.test(password);
-}
 
 async function handleRegister() {
     const username = registerUsername.value.trim();
@@ -309,40 +220,62 @@ async function handleRegister() {
         setAuthMessage(registerMessage, 'Логин должен быть не менее 3 символов.');
         return;
     }
-
-    if (password !== passwordConfirm) {
-        setAuthMessage(registerMessage, 'Пароли не совпадают.');
+    if (password.length < 6) {
+        setAuthMessage(registerMessage, 'Пароль должен быть не менее 6 символов.');
         return;
     }
-
-    if (!validatePassword(password)) {
-        setAuthMessage(registerMessage, 'Пароль должен содержать не менее 6 символов, включая латинские буквы и цифры.');
+    if (password !== passwordConfirm) {
+        setAuthMessage(registerMessage, 'Пароли не совпадают.');
         return;
     }
 
     setAuthMessage(registerMessage, 'Регистрация...', false);
     registerBtn.disabled = true;
 
-    // 1. Вызов RPC для безопасной регистрации и хеширования пароля на сервере
-    // ЭТО ТРЕБУЕТ НАСТРОЙКИ RPC 'register_user'
-    const { data, error } = await supabase.rpc('register_user', {
-        user_name: username,
-        pass_input: password
-    });
+    // 1. INSERT в user_keys
+    // data_key генерируется автоматически в БД
+    const { data: userKeyData, error: userKeyError } = await supabase
+        .from('user_keys')
+        .insert({ 
+            username: username, 
+            password: password // 🚨 ПАРОЛЬ В ЧИСТОМ ВИДЕ
+        })
+        .select('data_key')
+        .single();
     
-    registerBtn.disabled = false;
-
-    if (error) {
-        console.error("Supabase Register Error:", error);
+    if (userKeyError) {
+        registerBtn.disabled = false;
+        console.error("Supabase Register Error:", userKeyError);
         let msg = 'Ошибка регистрации.';
-        if (error.code === '23505' || error.message.includes('duplicate key')) {
+        if (userKeyError.code === '23505' || userKeyError.message.includes('unique_violation')) {
             msg = 'Ошибка: Логин уже занят.';
         }
         setAuthMessage(registerMessage, msg);
         return;
     }
+    
+    const new_data_key = userKeyData.data_key;
 
-    // 2. Успех
+    // 2. INSERT в user_data с пустыми данными
+    const initialData = getInitialData();
+    const { error: dataError } = await supabase
+        .from('user_data')
+        .insert({ 
+            data_key: new_data_key,
+            data_json: initialData
+        });
+
+    registerBtn.disabled = false;
+    
+    if (dataError) {
+        console.error("Supabase Initial Data Error:", dataError);
+        // В случае ошибки с данными, удалим и ключ (если возможно)
+        // В реальной системе тут нужно выполнить серверный ROLLBACK
+        setAuthMessage(registerMessage, 'Ошибка: Не удалось создать запись данных. Попробуйте еще раз.');
+        return;
+    }
+
+    // 3. Успех
     setAuthMessage(registerMessage, '✅ Аккаунт создан! Теперь войдите в систему.', false);
     
     registerUsername.value = '';
@@ -353,11 +286,64 @@ async function handleRegister() {
 
 registerBtn.onclick = handleRegister;
 
+
 // =================================================================
-// 5. ПРОВЕРКА ВХОДА (ОСТАВЛЕНО КАК БЫЛО)
+// 4. ВХОД (LOGIN) - ОБНОВЛЕНО ДЛЯ ПРОВЕРКИ ЛОГИНА/ПАРОЛЯ В DB
+// =================================================================
+
+async function handleLogin() {
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value.trim();
+
+    if (username.length < 3 || password.length < 6) {
+        setAuthMessage(loginMessage, 'Введите Логин (мин. 3) и Пароль (мин. 6).');
+        return;
+    }
+
+    setAuthMessage(loginMessage, 'Проверка...', false); 
+    loginBtn.disabled = true;
+
+    // 1. SELECT из таблицы user_keys, проверяя ЛОГИН и ПАРОЛЬ в чистом виде
+    const { data, error } = await supabase
+        .from('user_keys')
+        .select('data_key, username')
+        .eq('username', username)
+        .eq('password', password) // 🚨 СРАВНЕНИЕ ПАРОЛЯ В ЧИСТОМ ВИДЕ
+        .single();
+        
+    loginBtn.disabled = false;
+
+    if (error) {
+        // PGRST116 означает, что строка не найдена (неверный логин/пароль)
+        if (error.code === 'PGRST116') {
+             setAuthMessage(loginMessage, 'Ошибка: Неверный логин или пароль.');
+             return;
+        }
+        console.error("Supabase Login Error:", error);
+        setAuthMessage(loginMessage, `Ошибка сервера: ${error.message}`);
+        return;
+    }
+    
+    // 2. Успешный вход
+    const userAuthData = data;
+    const data_key = userAuthData.data_key; 
+    const loggedInUsername = userAuthData.username;
+    
+    // 3. Сохраняем ключи и перенаправляем
+    localStorage.setItem(STORAGE_KEY_AUTH, data_key); // Сохраняем data_key
+    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // Сохраняем никнейм
+    
+    setAuthMessage(loginMessage, 'Успешный вход! Перенаправление...', false);
+    setTimeout(() => { window.location.href = 'index.html'; }, 500);
+}
+
+loginBtn.onclick = handleLogin;
+
+
+// =================================================================
+// 5. ПРОВЕРКА ВХОДА
 // =================================================================
 function checkLoggedIn() {
-    // Проверяем, есть ли наш сохраненный UUID
     if (localStorage.getItem(STORAGE_KEY_AUTH)) {
         window.location.href = 'index.html';
     }
