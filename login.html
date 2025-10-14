@@ -151,13 +151,16 @@
 </div>
 
 <script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
+// !!! ВНИМАНИЕ: Все содержимое внешнего <script> (включая <script src="..."!>) 
+// было удалено из тела HTML. Оставили только один внешний тег <script> в самом конце <body>.
+
 // =================================================================
-// 1. КОНСТАНТЫ SUPABASE (ОБЯЗАТЕЛЬНО ЗАМЕНИТЬ)
+// 1. КОНСТАНТЫ SUPABASE 
 // =================================================================
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
+
+// Инициализация клиента Supabase: ОБЯЗАТЕЛЬНО ДОЛЖНА БЫТЬ ПЕРВОЙ!
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =================================================================
@@ -166,7 +169,7 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Хранит сгенерированный data_key
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
-// --- ЭЛЕМЕНТЫ UI (сокращено) ---
+// --- ЭЛЕМЕНТЫ UI ---
 const authContainer = document.getElementById('authContainer');
 const loginUsername = document.getElementById('loginUsername');
 const loginPassword = document.getElementById('loginPassword');
@@ -180,7 +183,7 @@ const registerBtn = document.getElementById('registerBtn');
 const showRegisterBtn = document.getElementById('showRegisterBtn');
 const showLoginBtn = document.getElementById('showLoginBtn');
 
-// --- ФУНКЦИИ УПРАВЛЕНИЯ ФОРМОЙ (оставлены без изменений) ---
+// --- ФУНКЦИИ УПРАВЛЕНИЯ ФОРМОЙ ---
 function showForm(formId) {
     if (formId === 'register') { authContainer.classList.add('show-register'); } 
     else { authContainer.classList.remove('show-register'); }
@@ -206,7 +209,7 @@ const getInitialData = () => {
 
 
 // =================================================================
-// 3. РЕГИСТРАЦИЯ (REGISTER) - ОБНОВЛЕНО ДЛЯ ПРЯМОГО INSERT
+// 3. РЕГИСТРАЦИЯ (REGISTER)
 // =================================================================
 
 async function handleRegister() {
@@ -269,8 +272,6 @@ async function handleRegister() {
     
     if (dataError) {
         console.error("Supabase Initial Data Error:", dataError);
-        // В случае ошибки с данными, удалим и ключ (если возможно)
-        // В реальной системе тут нужно выполнить серверный ROLLBACK
         setAuthMessage(registerMessage, 'Ошибка: Не удалось создать запись данных. Попробуйте еще раз.');
         return;
     }
@@ -288,7 +289,7 @@ registerBtn.onclick = handleRegister;
 
 
 // =================================================================
-// 4. ВХОД (LOGIN) - ОБНОВЛЕНО ДЛЯ ПРОВЕРКИ ЛОГИНА/ПАРОЛЯ В DB
+// 4. ВХОД (LOGIN)
 // =================================================================
 
 async function handleLogin() {
