@@ -151,22 +151,19 @@
 </div>
 
 <script>
-// !!! ВНИМАНИЕ: Все содержимое внешнего <script> (включая <script src="..."!>) 
-// было удалено из тела HTML. Оставили только один внешний тег <script> в самом конце <body>.
-
 // =================================================================
-// 1. КОНСТАНТЫ SUPABASE 
+// 1. КОНСТАНТЫ SUPABASE
 // =================================================================
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
 
-// Инициализация клиента Supabase: ОБЯЗАТЕЛЬНО ДОЛЖНА БЫТЬ ПЕРВОЙ!
+// Инициализация клиента Supabase
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =================================================================
 // 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
 // =================================================================
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Хранит сгенерированный data_key
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
 // --- ЭЛЕМЕНТЫ UI ---
@@ -209,7 +206,7 @@ const getInitialData = () => {
 
 
 // =================================================================
-// 3. РЕГИСТРАЦИЯ (REGISTER)
+// 3. РЕГИСТРАЦИЯ (REGISTER) - ИСПРАВЛЕНО ДЛЯ RLS
 // =================================================================
 
 async function handleRegister() {
@@ -235,16 +232,13 @@ async function handleRegister() {
     setAuthMessage(registerMessage, 'Регистрация...', false);
     registerBtn.disabled = true;
 
-    // 1. INSERT в user_keys
-    // data_key генерируется автоматически в БД
-    const { data: userKeyData, error: userKeyError } = await supabase
+    // 1. INSERT в user_keys с returning: 'minimal' для обхода RLS на SELECT
+    const { error: userKeyError } = await supabase
         .from('user_keys')
         .insert({ 
             username: username, 
-            password: password // 🚨 ПАРОЛЬ В ЧИСТОМ ВИДЕ
-        })
-        .select('data_key')
-        .single();
+            password: password 
+        }, { returning: 'minimal' }); // <-- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ
     
     if (userKeyError) {
         registerBtn.disabled = false;
@@ -257,16 +251,33 @@ async function handleRegister() {
         return;
     }
     
+    // 2. SELECT для получения сгенерированного data_key (теперь после INSERT)
+    // Эта операция должна пройти, если RLS настроен правильно (см. ниже)
+    const { data: userKeyData, error: selectError } = await supabase
+        .from('user_keys')
+        .select('data_key')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
+        
+    if (selectError || !userKeyData) {
+        // Если SELECT не удался, мы не можем получить ключ для создания данных
+        registerBtn.disabled = false;
+        console.error("Supabase SELECT after Register Error:", selectError);
+        setAuthMessage(registerMessage, 'Ошибка: Не удалось найти созданный аккаунт. Проверьте RLS на SELECT.');
+        return;
+    }
+
     const new_data_key = userKeyData.data_key;
 
-    // 2. INSERT в user_data с пустыми данными
+    // 3. INSERT в user_data с пустыми данными
     const initialData = getInitialData();
     const { error: dataError } = await supabase
         .from('user_data')
         .insert({ 
             data_key: new_data_key,
             data_json: initialData
-        });
+        }, { returning: 'minimal' }); // И здесь используем minimal
 
     registerBtn.disabled = false;
     
@@ -276,7 +287,7 @@ async function handleRegister() {
         return;
     }
 
-    // 3. Успех
+    // 4. Успех
     setAuthMessage(registerMessage, '✅ Аккаунт создан! Теперь войдите в систему.', false);
     
     registerUsername.value = '';
@@ -289,7 +300,7 @@ registerBtn.onclick = handleRegister;
 
 
 // =================================================================
-// 4. ВХОД (LOGIN)
+// 4. ВХОД (LOGIN) - без изменений, т.к. там SELECT
 // =================================================================
 
 async function handleLogin() {
@@ -309,13 +320,12 @@ async function handleLogin() {
         .from('user_keys')
         .select('data_key, username')
         .eq('username', username)
-        .eq('password', password) // 🚨 СРАВНЕНИЕ ПАРОЛЯ В ЧИСТОМ ВИДЕ
+        .eq('password', password) 
         .single();
         
     loginBtn.disabled = false;
 
     if (error) {
-        // PGRST116 означает, что строка не найдена (неверный логин/пароль)
         if (error.code === 'PGRST116') {
              setAuthMessage(loginMessage, 'Ошибка: Неверный логин или пароль.');
              return;
@@ -331,8 +341,8 @@ async function handleLogin() {
     const loggedInUsername = userAuthData.username;
     
     // 3. Сохраняем ключи и перенаправляем
-    localStorage.setItem(STORAGE_KEY_AUTH, data_key); // Сохраняем data_key
-    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // Сохраняем никнейм
+    localStorage.setItem(STORAGE_KEY_AUTH, data_key);
+    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername);
     
     setAuthMessage(loginMessage, 'Успешный вход! Перенаправление...', false);
     setTimeout(() => { window.location.href = 'index.html'; }, 500);
