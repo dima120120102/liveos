@@ -157,7 +157,7 @@
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; // <-- ВАШ URL
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; // <-- ВАШ ANON KEY
 
-// Инициализация клиента Supabase
+// Инициализация клиента Supabase ДО ЛЮБОГО ИСПОЛЬЗОВАНИЯ
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // =================================================================
@@ -187,8 +187,6 @@ function showForm(formId) {
     loginMessage.textContent = '';
     registerMessage.textContent = '';
 }
-showRegisterBtn.onclick = () => showForm('register');
-showLoginBtn.onclick = () => showForm('login');
 
 function setAuthMessage(el, text, isError = true) {
     el.textContent = text;
@@ -224,7 +222,6 @@ async function handleRegister() {
         email: email,
         password: password,
         options: {
-            // Сохраняем ник в метаданных Auth
             data: { username: username } 
         }
     });
@@ -264,7 +261,6 @@ async function handleRegister() {
     setTimeout(() => showForm('login'), 3000);
 }
 
-registerBtn.onclick = handleRegister;
 
 // =================================================================
 // 4. ВХОД (LOGIN) - ИСПОЛЬЗУЕМ SUPABASE AUTH
@@ -292,7 +288,6 @@ async function handleLogin() {
 
     if (error) {
         console.error("Supabase Login Error:", error);
-        // Supabase Auth возвращает общую ошибку для безопасности
         setAuthMessage(loginMessage, 'Ошибка: Неверный Email или пароль. Либо аккаунт не подтвержден.');
         return;
     }
@@ -308,7 +303,6 @@ async function handleLogin() {
     setTimeout(() => { window.location.href = 'index.html'; }, 500);
 }
 
-loginBtn.onclick = handleLogin;
 
 // =================================================================
 // 5. ПРОВЕРКА СЕССИИ (SUPABASE AUTH)
@@ -330,6 +324,17 @@ async function checkLoggedIn() {
         localStorage.removeItem(STORAGE_KEY_USERNAME);
     }
 }
+
+// =================================================================
+// 6. ОБРАБОТЧИКИ СОБЫТИЙ (ВЫЗЫВАЮТСЯ В САМОМ КОНЦЕ)
+// =================================================================
+
+showRegisterBtn.onclick = () => showForm('register');
+showLoginBtn.onclick = () => showForm('login');
+loginBtn.onclick = handleLogin;
+registerBtn.onclick = handleRegister;
+
+// Проверяем сессию при полной загрузке DOM
 document.addEventListener('DOMContentLoaded', checkLoggedIn);
 </script>
 </body>
