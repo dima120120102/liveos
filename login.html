@@ -132,7 +132,7 @@
 
     <div class="auth-box" id="login-form">
         <h3>Вход в аккаунт</h3>
-        <input type="text" id="loginUsername" placeholder="Логин">
+        <input type="email" id="loginEmail" placeholder="Email">
         <input type="password" id="loginPassword" placeholder="Пароль">
         <button id="loginBtn" class="btn login-btn">Войти</button>
         <div id="loginMessage" class="auth-message error-msg"></div>
@@ -141,9 +141,9 @@
 
     <div class="auth-box" id="register-form">
         <h3>Создание аккаунта</h3>
-        <input type="text" id="registerUsername" placeholder="Желаемый Логин">
-        <input type="password" id="registerPassword" placeholder="Пароль">
-        <input type="password" id="registerPasswordConfirm" placeholder="Повторите пароль">
+        <input type="text" id="registerUsername" placeholder="Желаемый Логин (для отображения)">
+        <input type="email" id="registerEmail" placeholder="Email">
+        <input type="password" id="registerPassword" placeholder="Пароль (мин. 6 символов)">
         <button id="registerBtn" class="btn login-btn">Зарегистрироваться</button>
         <div id="registerMessage" class="auth-message error-msg"></div>
         <button id="showLoginBtn" class="btn switch-btn">Уже есть аккаунт? Войти</button>
@@ -152,10 +152,10 @@
 
 <script>
 // =================================================================
-// 1. КОНСТАНТЫ SUPABASE
+// 1. КОНСТАНТЫ SUPABASE - ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ!
 // =================================================================
-const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; // <-- ВАШ URL
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; // <-- ВАШ ANON KEY
 
 // Инициализация клиента Supabase
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -163,24 +163,24 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // =================================================================
 // 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
 // =================================================================
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; // Хранит user ID (auth.uid())
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
 // --- ЭЛЕМЕНТЫ UI ---
 const authContainer = document.getElementById('authContainer');
-const loginUsername = document.getElementById('loginUsername');
+const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
 const loginMessage = document.getElementById('loginMessage');
 const loginBtn = document.getElementById('loginBtn');
 const registerUsername = document.getElementById('registerUsername');
+const registerEmail = document.getElementById('registerEmail');
 const registerPassword = document.getElementById('registerPassword');
-const registerPasswordConfirm = document.getElementById('registerPasswordConfirm');
 const registerMessage = document.getElementById('registerMessage');
 const registerBtn = document.getElementById('registerBtn');
 const showRegisterBtn = document.getElementById('showRegisterBtn');
 const showLoginBtn = document.getElementById('showLoginBtn');
 
-// --- ФУНКЦИИ УПРАВЛЕНИЯ ФОРМОЙ ---
+// --- ФУНКЦИИ УПРАВЛЕНИЯ ФОРМОЙ И СООБЩЕНИЯМИ ---
 function showForm(formId) {
     if (formId === 'register') { authContainer.classList.add('show-register'); } 
     else { authContainer.classList.remove('show-register'); }
@@ -196,23 +196,14 @@ function setAuthMessage(el, text, isError = true) {
     el.classList.toggle('success-msg', !isError);
 }
 
-// --- ФУНКЦИЯ-ЗАГЛУШКА ДЛЯ ИНИЦИАЛИЗАЦИИ ПУСТЫХ ДАННЫХ ---
-const getInitialData = () => {
-    const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    const emptyData = {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
-    months.forEach(m=>{if(!emptyData.months[m]) emptyData.months[m]=[];});
-    return emptyData;
-};
-
-
 // =================================================================
-// 3. РЕГИСТРАЦИЯ (REGISTER) - ИСПРАВЛЕНО ДЛЯ RLS
+// 3. РЕГИСТРАЦИЯ (REGISTER) - ИСПОЛЬЗУЕМ SUPABASE AUTH И RPC
 // =================================================================
 
 async function handleRegister() {
     const username = registerUsername.value.trim();
+    const email = registerEmail.value.trim();
     const password = registerPassword.value.trim();
-    const passwordConfirm = registerPasswordConfirm.value.trim();
 
     setAuthMessage(registerMessage, '', true);
 
@@ -224,125 +215,94 @@ async function handleRegister() {
         setAuthMessage(registerMessage, 'Пароль должен быть не менее 6 символов.');
         return;
     }
-    if (password !== passwordConfirm) {
-        setAuthMessage(registerMessage, 'Пароли не совпадают.');
-        return;
-    }
-
-    setAuthMessage(registerMessage, 'Регистрация...', false);
+    
+    setAuthMessage(registerMessage, 'Регистрация и отправка письма...', false);
     registerBtn.disabled = true;
 
-    // 1. INSERT в user_keys с returning: 'minimal' для обхода RLS на SELECT
-    const { error: userKeyError } = await supabase
-        .from('user_keys')
-        .insert({ 
-            username: username, 
-            password: password 
-        }, { returning: 'minimal' }); // <-- КЛЮЧЕВОЕ ИЗМЕНЕНИЕ
+    // 1. Создаем пользователя через Supabase Auth
+    const { data, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+            // Сохраняем ник в метаданных Auth
+            data: { username: username } 
+        }
+    });
     
-    if (userKeyError) {
-        registerBtn.disabled = false;
-        console.error("Supabase Register Error:", userKeyError);
-        let msg = 'Ошибка регистрации.';
-        if (userKeyError.code === '23505' || userKeyError.message.includes('unique_violation')) {
-            msg = 'Ошибка: Логин уже занят.';
+    registerBtn.disabled = false;
+    
+    if (authError) {
+        console.error("Supabase SignUp Error:", authError);
+        let msg = 'Ошибка регистрации: ' + authError.message;
+        if (authError.message.includes('already registered')) {
+            msg = 'Ошибка: Пользователь с этим email уже зарегистрирован.';
         }
         setAuthMessage(registerMessage, msg);
         return;
     }
-    
-    // 2. SELECT для получения сгенерированного data_key (теперь после INSERT)
-    // Эта операция должна пройти, если RLS настроен правильно (см. ниже)
-    const { data: userKeyData, error: selectError } = await supabase
-        .from('user_keys')
-        .select('data_key')
-        .eq('username', username)
-        .eq('password', password)
-        .single();
+
+    // 2. Если пользователь создан (даже если он ждет подтверждения), 
+    // вызываем RPC для создания начальных данных в ЕДИНОЙ таблице
+    if (data.user) {
+        // RPC использует auth.uid(), который создался на шаге 1.
+        const { error: dataError } = await supabase.rpc('create_initial_user_data');
         
-    if (selectError || !userKeyData) {
-        // Если SELECT не удался, мы не можем получить ключ для создания данных
-        registerBtn.disabled = false;
-        console.error("Supabase SELECT after Register Error:", selectError);
-        setAuthMessage(registerMessage, 'Ошибка: Не удалось найти созданный аккаунт. Проверьте RLS на SELECT.');
-        return;
+        if (dataError) {
+            console.error("RPC Initial Data Error:", dataError);
+            setAuthMessage(registerMessage, '✅ Аккаунт создан, но произошла ошибка при инициализации данных. Свяжитесь с поддержкой.', false);
+        } else {
+            setAuthMessage(registerMessage, '✅ Аккаунт создан! Проверьте почту для подтверждения.', false);
+        }
+    } else {
+        // Ветка для случаев, когда Supabase отправляет письмо подтверждения, но не возвращает активную сессию.
+        setAuthMessage(registerMessage, '✅ Запрос отправлен. Проверьте почту для завершения регистрации.', false);
     }
-
-    const new_data_key = userKeyData.data_key;
-
-    // 3. INSERT в user_data с пустыми данными
-    const initialData = getInitialData();
-    const { error: dataError } = await supabase
-        .from('user_data')
-        .insert({ 
-            data_key: new_data_key,
-            data_json: initialData
-        }, { returning: 'minimal' }); // И здесь используем minimal
-
-    registerBtn.disabled = false;
-    
-    if (dataError) {
-        console.error("Supabase Initial Data Error:", dataError);
-        setAuthMessage(registerMessage, 'Ошибка: Не удалось создать запись данных. Попробуйте еще раз.');
-        return;
-    }
-
-    // 4. Успех
-    setAuthMessage(registerMessage, '✅ Аккаунт создан! Теперь войдите в систему.', false);
     
     registerUsername.value = '';
+    registerEmail.value = '';
     registerPassword.value = '';
-    registerPasswordConfirm.value = '';
-    setTimeout(() => showForm('login'), 1500); 
+    setTimeout(() => showForm('login'), 3000);
 }
 
 registerBtn.onclick = handleRegister;
 
-
 // =================================================================
-// 4. ВХОД (LOGIN) - без изменений, т.к. там SELECT
+// 4. ВХОД (LOGIN) - ИСПОЛЬЗУЕМ SUPABASE AUTH
 // =================================================================
 
 async function handleLogin() {
-    const username = loginUsername.value.trim();
+    const email = loginEmail.value.trim();
     const password = loginPassword.value.trim();
 
-    if (username.length < 3 || password.length < 6) {
-        setAuthMessage(loginMessage, 'Введите Логин (мин. 3) и Пароль (мин. 6).');
+    if (password.length < 6 || !email) {
+        setAuthMessage(loginMessage, 'Введите корректный Email и Пароль (мин. 6).');
         return;
     }
 
     setAuthMessage(loginMessage, 'Проверка...', false); 
     loginBtn.disabled = true;
 
-    // 1. SELECT из таблицы user_keys, проверяя ЛОГИН и ПАРОЛЬ в чистом виде
-    const { data, error } = await supabase
-        .from('user_keys')
-        .select('data_key, username')
-        .eq('username', username)
-        .eq('password', password) 
-        .single();
-        
+    // 1. Вызов метода signInWithPassword
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password
+    });
+    
     loginBtn.disabled = false;
 
     if (error) {
-        if (error.code === 'PGRST116') {
-             setAuthMessage(loginMessage, 'Ошибка: Неверный логин или пароль.');
-             return;
-        }
         console.error("Supabase Login Error:", error);
-        setAuthMessage(loginMessage, `Ошибка сервера: ${error.message}`);
+        // Supabase Auth возвращает общую ошибку для безопасности
+        setAuthMessage(loginMessage, 'Ошибка: Неверный Email или пароль. Либо аккаунт не подтвержден.');
         return;
     }
     
     // 2. Успешный вход
-    const userAuthData = data;
-    const data_key = userAuthData.data_key; 
-    const loggedInUsername = userAuthData.username;
+    const user = data.user;
     
-    // 3. Сохраняем ключи и перенаправляем
-    localStorage.setItem(STORAGE_KEY_AUTH, data_key);
-    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername);
+    // 3. Сохраняем ключи: data_key теперь равен user.id
+    localStorage.setItem(STORAGE_KEY_AUTH, user.id);
+    localStorage.setItem(STORAGE_KEY_USERNAME, user.user_metadata.username || user.email); 
     
     setAuthMessage(loginMessage, 'Успешный вход! Перенаправление...', false);
     setTimeout(() => { window.location.href = 'index.html'; }, 500);
@@ -350,13 +310,24 @@ async function handleLogin() {
 
 loginBtn.onclick = handleLogin;
 
+// =================================================================
+// 5. ПРОВЕРКА СЕССИИ (SUPABASE AUTH)
+// =================================================================
 
-// =================================================================
-// 5. ПРОВЕРКА ВХОДА
-// =================================================================
-function checkLoggedIn() {
-    if (localStorage.getItem(STORAGE_KEY_AUTH)) {
+async function checkLoggedIn() {
+    // Получаем текущую сессию
+    const { data: { session }, error } = await supabase.auth.getSession();
+    
+    if (session) {
+        // Если сессия активна, обновляем localStorage и перенаправляем
+        localStorage.setItem(STORAGE_KEY_AUTH, session.user.id);
+        localStorage.setItem(STORAGE_KEY_USERNAME, session.user.user_metadata.username || session.user.email);
         window.location.href = 'index.html';
+    } 
+    // Очищаем локальные данные, если сессия Supabase истекла/прервана
+    else if (localStorage.getItem(STORAGE_KEY_AUTH)) {
+        localStorage.removeItem(STORAGE_KEY_AUTH);
+        localStorage.removeItem(STORAGE_KEY_USERNAME);
     }
 }
 document.addEventListener('DOMContentLoaded', checkLoggedIn);
