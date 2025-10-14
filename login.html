@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Вход и Регистрация</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Стили для формы Аутентификации */
+        /* Стили для формы Аутентификации (оставлены без изменений) */
         :root {
             --primary-color: #007bff;
             --secondary-color: #333;
@@ -60,7 +61,7 @@
             transition: transform 0.8s, opacity 0.8s;
             animation: fadeIn 0.8s ease-out;
         }
-        
+
         /* Начальные состояния для анимации переключения */
         #login-form {
             transform: rotateY(0deg);
@@ -72,7 +73,7 @@
             opacity: 0;
             z-index: 1;
         }
-        
+
         /* Класс для переключения форм */
         .show-register #login-form {
             transform: rotateY(-180deg);
@@ -161,20 +162,20 @@
             font-weight: 600;
             animation: fadeIn 0.5s ease-out;
         }
-        
+
         .error-msg { color: var(--error-color); }
         .success-msg { color: var(--success-color); }
-        
+
         .footer-text { margin-top: 15px; color: #555; font-size: 0.8em; }
     </style>
 </head>
 <body>
 
 <div class="auth-container" id="authContainer">
-    
+
     <div class="auth-box" id="login-form">
         <h3>Вход в аккаунт</h3>
-        <input type="text" id="loginUsername" placeholder="Логин">
+        <input type="email" id="loginEmail" placeholder="Email">
         <input type="password" id="loginPassword" placeholder="Пароль">
         <button id="loginBtn" class="btn login-btn">Войти</button>
         <div id="loginMessage" class="auth-message error-msg"></div>
@@ -183,7 +184,8 @@
 
     <div class="auth-box" id="register-form">
         <h3>Создание аккаунта</h3>
-        <input type="text" id="registerUsername" placeholder="Логин">
+        <input type="email" id="registerEmail" placeholder="Email">
+        <input type="text" id="registerUsername" placeholder="Желаемый никнейм">
         <input type="password" id="registerPassword" placeholder="Пароль">
         <input type="password" id="registerPasswordConfirm" placeholder="Повторите пароль">
         <button id="registerBtn" class="btn login-btn">Зарегистрироваться</button>
@@ -193,23 +195,32 @@
 </div>
 
 <script>
-// 1. ПОЛНЫЙ URL ДЛЯ ОТПРАВКИ ЗАПРОСОВ 
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzqVqzduUgDca8sNHJTmTZBSFc_Hta15BeWmNWKFpw1OGIqhmV1LfRqpmOZGMZ91dc/exec"; 
-// 2. КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+// =================================================================
+// КОНСТАНТЫ SUPABASE (ОБЯЗАТЕЛЬНО ЗАМЕНИТЬ)
+// =================================================================
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
+const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// =================================================================
+// КЛЮЧИ ДЛЯ BROWSER LOCALSTORAGE 
+// =================================================================
+// Теперь мы храним не Apps Script dataKey, а UUID пользователя и его ник
+const STORAGE_KEY_AUTH = 'plannerAuthUserID'; // Будет хранить UUID пользователя
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
 // --- ЭЛЕМЕНТЫ UI ---
 const authContainer = document.getElementById('authContainer');
 
 // Элементы входа
-const loginUsername = document.getElementById('loginUsername');
+const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
 const loginMessage = document.getElementById('loginMessage');
 const loginBtn = document.getElementById('loginBtn');
 const showRegisterBtn = document.getElementById('showRegisterBtn');
 
 // Элементы регистрации
+const registerEmail = document.getElementById('registerEmail');
 const registerUsername = document.getElementById('registerUsername');
 const registerPassword = document.getElementById('registerPassword');
 const registerPasswordConfirm = document.getElementById('registerPasswordConfirm');
@@ -233,120 +244,189 @@ function showForm(formId) {
 showRegisterBtn.onclick = () => showForm('register');
 showLoginBtn.onclick = () => showForm('login');
 
-// --- ВЗАИМОДЕЙСТВИЕ С APPS SCRIPT ---
-
-async function sendRequest(action, params = {}) {
-    const url = SCRIPT_URL;
-    const formData = new URLSearchParams();
-    formData.append('action', action);
-    for (const key in params) {
-        formData.append(key, params[key]);
-    }
-    
-    try {
-        const response = await fetch(url, { method: 'POST', body: formData });
-        return await response.json();
-    } catch (error) {
-        console.error("Fetch error:", error);
-        return { status: "error", message: "Ошибка подключения к серверу Apps Script." };
-    }
+function setAuthMessage(el, text, isError = true) {
+    el.textContent = text;
+    el.classList.toggle('error-msg', isError);
+    el.classList.toggle('success-msg', !isError);
 }
 
-// --- ВХОД (LOGIN) ---
+
+// =================================================================
+// ВХОД (LOGIN) - ОБНОВЛЕНО ДЛЯ SUPABASE AUTH
+// =================================================================
 
 async function handleLogin() {
-    const username = loginUsername.value.trim();
+    const email = loginEmail.value.trim();
     const password = loginPassword.value.trim();
-    
-    if (username.length < 3 || password.length < 3) {
-        loginMessage.textContent = 'Логин и пароль должны быть не менее 3 символов.';
+
+    if (!email || password.length < 6) {
+        setAuthMessage(loginMessage, 'Введите корректный Email и пароль (минимум 6 символов).');
+        return;
+    }
+
+    setAuthMessage(loginMessage, 'Проверка...', false); 
+
+    // 1. Вход через Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    if (authError) {
+        setAuthMessage(loginMessage, `Ошибка входа: ${authError.message}`);
         return;
     }
     
-    loginMessage.textContent = 'Проверка...';
-    loginMessage.classList.remove('success-msg');
-    loginMessage.classList.add('error-msg');
+    // Получаем UUID пользователя
+    const userId = authData.user.id; 
 
-    const result = await sendRequest("login", { username: username, password: password });
-    
-    if (result.status === "success") {
-        const dataKey = result.dataKey;
-        const loggedInUsername = result.username;
+    // 2. Получение никнейма из таблицы user_keys
+    // Никнейм нужен для отображения в planner.html
+    const { data: userData, error: userError } = await supabase
+        .from('user_keys') // Ваша таблица для хранения никнеймов
+        .select('username')
+        .eq('user_id', userId)
+        .single();
 
-        // Сохраняем ключи в браузере
-        localStorage.setItem(STORAGE_KEY_AUTH, dataKey);
-        localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername);
-        
-        loginMessage.textContent = 'Успешный вход! Перенаправление...';
-        loginMessage.classList.remove('error-msg');
-        loginMessage.classList.add('success-msg');
-        setTimeout(() => { window.location.href = 'index.html'; }, 500);
-    } else {
-        loginMessage.textContent = result.message || 'Ошибка входа.';
+    if (userError && userError.code !== 'PGRST116') { // PGRST116: No rows found
+        console.error("Ошибка при получении никнейма:", userError);
+        setAuthMessage(loginMessage, 'Ошибка: Не удалось найти никнейм. Попробуйте войти позже.');
+        await supabase.auth.signOut(); // Выходим из Supabase Auth
+        return;
     }
+    
+    const loggedInUsername = userData?.username || email; // Используем никнейм или Email как запасной вариант
+
+    // 3. Сохраняем ключи и перенаправляем
+    localStorage.setItem(STORAGE_KEY_AUTH, userId); // Сохраняем UUID
+    localStorage.setItem(STORAGE_KEY_USERNAME, loggedInUsername); // Сохраняем никнейм
+    
+    setAuthMessage(loginMessage, 'Успешный вход! Перенаправление...', false);
+    setTimeout(() => { window.location.href = 'index.html'; }, 500);
 }
 
 loginBtn.onclick = handleLogin;
 
-// --- РЕГИСТРАЦИЯ (REGISTER) ---
+
+// =================================================================
+// РЕГИСТРАЦИЯ (REGISTER) - ОБНОВЛЕНО ДЛЯ SUPABASE AUTH
+// =================================================================
 
 // Функция для проверки требований к паролю
 function validatePassword(password) {
+    // Supabase по умолчанию требует минимум 6 символов, но мы сохраним вашу проверку
     // Минимум 6 символов, содержит латинские буквы (хотя бы одна), содержит цифры (хотя бы одна)
     const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/;
     return regex.test(password);
 }
 
 async function handleRegister() {
+    const email = registerEmail.value.trim();
     const username = registerUsername.value.trim();
     const password = registerPassword.value.trim();
     const passwordConfirm = registerPasswordConfirm.value.trim();
-    
-    registerMessage.textContent = '';
-    registerMessage.classList.add('error-msg');
-    registerMessage.classList.remove('success-msg');
+
+    setAuthMessage(registerMessage, '', true); // Очистка сообщения
+
+    if (!email || !/@/.test(email)) {
+        setAuthMessage(registerMessage, 'Введите корректный Email.');
+        return;
+    }
 
     if (username.length < 3) {
-        registerMessage.textContent = 'Логин должен быть не менее 3 символов.';
+        setAuthMessage(registerMessage, 'Никнейм должен быть не менее 3 символов.');
         return;
     }
-    
+
     if (password !== passwordConfirm) {
-        registerMessage.textContent = 'Пароли не совпадают.';
+        setAuthMessage(registerMessage, 'Пароли не совпадают.');
         return;
     }
-    
+
     if (!validatePassword(password)) {
-        registerMessage.textContent = 'Пароль должен содержать не менее 6 символов, включая латинские буквы и цифры.';
+        setAuthMessage(registerMessage, 'Пароль должен содержать не менее 6 символов, включая латинские буквы и цифры.');
+        return;
+    }
+
+    setAuthMessage(registerMessage, 'Регистрация...', false);
+
+    // 1. Попытка создания пользователя в Supabase Auth
+    // Примечание: Это требует включенной функции "Email Confirmation"
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email,
+        password: password,
+    });
+
+    if (authError) {
+        setAuthMessage(registerMessage, `Ошибка регистрации: ${authError.message}`);
+        return;
+    }
+
+    const userId = authData.user.id; 
+    
+    // 2. Сохранение никнейма в таблице user_keys (для отображения и логина)
+    // ВАЖНО: Никнейм должен быть уникальным, это настроено на уровне БД!
+    const { error: userKeyError } = await supabase
+        .from('user_keys')
+        .insert([
+            { user_id: userId, username: username }
+        ]);
+
+    if (userKeyError) {
+        // Если никнейм занят (unique constraint), удаляем пользователя из Auth и сообщаем об ошибке
+        // Это важный шаг для чистой регистрации!
+        await supabase.auth.admin.deleteUser(userId); 
+        
+        let msg = 'Ошибка регистрации.';
+        if (userKeyError.code === '23505') { // Код для нарушения UNIQUE-констрейнта
+            msg = 'Ошибка: Никнейм уже занят. Выберите другой.';
+        }
+        setAuthMessage(registerMessage, msg);
         return;
     }
     
-    registerMessage.textContent = 'Регистрация...';
-    const result = await sendRequest("register", { username: username, password: password });
+    // 3. Успех
+    setAuthMessage(registerMessage, '✅ Аккаунт создан! Теперь войдите в систему.', false);
     
-    if (result.status === "success") {
-        registerMessage.textContent = '✅ Аккаунт создан! Теперь войдите в систему.';
-        registerMessage.classList.remove('error-msg');
-        registerMessage.classList.add('success-msg');
-        // Очистка полей и переключение на форму входа
-        registerUsername.value = '';
-        registerPassword.value = '';
-        registerPasswordConfirm.value = '';
-        setTimeout(() => showForm('login'), 1500); 
-    } else {
-        registerMessage.textContent = result.message || 'Ошибка регистрации.';
-    }
+    // Очистка полей и переключение на форму входа
+    registerEmail.value = '';
+    registerUsername.value = '';
+    registerPassword.value = '';
+    registerPasswordConfirm.value = '';
+    setTimeout(() => showForm('login'), 1500); 
 }
 
 registerBtn.onclick = handleRegister;
 
 // --- Проверка, если пользователь уже вошел ---
-function checkLoggedIn() {
-    if (localStorage.getItem(STORAGE_KEY_AUTH)) {
+// Теперь используем Supabase Auth для проверки сессии
+async function checkLoggedIn() {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Если есть активная сессия в Supabase, перенаправляем.
+    // Если нет, проверяем локальное хранилище, чтобы синхронизировать
+    if (session) {
+        // Убедимся, что локальный ключ сохранен, если сессия есть
+        localStorage.setItem(STORAGE_KEY_AUTH, session.user.id);
+        
+        // Попытка получить никнейм
+        const { data: userData } = await supabase
+            .from('user_keys')
+            .select('username')
+            .eq('user_id', session.user.id)
+            .single();
+            
+        localStorage.setItem(STORAGE_KEY_USERNAME, userData?.username || session.user.email);
+        
         window.location.href = 'index.html';
+    } else if (localStorage.getItem(STORAGE_KEY_AUTH)) {
+        // Если локально ключ есть, но сессии нет (устарела), чистим локальное хранилище
+        localStorage.removeItem(STORAGE_KEY_AUTH);
+        localStorage.removeItem(STORAGE_KEY_USERNAME);
     }
 }
-checkLoggedIn();
+
+document.addEventListener('DOMContentLoaded', checkLoggedIn);
 </script>
 </body>
 </html>
