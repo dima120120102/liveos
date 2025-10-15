@@ -5,9 +5,818 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Owner</title>
 <style>
-/* ... (Ваши стили остаются без изменений) ... */
-/* --- АДАПТАЦИЯ БЛОКА КОДА --- */
-/* (Я удалил всю секцию <style> из этого ответа для краткости, она остается без изменений) */
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+}
+* {
+    box-sizing: border-box;
+}
+
+/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
+::-webkit-scrollbar {
+    width: 10px; 
+    height: 10px; 
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color); 
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+* {
+  scrollbar-color: var(--accent-color) var(--bg-secondary); 
+  scrollbar-width: thin;
+}
+
+/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    animation: fadeIn 0.5s ease-in-out;
+}
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
+
+/* --- ОСНОВНАЯ СТРУКТУРА --- */
+.main-container{
+    display:flex;
+    padding: 0 10px;
+    overflow-x: hidden; 
+    transition: padding 0.3s ease; 
+}
+.goals{
+    width:240px;
+    background:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    /* ИЗМЕНЕНО: Расстояние между целями */
+    gap: 15px; 
+    max-height: 800px; 
+    overflow-y: auto; 
+    position:relative; 
+    flex-shrink: 0;
+}
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    gap:15px;
+    overflow: hidden; 
+}
+
+/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
+.btn{
+    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Для выравнивания иконки и текста */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn:hover{
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.btn:active { transform: scale(0.98) translateY(0); } 
+.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+
+/* --- КНОПКИ УПРАВЛЕНИЯ (НОВЫЙ БЛОК) --- */
+.top-controls {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 10px; 
+    z-index: 10000;
+}
+.save-all-btn, .account-control-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.save-all-btn:hover {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn:hover{
+    background: var(--accent-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn img, .save-all-btn img {
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img, .save-all-btn:hover img {
+    filter: invert(10%);
+}
+.save-all-btn.unsaved {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+}
+
+/* --- ЦЕЛИ (Goal Styles) --- */
+.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+.goal{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:10px;
+    position:relative;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
+    min-height: 40px;
+    /* ИЗМЕНЕНО: Увеличенная граница */
+    border-left: 6px solid var(--success-color); 
+    font-size: 16px; /* Чуть крупнее шрифт */
+}
+.goal:hover{
+    background:var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
+}
+.goal .goal-remove{
+    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
+    transition: opacity 0.2s, transform 0.2s; 
+}
+.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
+.goal:hover .goal-remove{opacity:1;}
+.goal[contenteditable]:focus{
+    outline:2px solid var(--accent-color);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.add-goal-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:15px;
+    background:#555;
+    color:var(--text-primary);
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    cursor:pointer;
+    display:none; 
+    transition: background-color 0.2s, transform 0.2s ease-out; 
+}
+.goals:hover .add-goal-btn{display:flex}
+.add-goal-btn:hover { 
+    background-color: var(--accent-color); 
+    transform: translateX(-50%) translateY(-5px) scale(1.05); 
+}
+
+/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
+/* ИЗМЕНЕНИЕ: Увеличен максимальный размер и flex-grow для нераспределенных */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    /* ИЗМЕНЕНО: Сужение области нераспределенных недель */
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+.unassigned-list{
+    max-height: 250px; /* Немного увеличена высота */
+    overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-right: 5px;
+}
+.week-item,.week-card{
+    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
+    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
+    font-weight: 500;
+}
+.week-item:hover { 
+    border-color: var(--accent-color);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
+.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
+.month{
+    min-width:280px; 
+    background-color: var(--bg-secondary);
+    border-radius:12px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px;
+    flex-shrink:0; 
+    border-top: 4px solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.month:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
+.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
+.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
+.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
+
+/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } 
+.modal-content {
+    background: var(--bg-main);
+    width: 95%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transform: scale(0.95); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal.visible .modal-content { transform: scale(1); } 
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
+.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
+.modal-header span:hover { color: var(--accent-color); }
+.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
+
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
+.modal-content.week-editor {
+    max-width: 1200px; /* Шире для удобства */
+    height: 90vh;
+}
+.modal-header input{
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-header input:focus { 
+    border-color: var(--warning-color); 
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.menu{
+    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
+    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    opacity: 0; visibility: hidden; transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
+.menu div:hover{background:var(--accent-color); color: #fff;}
+.menu div img { transition: filter 0.2s; }
+
+.modal-body{display:flex;flex:1;overflow:hidden;}
+.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
+.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
+.modal-description textarea{
+    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-description textarea:focus { 
+    border-color: var(--warning-color); 
+    outline: none; 
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.modal-days{display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); overflow-y:auto; gap:12px;flex:1; padding-bottom: 10px;}
+.day{
+    background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;
+    /* УЛУЧШЕНИЕ: Добавлена рамка сверху */
+    border-top: 3px solid var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.day:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
+.tasks{display:flex;flex-direction:column;gap:8px;overflow-y:auto; flex: 1; min-height: 50px;}
+.tasks div{
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;
+    transition: background-color 0.2s; border-left: 3px solid var(--border-color);
+}
+.tasks div:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
+.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.add-task-btn{
+    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
+    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; /* УЛУЧШЕНИЕ: Кнопка на всю ширину */
+}
+.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
+.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
+    gap: 10px; /* ИЗМЕНЕНО: Увеличен отступ */
+}
+/* УЛУЧШЕНИЕ: Цели в модалке стилизованы как на главной */
+.modal-goals ul li{
+    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
+    /* ИЗМЕНЕНО: Увеличенная граница */
+    border-left: 6px solid var(--success-color); 
+    font-size: 15px;
+}
+.modal-goals ul li:hover{background:var(--bg-hover);}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s;}
+.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
+
+/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
+.small-modal-content {
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 20px;
+    gap: 15px;
+}
+/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
+
+/* Контейнер для недель и корзины */
+.top-plan-controls {
+    display: flex;
+    gap: 15px; /* Расстояние между нераспределёнными и корзиной */
+    align-items: flex-start; /* Выравнивание сверху */
+    flex-wrap: wrap; 
+    /* NEW: Убеждаемся, что корзина будет справа, когда она видна */
+    justify-content: flex-start; 
+}
+
+/* ИЗМЕНЕНИЕ: Сужение области нераспределенных недель */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    /* ИЗМЕНЕНО: Новое flex-правило для сужения */
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+
+/* ИЗМЕНЕНИЕ: Скрытая корзина */
+.trash-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px dashed var(--danger-color); /* Стиль корзины */
+    /* ИЗМЕНЕНО: Теперь корзина не display: none, а управляется flex-grow и opacity */
+    flex: 0 0 200px; /* Фиксированная/минимальная ширина на десктопе */
+    display: flex; /* Постоянный flex для анимации */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease;
+    height: 100%; 
+    max-height: 250px;
+    opacity: 0;
+    /* Уменьшаем размер и убираем кликабельность, когда скрыта */
+    pointer-events: none;
+}
+.trash-container.visible { /* Класс для отображения */
+    opacity: 1;
+    pointer-events: auto; /* Возвращаем кликабельность */
+}
+
+.trash-container .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); /* Красный цвет */
+    transition: transform 0.2s;
+}
+.trash-container.dragover {
+    background-color: rgba(229, 57, 53, 0.15); /* Красный фон при наведении */
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-container.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+.trash-hint {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+/* ИЗМЕНЕНИЕ: Группа кнопок над нераспределёнными неделями */
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.open-trash-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.open-trash-btn:hover {
+    background: #c32727;
+    border-color: #c32727;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .top-plan-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    /* ИЗМЕНЕНИЕ: Корзина на мобильных */
+    .trash-container {
+        max-height: 100px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 20px;
+        width: 100%;
+        min-height: auto;
+        flex: 1 1 100%; /* Занимает всю ширину на мобильных */
+    }
+    .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
+    
+    .top-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
+#aiButtonContainer {
+    position: fixed;
+    bottom: 20px; /* Отступ от нижнего края */
+    left: 20px; /* Отступ от левого края */
+    z-index: 9999; /* Поверх остальных элементов */
+}
+#aiButtonContainer .btn {
+    background: #39556d; /* Цвет, чтобы отличался */
+    border-color: #39556d; 
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+#aiButtonContainer .btn:hover {
+    background: #476a8a;
+    border-color: #476a8a;
+}
+
+@media (max-width: 768px) {
+    #aiButtonContainer {
+        bottom: 15px;
+        left: 15px;
+    }
+    #aiButtonContainer .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
+.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
+.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
+.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
+.habit-table-wrapper { overflow-x: auto; }
+.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
+.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
+.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
+.habit-table tr:hover td { background-color: var(--bg-hover); }
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
+.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
+.progress-col { width: 150px; }
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+/* ИСПРАВЛЕНИЕ: Стили для удаления привычки */
+.habit-table th { position: relative; }
+.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
+.remove-habit {
+    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
+    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
+}
+.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
+
+/* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
+.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
+.habit-table-container.collapsed { max-height: 250px; }
+.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
+.toggle-history-btn:hover { background: var(--bg-hover); }
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; }
+.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
+.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
+.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
+.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
+.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
+.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
+.mood-calendar-cell:hover { transform: scale(1.05); }
+.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
+.day-number { font-size: 12px; color: var(--text-secondary); }
+.day-mood { font-size: 18px; margin-top: 2px; }
+.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+
+/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
+.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
+.profile-input-group { display: flex; gap: 10px; align-items: center; }
+.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
+.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
+.btn-save-nick:hover { background: #3e8e41; }
+.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
+.btn-logout:hover { background: var(--bg-hover); }
+.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
+.btn-delete:hover { background: #c32727; }
+
+/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
+#loadingOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
+    flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
+    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+}
+.spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
+.confirm-modal-content {
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+}
+.confirm-modal-content h2 {
+    color: var(--danger-color);
+    margin-top: 0;
+}
+.confirm-modal-content p {
+    margin-bottom: 25px;
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.confirm-actions .btn {
+    flex: 1;
+}
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--danger-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+.advice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Более темный оверлей */
+    display: none;
+    z-index: 10000000000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.advice-modal-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+
+.advice-modal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0; /* Выдвигаем справа */
+    width: 400px; /* Ширина бокового окна */
+    max-width: 90%; 
+    height: 100%;
+    background-color: var(--bg-secondary);
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
+    z-index: 100100000000;
+    display: flex;
+    flex-direction: column;
+    /* Изначально за экраном */
+    transform: translateX(100%); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.advice-modal-overlay.visible .advice-modal-drawer {
+    transform: translateX(0);
+}
+
+.advice-drawer-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+.advice-drawer-header h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.3em;
+}
+
+.advice-drawer-close {
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+    transition: color 0.2s;
+}
+.advice-drawer-close:hover {
+    color: var(--danger-color);
+}
+
+.advice-drawer-content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; /* Прокрутка для текста совета */
+}
+/* Стиль для текста совета, чтобы он выглядел красиво */
+.advice-drawer-content p {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-primary);
+    padding-right: 5px; /* Немного места для скроллбара */
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
+.advice-drawer-content h3 {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--accent-color); /* Синий акцент для заголовков */
+    margin-top: 25px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--border-color);
+}
+.advice-drawer-content ul {
+    list-style: none; 
+    padding-left: 0;
+    margin-top: 0;
+}
+.advice-drawer-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    padding-left: 18px; 
+    position: relative;
+}
+.advice-drawer-content li::before {
+    content: '•';
+    color: var(--warning-color); /* Желтый акцент для пунктов */
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: 0;
+}
+.advice-drawer-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+    /* Основные стили футера */
+#main-footer {
+    position: relative; /* Важно для размещения дочерних элементов */
+    width: 100%;
+    min-height: 200px; /* Задайте желаемую высоту */
+    background-color: #333; /* Темный фон для лучшего контраста с частицами */
+    color: #fff;
+    padding: 20px 0;
+    overflow: hidden; /* Скрывает частицы, выходящие за границы */
+}
+
+/* Стили для контейнера анимации */
+#particles-js {
+    position: absolute; /* Позиционируем на весь футер */
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    /* Убедитесь, что контент футера выше, чем анимация */
+    z-index: 1; 
+}
+
+/* Стили для контента (текста) футера */
+.footer-content {
+    position: relative;
+    text-align: center;
+    padding-top: 50px; /* Отступ сверху для центрирования */
+    /* Важно! Контент должен быть выше анимации */
+    z-index: 2; 
+}
+
+.footer-content p {
+    margin: 0;
+    font-size: 14px;
+    /* Убедитесь, что цвет текста подходит к дизайну */
+}
+
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+@media (max-width: 768px) {
+    body { font-size: 14px; }
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
+    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
+    .right { padding: 15px; overflow-y: visible; }
+    .months-wrapper { overflow-x: auto; } 
+    .top-controls { top: 10px; right: 10px; gap: 5px; flex-direction: column-reverse; align-items: flex-end; }
+    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
+    .habit-controls { flex-direction: column; align-items: stretch; }
+    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
+    .modal-body { flex-direction: column; }
+    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
+    .modal-right { overflow-y: auto; }
+    .modal-days { grid-template-columns: 1fr; }
+    .modal-header input { width: 50%; }
+    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
+    .mood-option { font-size: 30px; }
+    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    
+    /* Адаптация боковой панели AI для мобильных */
+    .advice-modal-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+}
 </style>
 </head>
 <body>
@@ -39,13 +848,13 @@
         <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
         <button id="openTrashBtn" class="btn open-trash-btn">Открыть Корзину</button>
     </div>
-
+    
     <div class="top-plan-controls">
         <div class="unassigned-container">
             <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели (перетащите в корзину для удаления)</div>
             <div id="unassignedList" class="unassigned-list"></div>
         </div>
-
+        
         <div id="trashContainer" class="trash-container">
             <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
             <div class="trash-label">Корзина (удаление)</div>
@@ -139,7 +948,7 @@
 <div class="modal" id="profileModal">
     <div class="modal-content small-modal-content">
         <h2>Личный кабинет</h2>
-
+        
         <div class="profile-section">
             <h3>Имя пользователя (Ник)</h3>
             <div class="profile-input-group">
@@ -168,7 +977,7 @@
     <div class="modal-content small-modal-content confirm-modal-content">
         <h2>⚠️ Подтверждение удаления</h2>
         <p id="confirmMessage"></p>
-
+        
         <div class="confirm-actions">
             <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
             <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
@@ -204,7 +1013,7 @@
         🤖 Получить AI совет
     </button>
 </div>
-
+    
 <footer id="main-footer">
     <div id="particles-js"></div> 
 
@@ -319,9 +1128,9 @@ async function loadDataFromSupabase() {
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL)); } catch (e) { console.error("Ошибка парсинга локальных данных."); }
         }
     }
-
+    
     showLoading();
-
+    
     // 1. SELECT data_json FROM user_data WHERE data_key = '...'
     const { data: result, error } = await supabase
         .from('user_data')
@@ -344,7 +1153,7 @@ async function loadDataFromSupabase() {
     const loadedData = (result && result.data_json) 
         ? result.data_json 
         : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
-
+    
     // Обеспечиваем наличие всех необходимых полей
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
@@ -375,18 +1184,18 @@ async function saveDataToSupabase() {
     }
 
     showLoading();
-
+    
     // 2. UPSERT в user_data
     const payload = {
         data_key: dataKey,
         data_json: data, // JSONB в Supabase-JS принимает JS-объект
         updated_at: new Date().toISOString()
     };
-
+    
     const { error } = await supabase
         .from('user_data')
         .upsert(payload, { onConflict: 'data_key' }); // Использование onConflict для UPSERT
-
+        
     hideLoading();
 
     if (error) {
@@ -418,7 +1227,7 @@ async function changeUsername(newNick) {
         .eq('data_key', dataKey);
 
     hideLoading();
-
+    
     if (error) {
         console.error("Ошибка Supabase при смене ника:", error);
         let msg = "Ошибка при смене ника.";
@@ -428,7 +1237,7 @@ async function changeUsername(newNick) {
         alert(msg);
         return { status: "error", message: msg };
     }
-
+    
     localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
     updateAuthButton();
     alert(`Имя пользователя успешно изменено на: ${newNick}`);
@@ -443,7 +1252,7 @@ async function deleteProfileAndData() {
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
     if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
-
+    
     if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
     const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
@@ -455,7 +1264,7 @@ async function deleteProfileAndData() {
         .from('user_keys')
         .delete()
         .eq('data_key', dataKey);
-
+        
     hideLoading();
 
     if (error) {
@@ -565,7 +1374,7 @@ trashContainer.ondrop = async e => {
     e.preventDefault(); trashContainer.classList.remove('dragover');
     if (!dragId || !dragTitle) return;
     const confirmed = await showConfirmDeleteModal(dragTitle);
-
+    
     if (confirmed) {
         let deleted = false;
         const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
@@ -926,7 +1735,7 @@ aiAdviceModalOverlay.addEventListener('click', (e) => {
  */
 function openAiAdviceModal(suggestion) {
     let htmlSuggestion = suggestion;
-
+    
     // 1. Заголовки (###)
     htmlSuggestion = htmlSuggestion.replace(/^###\s*(.*)$/gm, (match, content) => {
         let emoji = '';
@@ -937,7 +1746,7 @@ function openAiAdviceModal(suggestion) {
         const cleanContent = content.replace(/[\uD800-\uDBFF\uDC00-\uDFFF]/g, '').trim();
         return `<h3>${emoji ? `<span class="emoji">${emoji}</span> ` : ''}${cleanContent}</h3>`;
     });
-
+    
     // 2. Списки (*)
     htmlSuggestion = htmlSuggestion.split('\n\n').map(block => {
         if (block.startsWith('- ')) {
@@ -1083,8 +1892,7 @@ async function init() {
     }
 }
 document.addEventListener('DOMContentLoaded', init);
-</script>
-<script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+</script> 
 <script src="footer.js"></script>
 
 </body>
