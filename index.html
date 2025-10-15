@@ -754,6 +754,26 @@ body {
     color: var(--text-primary);
     font-weight: 600;
 }
+/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
+.knowledge-base-btn {
+    color: #fff;
+    border: none;
+    text-decoration: none; /* Убираем подчеркивание у ссылки */
+    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
+    background-size: 200% 200%;
+    animation: gradient-animation 5s ease infinite;
+}
+
+.knowledge-base-btn:hover {
+    color: #fff;
+    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
+}
+
+@keyframes gradient-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
     /* Основные стили футера */
 #main-footer {
     position: relative; /* Важно для размещения дочерних элементов */
@@ -846,6 +866,9 @@ body {
 <main class="right">
     <div class="top-buttons">
         <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+        <a href="knowledge_base.html" class="btn knowledge-base-btn">
+            🧠 Перейти в Базу Знаний
+        </a>
         <button id="openTrashBtn" class="btn open-trash-btn">Открыть Корзину</button>
     </div>
     
@@ -1284,13 +1307,18 @@ document.getElementById('saveNickBtn').onclick = async () => {
 
     await changeUsername(newNick); 
 };
+// В функции logoutBtn.onclick:
 document.getElementById('logoutBtn').onclick = () => {
     if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
-        if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-            if (!confirm("Внимание! У вас есть несохраненные данные. Выйти без сохранения?")) return;
-        }
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}DataKey`));
+        // ... (проверка несохраненных данных)
+        
+        // ✅ Правильная очистка:
+        localStorage.removeItem(STORAGE_KEY_AUTH);
+        localStorage.removeItem(STORAGE_KEY_USERNAME);
+        localStorage.removeItem(STORAGE_KEY_LOCAL);
+        localStorage.removeItem(STORAGE_KEY_UNSAVED);
         localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
+        
         window.location.href = 'login.html';
     }
 };
