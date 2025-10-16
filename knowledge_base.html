@@ -3,1825 +3,786 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Time Owner</title>
+<title>База Знаний - Time Owner</title>
 <link rel="icon" type="image/png" href="pictures/favicon.png">
 <style>
-/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
-:root {
-    --bg-main: #121212;
-    --bg-secondary: #1e1e1e;
-    --bg-tertiary: #2a2a2a;
-    --bg-hover: #333333;
-    --border-color: #383838;
-    --text-primary: #e0e0e0;
-    --text-secondary: #a0a0a0;
-    --accent-color: #007bff;
-    --accent-hover: #0056b3;
-    --danger-color: #e53935;
-    --success-color: #4CAF50;
-    --warning-color: #FFC107;
-}
-* {
-    box-sizing: border-box;
-}
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ (такие же, как на главной) --- */
+:root{--bg-main:#121212;--bg-secondary:#1e1e1e;--bg-tertiary:#2a2a2a;--bg-hover:#333333;--border-color:#383838;--text-primary:#e0e0e0;--text-secondary:#a0a0a0;--accent-color:#007bff;--accent-hover:#0056b3;--danger-color:#e53935;--success-color:#4CAF50;--warning-color:#FFC107;}
+*{box-sizing:border-box;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-secondary);}
+::-webkit-scrollbar-thumb{background:var(--accent-color);border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-hover);}
+*{scrollbar-color:var(--accent-color) var(--bg-secondary);scrollbar-width:thin;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";background:var(--bg-main);color:var(--text-primary);display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;animation:fadeIn 0.5s ease-in-out;}
+.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:600;transition:background-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:hover{background-color:var(--bg-hover);transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.btn:active{transform:scale(0.98) translateY(0);}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;}
+.modal.visible{opacity:1;}
+.modal-content{background:var(--bg-secondary);padding:25px;width:90%;max-width:500px;border-radius:12px;border:1px solid var(--border-color);transform:scale(0.95);transition:transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);display:flex;flex-direction:column;gap:20px;}
+.modal.visible .modal-content{transform:scale(1);}
+.modal-content h2{margin-top:0;color:var(--accent-color);}
+.modal-content input[type="text"]{width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px;}
+.modal-content .actions{display:flex;justify-content:flex-end;gap:10px;}
+#loadingOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;flex-direction:column;justify-content:center;align-items:center;color:var(--text-primary);font-size:1.2em;z-index:10001;opacity:0;transition:opacity 0.3s ease;}
+.spinner{border:4px solid rgba(255,255,255,0.3);border-radius:50%;border-top:4px solid var(--accent-color);width:40px;height:40px;animation:spin 1s linear infinite;margin-bottom:15px;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
 
-/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
-::-webkit-scrollbar {
-    width: 10px; 
-    height: 10px; 
-}
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--accent-color); 
-    border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-hover);
-}
-* {
-  scrollbar-color: var(--accent-color) var(--bg-secondary); 
-  scrollbar-width: thin;
-}
+/* --- СТИЛИ СТРАНИЦЫ БАЗЫ ЗНАНИЙ --- */
+.kb-container{display:flex;flex-grow:1;height:100vh;}
+.kb-sidebar{width:280px;flex-shrink:0;background-color:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:20px;}
+.kb-sidebar h2{margin:0;color:var(--accent-color);border-bottom:2px solid var(--border-color);padding-bottom:10px;text-align:center;}
+.kb-nav{display:flex;gap:10px;}
+.kb-nav button{flex:1;}
+.kb-nav button.active{background:var(--accent-color);border-color:var(--accent-color);color:#fff;}
+.project-list{flex-grow:1;overflow-y:auto;padding-right:5px;}
+.project-item{background:var(--bg-tertiary);padding:12px 15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:all 0.2s ease;display:flex;justify-content:space-between;align-items:center;}
+.project-item:hover{background:var(--bg-hover);transform:translateX(5px);}
+.project-item.active{background:var(--accent-color);color:#fff;border-left-color:var(--warning-color);}
+.project-item-delete{color:var(--danger-color);font-weight:bold;opacity:0;transition:opacity 0.2s;}
+.project-item:hover .project-item-delete{opacity:1;}
+.kb-main-content{flex-grow:1;padding:30px;overflow-y:auto;}
+.placeholder{text-align:center;color:var(--text-secondary);margin-top:50px;font-size:1.2em;}
 
-/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+/* --- СТИЛИ ДЛЯ ШАБЛОНОВ ПРОЕКТОВ --- */
+.project-view-container{animation:fadeIn 0.4s;display:flex;flex-direction:column;gap:25px;}
+.project-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);padding-bottom:15px;margin-bottom:10px;}
+.project-header input[type="text"]{font-size:2em;font-weight:bold;background:transparent;border:none;padding:0;color:var(--text-primary);width:80%;}
+.project-header input[type="text"]:focus{outline:none;box-shadow:none;border-bottom:2px solid var(--accent-color);border-radius:0;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+.form-group{display:flex;flex-direction:column;gap:8px;}
+.form-group label{font-weight:bold;color:var(--text-secondary);font-size:0.9em;text-transform:uppercase;}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:12px;border-radius:8px;font-size:1em;transition:border-color 0.2s,box-shadow 0.2s;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 8px rgba(0,123,255,0.5);}
+.form-group textarea{min-height:120px;resize:vertical;}
+.full-width{grid-column:1 / -1;}
+.upload-placeholder{background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:var(--text-secondary);cursor:pointer;transition:background-color .2s, border-color .2s;}
+.upload-placeholder:hover{background-color:var(--bg-hover);border-color:var(--accent-color);}
+.upload-placeholder span{font-size:2em;}
 
-body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-    background: var(--bg-main);
-    color: var(--text-primary);
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden; 
-    animation: fadeIn 0.5s ease-in-out;
-}
-.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
-.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
+/* --- СТИЛИ ДЛЯ РЕЙТИНГА (ЗВЕЗДЫ) --- */
+.star-rating{display:flex;gap:5px;align-items:center;}
+.star{width:24px;height:24px;cursor:pointer;fill:var(--border-color);transition:fill 0.2s,transform 0.2s;}
+.star:hover{transform:scale(1.2);}
+.star-rating[data-rating] .star:hover ~ .star{fill:var(--border-color) !important;}
+.star.selected,.star-rating[data-rating]:not(:hover) .star.hovered{fill:var(--warning-color) !important;}
 
-/* --- ОСНОВНАЯ СТРУКТУРА --- */
-.main-container{
-    display:flex;
-    padding: 0 10px;
-    overflow-x: hidden; 
-    transition: padding 0.3s ease; 
-}
-.goals{
-    width:240px;
-    background:var(--bg-secondary);
-    border-right:1px solid var(--border-color);
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-    /* ИЗМЕНЕНО: Расстояние между целями */
-    gap: 15px; 
-    max-height: 800px; 
-    overflow-y: auto; 
-    position:relative; 
-    flex-shrink: 0;
-}
-.right{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    padding:20px;
-    gap:15px;
-    overflow: hidden; 
-}
+/* --- СТИЛИ ДЛЯ КАНБАН-ДОСКИ (БИЗНЕС) --- */
+.kanban-board{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.kanban-column{background:var(--bg-secondary);padding:15px;border-radius:12px;display:flex;flex-direction:column;}
+.kanban-column h3{margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid var(--border-color);text-align:center;}
+.kanban-column:nth-child(1) h3{color:var(--danger-color);}
+.kanban-column:nth-child(2) h3{color:var(--warning-color);}
+.kanban-column:nth-child(3) h3{color:var(--success-color);}
+.task-list{min-height:150px;flex-grow:1;transition:background-color 0.2s;border-radius:8px;}
+.kanban-column.drag-over .task-list{background-color:rgba(0,123,255,0.1);}
+.task-card{background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:box-shadow 0.2s,transform 0.2s;}
+.task-card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.task-card.dragging{opacity:0.5;}
+.task-title{font-weight:600;margin-bottom:5px;}
+.task-client{font-size:0.8em;color:var(--text-secondary);background:var(--bg-main);padding:2px 6px;border-radius:4px;display:inline-block;}
+.add-task-btn{background:transparent;border:1px dashed var(--border-color);color:var(--text-secondary);margin-top:10px;}
+.add-task-btn:hover{background:var(--accent-color);border-style:solid;color:#fff;}
 
-/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
-.btn{
-    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex; /* Для выравнивания иконки и текста */
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.btn:hover{
-    background-color: var(--bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.btn:active { transform: scale(0.98) translateY(0); } 
-.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
-.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН --- */
+.large-modal-content{max-width:800px;height:80vh;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--border-color);margin-bottom:15px;}
+.modal-header h2{margin:0;}
+.modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
+.modal-header .close-btn{font-size:24px;cursor:pointer;color:var(--text-secondary);transition:color .2s;}
+.modal-header .close-btn:hover{color:var(--danger-color);}
+.kebab-menu-btn{font-size:24px;cursor:pointer;font-weight:bold;}
+.dropdown-menu{position:absolute;top:100%;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;min-width:180px;z-index:10;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.3);overflow:hidden;}
+.dropdown-menu.show{display:block;}
+.dropdown-item{padding:10px 15px;cursor:pointer;transition:background-color .2s;display:flex;align-items:center;gap:10px;}
+.dropdown-item:hover{background-color:var(--accent-hover);}
+#taskDetailBody{flex-grow:1;display:flex;flex-direction:column;gap:15px;}
+#taskDetailDescription{flex-grow:1;resize:none;}
+.study-type-selection{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.study-type-option{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s ease;}
+.study-type-option:hover{transform:translateY(-5px);box-shadow:0 6px 12px rgba(0,0,0,0.3);border-color:var(--accent-color);}
+.study-type-option span{font-size:3em;display:block;margin-bottom:10px;}
 
-/* --- КНОПКИ УПРАВЛЕНИЯ (НОВЫЙ БЛОК) --- */
-.top-controls {
-    position: fixed;
-    top: 15px;
-    right: 20px;
-    display: flex;
-    gap: 10px; 
-    z-index: 10000;
-}
-.save-all-btn, .account-control-btn {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
-    border: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.save-all-btn:hover {
-    background: var(--success-color);
-    border-color: var(--success-color);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.account-control-btn:hover{
-    background: var(--accent-color);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-.account-control-btn img, .save-all-btn img {
-    transition: filter 0.2s;
-}
-.account-control-btn:hover img, .save-all-btn:hover img {
-    filter: invert(10%);
-}
-.save-all-btn.unsaved {
-    border-color: var(--warning-color);
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-}
-
-/* --- ЦЕЛИ (Goal Styles) --- */
-.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
-.goal{
-    background:var(--bg-tertiary);
-    border-radius:8px;
-    padding:10px;
-    position:relative;
-    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
-    min-height: 40px;
-    /* ИЗМЕНЕНО: Увеличенная граница */
-    border-left: 6px solid var(--success-color); 
-    font-size: 16px; /* Чуть крупнее шрифт */
-}
-.goal:hover{
-    background:var(--bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
-}
-.goal .goal-remove{
-    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
-    transition: opacity 0.2s, transform 0.2s; 
-}
-.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
-.goal:hover .goal-remove{opacity:1;}
-.goal[contenteditable]:focus{
-    outline:2px solid var(--accent-color);
-    background: var(--bg-secondary);
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-.add-goal-btn{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:15px;
-    background:#555;
-    color:var(--text-primary);
-    width:40px;height:40px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    cursor:pointer;
-    display:none; 
-    transition: background-color 0.2s, transform 0.2s ease-out; 
-}
-.goals:hover .add-goal-btn{display:flex}
-.add-goal-btn:hover { 
-    background-color: var(--accent-color); 
-    transform: translateX(-50%) translateY(-5px) scale(1.05); 
-}
-
-/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
-/* ИЗМЕНЕНИЕ: Увеличен максимальный размер и flex-grow для нераспределенных */
-.unassigned-container {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    max-width: none; 
-    /* ИЗМЕНЕНО: Сужение области нераспределенных недель */
-    flex: 1 1 300px; 
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-.unassigned-container.dragover {
-    border-color: var(--accent-color);
-    background: rgba(0, 123, 255, 0.08);
-}
-.unassigned-list{
-    max-height: 250px; /* Немного увеличена высота */
-    overflow-y: auto;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-top:10px;
-    padding-right: 5px;
-}
-.week-item,.week-card{
-    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
-    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
-    font-weight: 500;
-}
-.week-item:hover { 
-    border-color: var(--accent-color);
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
-.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
-.month{
-    min-width:280px; 
-    background-color: var(--bg-secondary);
-    border-radius:12px;
-    padding: 20px;
-    display:flex;
-    flex-direction:column;
-    gap: 15px;
-    flex-shrink:0; 
-    border-top: 4px solid;
-    transition: transform 0.3s ease, box-shadow 0.3s ease; 
-}
-.month:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-}
-.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
-.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
-.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
-.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
-
-/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
-.modal{
-    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
-    opacity: 0; 
-    transition: opacity 0.3s ease;
-}
-.modal.visible { opacity: 1; } 
-.modal-content {
-    background: var(--bg-main);
-    width: 95%;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    border: 1px solid var(--border-color);
-    transform: scale(0.95); 
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.modal.visible .modal-content { transform: scale(1); } 
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
-.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
-.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
-.modal-header span:hover { color: var(--accent-color); }
-.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
-
-/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
-.modal-content.week-editor {
-    max-width: 1200px; /* Шире для удобства */
-    height: 90vh;
-}
-.modal-header input{
-    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.modal-header input:focus { 
-    border-color: var(--warning-color); 
-    outline: none;
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
-.menu{
-    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
-    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    opacity: 0; visibility: hidden; transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
-.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
-.menu div:hover{background:var(--accent-color); color: #fff;}
-.menu div img { transition: filter 0.2s; }
-
-.modal-body{display:flex;flex:1;overflow:hidden;}
-.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
-.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
-.modal-description textarea{
-    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.modal-description textarea:focus { 
-    border-color: var(--warning-color); 
-    outline: none; 
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
-.modal-days{display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); overflow-y:auto; gap:12px;flex:1; padding-bottom: 10px;}
-.day{
-    background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;
-    /* УЛУЧШЕНИЕ: Добавлена рамка сверху */
-    border-top: 3px solid var(--accent-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.day:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
-.tasks{display:flex;flex-direction:column;gap:8px;overflow-y:auto; flex: 1; min-height: 50px;}
-.tasks div{
-    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;
-    transition: background-color 0.2s; border-left: 3px solid var(--border-color);
-}
-.tasks div:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
-.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
-.add-task-btn{
-    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
-    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; /* УЛУЧШЕНИЕ: Кнопка на всю ширину */
-}
-.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
-.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
-.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
-    gap: 10px; /* ИЗМЕНЕНО: Увеличен отступ */
-}
-/* УЛУЧШЕНИЕ: Цели в модалке стилизованы как на главной */
-.modal-goals ul li{
-    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
-    /* ИЗМЕНЕНО: Увеличенная граница */
-    border-left: 6px solid var(--success-color); 
-    font-size: 15px;
-}
-.modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s;}
-.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
-
-/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
-.small-modal-content {
-    max-width: 450px;
-    height: auto;
-    max-height: 90vh;
-    padding: 20px;
-    gap: 15px;
-}
-/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
-
-/* Контейнер для недель и корзины */
-.top-plan-controls {
-    display: flex;
-    gap: 15px; /* Расстояние между нераспределёнными и корзиной */
-    align-items: flex-start; /* Выравнивание сверху */
-    flex-wrap: wrap; 
-    /* NEW: Убеждаемся, что корзина будет справа, когда она видна */
-    justify-content: flex-start; 
-}
-
-/* ИЗМЕНЕНИЕ: Сужение области нераспределенных недель */
-.unassigned-container {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    max-width: none; 
-    /* ИЗМЕНЕНО: Новое flex-правило для сужения */
-    flex: 1 1 300px; 
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-.unassigned-container.dragover {
-    border-color: var(--accent-color);
-    background: rgba(0, 123, 255, 0.08);
-}
-
-/* ИЗМЕНЕНИЕ: Скрытая корзина */
-.trash-container {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px dashed var(--danger-color); /* Стиль корзины */
-    /* ИЗМЕНЕНО: Теперь корзина не display: none, а управляется flex-grow и opacity */
-    flex: 0 0 200px; /* Фиксированная/минимальная ширина на десктопе */
-    display: flex; /* Постоянный flex для анимации */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease;
-    height: 100%; 
-    max-height: 250px;
-    opacity: 0;
-    /* Уменьшаем размер и убираем кликабельность, когда скрыта */
-    pointer-events: none;
-}
-.trash-container.visible { /* Класс для отображения */
-    opacity: 1;
-    pointer-events: auto; /* Возвращаем кликабельность */
-}
-
-.trash-container .trash-icon {
-    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); /* Красный цвет */
-    transition: transform 0.2s;
-}
-.trash-container.dragover {
-    background-color: rgba(229, 57, 53, 0.15); /* Красный фон при наведении */
-    border-color: var(--danger-color);
-    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
-}
-.trash-container.dragover .trash-icon {
-    transform: scale(1.2) rotate(-5deg);
-}
-.trash-label {
-    margin-top: 5px;
-    font-weight: bold;
-    color: var(--danger-color);
-}
-.trash-hint {
-    font-size: 10px;
-    color: var(--text-secondary);
-    margin-top: 5px;
-}
-
-/* ИЗМЕНЕНИЕ: Группа кнопок над нераспределёнными неделями */
-.top-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.open-trash-btn {
-    background: var(--danger-color);
-    border-color: var(--danger-color);
-    color: #fff;
-}
-.open-trash-btn:hover {
-    background: #c32727;
-    border-color: #c32727;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .top-plan-controls {
-        flex-direction: column;
-        gap: 10px;
-    }
-    /* ИЗМЕНЕНИЕ: Корзина на мобильных */
-    .trash-container {
-        max-height: 100px;
-        flex-direction: row;
-        justify-content: space-around;
-        padding: 10px 20px;
-        width: 100%;
-        min-height: auto;
-        flex: 1 1 100%; /* Занимает всю ширину на мобильных */
-    }
-    .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
-    
-    .top-buttons {
-        flex-wrap: wrap;
-    }
-}
-
-/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
-#aiButtonContainer {
-    position: fixed;
-    bottom: 20px; /* Отступ от нижнего края */
-    left: 20px; /* Отступ от левого края */
-    z-index: 9999; /* Поверх остальных элементов */
-}
-#aiButtonContainer .btn {
-    background: #39556d; /* Цвет, чтобы отличался */
-    border-color: #39556d; 
-    color: #fff;
-    padding: 12px 20px;
-    font-size: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-#aiButtonContainer .btn:hover {
-    background: #476a8a;
-    border-color: #476a8a;
-}
-
-@media (max-width: 768px) {
-    #aiButtonContainer {
-        bottom: 15px;
-        left: 15px;
-    }
-    #aiButtonContainer .btn {
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-}
-
-/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
-.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
-.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
-.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
-.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
-.habit-table-wrapper { overflow-x: auto; }
-.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
-.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
-.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
-.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
-.habit-table tr:hover td { background-color: var(--bg-hover); }
-.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
-.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
-.progress-col { width: 150px; }
-.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
-.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
-/* ИСПРАВЛЕНИЕ: Стили для удаления привычки */
-.habit-table th { position: relative; }
-.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
-.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
-.remove-habit {
-    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
-    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
-}
-.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
-
-/* СТИЛИ ДЛЯ СВОРАЧИВАНИЯ ТАБЛИЦЫ ПРИВЫЧЕК */
-.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
-.habit-table-container.collapsed { max-height: 250px; }
-.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
-.toggle-history-btn:hover { background: var(--bg-hover); }
-
-/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
-.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; }
-.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
-.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
-.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
-.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
-.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
-.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
-.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
-.mood-calendar-cell:hover { transform: scale(1.05); }
-.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
-.day-number { font-size: 12px; color: var(--text-secondary); }
-.day-mood { font-size: 18px; margin-top: 2px; }
-.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-
-/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
-.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
-.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
-.profile-input-group { display: flex; gap: 10px; align-items: center; }
-.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
-.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
-.btn-save-nick:hover { background: #3e8e41; }
-.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
-.btn-logout:hover { background: var(--bg-hover); }
-.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
-.btn-delete:hover { background: #c32727; }
-
-/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
-#loadingOverlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
-    flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
-    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
-}
-.spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
-.confirm-modal-content {
-    max-width: 400px;
-    padding: 20px;
-    text-align: center;
-    gap: 20px;
-}
-.confirm-modal-content h2 {
-    color: var(--danger-color);
-    margin-top: 0;
-}
-.confirm-modal-content p {
-    margin-bottom: 25px;
-}
-.confirm-actions {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-}
-.confirm-actions .btn {
-    flex: 1;
-}
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 15px;
-    font-size: 14px;
-}
-.checkbox-group input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-    cursor: pointer;
-    accent-color: var(--danger-color);
-}
-
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
-.advice-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Более темный оверлей */
-    display: none;
-    z-index: 10000000000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.advice-modal-overlay.visible {
-    display: block;
-    opacity: 1;
-}
-
-.advice-modal-drawer {
-    position: fixed;
-    top: 0;
-    right: 0; /* Выдвигаем справа */
-    width: 400px; /* Ширина бокового окна */
-    max-width: 90%; 
-    height: 100%;
-    background-color: var(--bg-secondary);
-    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
-    z-index: 100100000000;
-    display: flex;
-    flex-direction: column;
-    /* Изначально за экраном */
-    transform: translateX(100%); 
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.advice-modal-overlay.visible .advice-modal-drawer {
-    transform: translateX(0);
-}
-
-.advice-drawer-header {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
-}
-.advice-drawer-header h2 {
-    margin: 0;
-    color: var(--accent-color);
-    font-size: 1.3em;
-}
-
-.advice-drawer-close {
-    background: none;
-    border: none;
-    font-size: 30px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    line-height: 1;
-    transition: color 0.2s;
-}
-.advice-drawer-close:hover {
-    color: var(--danger-color);
-}
-
-.advice-drawer-content {
-    padding: 20px;
-    flex-grow: 1;
-    overflow-y: auto; /* Прокрутка для текста совета */
-}
-/* Стиль для текста совета, чтобы он выглядел красиво */
-.advice-drawer-content p {
-    white-space: pre-wrap;
-    line-height: 1.7;
-    font-size: 15px;
-    color: var(--text-primary);
-    padding-right: 5px; /* Немного места для скроллбара */
-}
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
-.advice-drawer-content h3 {
-    font-size: 1.4em;
-    font-weight: 700;
-    color: var(--accent-color); /* Синий акцент для заголовков */
-    margin-top: 25px;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 2px solid var(--border-color);
-}
-.advice-drawer-content ul {
-    list-style: none; 
-    padding-left: 0;
-    margin-top: 0;
-}
-.advice-drawer-content li {
-    margin-bottom: 8px;
-    line-height: 1.5;
-    padding-left: 18px; 
-    position: relative;
-}
-.advice-drawer-content li::before {
-    content: '•';
-    color: var(--warning-color); /* Желтый акцент для пунктов */
-    font-weight: bold;
-    display: inline-block;
-    width: 1em;
-    margin-left: -1em;
-    position: absolute;
-    left: 0;
-}
-.advice-drawer-content strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
-.knowledge-base-btn {
-    color: #fff;
-    border: none;
-    text-decoration: none; /* Убираем подчеркивание у ссылки */
-    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
-    background-size: 200% 200%;
-    animation: gradient-animation 5s ease infinite;
-}
-
-.knowledge-base-btn:hover {
-    color: #fff;
-    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
-}
-
-@keyframes gradient-animation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-    /* Основные стили футера */
-#main-footer {
-    position: relative; /* Важно для размещения дочерних элементов */
-    width: 100%;
-    min-height: 200px; /* Задайте желаемую высоту */
-    background-color: #333; /* Темный фон для лучшего контраста с частицами */
-    color: #fff;
-    padding: 20px 0;
-    overflow: hidden; /* Скрывает частицы, выходящие за границы */
-}
-
-/* Стили для контейнера анимации */
-#particles-js {
-    position: absolute; /* Позиционируем на весь футер */
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    /* Убедитесь, что контент футера выше, чем анимация */
-    z-index: 1; 
-}
-
-/* Стили для контента (текста) футера */
-.footer-content {
-    position: relative;
-    text-align: center;
-    padding-top: 50px; /* Отступ сверху для центрирования */
-    /* Важно! Контент должен быть выше анимации */
-    z-index: 2; 
-}
-
-.footer-content p {
-    margin: 0;
-    font-size: 14px;
-    /* Убедитесь, что цвет текста подходит к дизайну */
-}
-
-/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
-@media (max-width: 768px) {
-    body { font-size: 14px; }
-    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
-    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
-    .right { padding: 15px; overflow-y: visible; }
-    .months-wrapper { overflow-x: auto; } 
-    .top-controls { top: 10px; right: 10px; gap: 5px; flex-direction: column-reverse; align-items: flex-end; }
-    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
-    .habit-controls { flex-direction: column; align-items: stretch; }
-    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
-    .modal-body { flex-direction: column; }
-    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
-    .modal-right { overflow-y: auto; }
-    .modal-days { grid-template-columns: 1fr; }
-    .modal-header input { width: 50%; }
-    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
-    .mood-option { font-size: 30px; }
-    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
-    
-    /* Адаптация боковой панели AI для мобильных */
-    .advice-modal-drawer {
-        width: 100%;
-        max-width: 100%;
-    }
-}
+/* Адаптивность */
+@media (max-width: 768px){.kb-container{flex-direction:column;height:auto;}.kb-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border-color);height:auto;}.kanban-board{grid-template-columns:1fr;}}
 </style>
 </head>
-
 <body>
-    
-<div class="top-controls">
-    <button id="saveAllBtn" class="save-all-btn">
-        <img src="pictures/save.png" width="16" height="16" alt="Save">
-        <span id="saveAllBtnText">Сохранить все</span>
-    </button>
-    <div id="accountControl" class="account-control-btn">
-        <img src="pictures/account.png" width="16" height="16" alt="Profile">
-        <span id="usernameDisplay">Профиль</span>
+
+<div class="kb-container">
+    <aside class="kb-sidebar">
+        <h2>База Знаний</h2>
+        <a href="index.html" class="btn">🏠 Вернуться на главную</a>
+        <div class="kb-nav">
+            <button id="viewStudyBtn" class="btn active" data-view="study">🎓 Учёба</button>
+            <button id="viewBusinessBtn" class="btn" data-view="business">💼 Бизнес</button>
+        </div>
+        <button id="createProjectBtn" class="btn" style="background:var(--success-color); border-color:var(--success-color); color: #fff;">+ Создать проект</button>
+        <div id="projectList" class="project-list"></div>
+    </aside>
+
+    <main id="mainContent" class="kb-main-content">
+        <div id="placeholder" class="placeholder"><p>Выберите проект из списка слева или создайте новый.</p></div>
+        <div id="projectView"></div>
+    </main>
+</div>
+
+<!-- Модальное окно: Выбор типа учебного проекта -->
+<div class="modal" id="studyTypeModal">
+    <div class="modal-content">
+        <h2>Выберите тип учебного проекта</h2>
+        <div class="study-type-selection">
+            <div class="study-type-option" data-type="study-book"><span>📖</span><strong>Книга</strong></div>
+            <div class="study-type-option" data-type="study-course"><span>💻</span><strong>Курс</strong></div>
+            <div class="study-type-option" data-type="study-school" style="grid-column: 1 / -1;"><span>🏫</span><strong>Школа / Университет</strong></div>
+        </div>
     </div>
 </div>
 
-<div class="banner">
-  <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
+<!-- Модальное окно: Создание проекта (общее) -->
+<div class="modal" id="createProjectModal">
+    <div class="modal-content">
+        <h2 id="createModalTitle">Создать новый проект</h2>
+        <input type="text" id="newProjectName" placeholder="Название проекта">
+        <div class="actions">
+            <button class="btn" onclick="closeModal('createProjectModal')">Отмена</button>
+            <button id="saveNewProjectBtn" class="btn" style="background:var(--success-color);">Создать</button>
+        </div>
+    </div>
 </div>
 
-<div class="main-container">
-  <aside class="goals">
-    <h2>Годовые цели</h2>
-    <div id="goalsList"></div>
-    <div id="addGoalBtn" class="add-goal-btn">＋</div>
-  </aside>
-
-<main class="right">
-    <div class="top-buttons">
-        <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
-        <a href="knowledge_base.html" class="btn knowledge-base-btn">
-            🧠 Перейти в Базу Знаний
-        </a>
-        <button id="openTrashBtn" class="btn open-trash-btn">Открыть Корзину</button>
-    </div>
-    
-    <div class="top-plan-controls">
-        <div class="unassigned-container">
-            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели (перетащите в корзину для удаления)</div>
-            <div id="unassignedList" class="unassigned-list"></div>
-        </div>
-        
-        <div id="trashContainer" class="trash-container">
-            <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
-            <div class="trash-label">Корзина (удаление)</div>
-            <div class="trash-hint">Перетащи неделю сюда для безвозвратного удаления</div>
+<!-- Модальное окно: Создание задачи (Бизнес) -->
+<div class="modal" id="createTaskModal">
+    <div class="modal-content">
+        <h2>Новая задача</h2>
+        <input type="text" id="newTaskTitle" placeholder="Название задачи">
+        <input type="text" id="newTaskClient" placeholder="Клиент (необязательно)">
+        <div class="actions">
+            <button class="btn" onclick="closeModal('createTaskModal')">Отмена</button>
+            <button id="saveNewTaskBtn" class="btn" style="background:var(--success-color);">Добавить</button>
         </div>
     </div>
-    <div class="months-wrapper">
-        <div class="months" id="months"></div>
-    </div>
-</main>
 </div>
 
-<section class="habit-tracker">
-    <h2>✅ Трекер Привычек</h2>
-    <div class="habit-controls">
-        <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
-        <button id="addHabitBtn" class="btn">Добавить привычку</button>
-        <button id="newDayBtn" class="btn create-week">Новый день</button>
-    </div>
-    <div class="habit-table-container" id="habitTableContainer">
-        <div class="habit-table-wrapper">
-            <table class="habit-table">
-                <thead>
-                    <tr id="habitHeaderRow">
-                        <th>Дата</th>
-                        <th class="progress-col">Прогресс дня</th>
-                    </tr>
-                </thead>
-                <tbody id="habitBody">
-                </tbody >
-            </table>
-        </div>
-    </div>
-    <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
-        Показать всю историю
-    </button>
-</section>
-
-<section class="mood-tracker">
-    <h2>✨ Трекер Настроения</h2>
-    <p style="text-align:center;">Как твой день?</p>
-    <div class="mood-selection">
-        <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
-        <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
-        <span class="mood-option" data-mood="great" title="Отлично">😄</span>
-    </div>
-
-    <h3>История настроения</h3>
-    <div class="mood-history-controls">
-        <select id="moodMonthSelect" class="current-month-select"></select>
-    </div>
-    <div id="moodCalendar" class="mood-calendar">
-        </div>
-</section>
-
-<div class="modal" id="weekModal">
-    <div class="modal-content week-editor">
+<!-- Модальное окно: Детали задачи (Бизнес) -->
+<div class="modal" id="taskDetailModal">
+    <div class="modal-content large-modal-content">
         <div class="modal-header">
-            <input id="weekTitle" placeholder="Название недели">
+            <h2 id="taskDetailTitle">Детали задачи</h2>
             <div class="actions">
-                <div id="menuContainer" style="position: relative;">
-                    <span id="menuBtn">⋮</span>
-                    <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="pictures/trash.png" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="pictures/download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
-                    </div>
+                <div id="kebabMenuBtn" class="kebab-menu-btn">⋮</div>
+                <div id="taskDropdownMenu" class="dropdown-menu">
+                    <div class="dropdown-item" id="downloadTaskBtn">💾 Скачать (.txt)</div>
+                    <div class="dropdown-item" id="deleteTaskBtn" style="color:var(--danger-color);">🗑️ Удалить задачу</div>
                 </div>
-                <span id="closeModal">×</span>
+                <span class="close-btn" onclick="closeModal('taskDetailModal')">×</span>
             </div>
         </div>
-        <div class="modal-body">
-            <div class="modal-left">
-                <div class="modal-description">
-                    <textarea id="weekDesc" placeholder="Описание недели..."></textarea>
-                </div>
-                <div class="modal-goals">
-                    <h4>Годовые цели</h4>
-                    <ul id="modalGoalsList"></ul>
-                </div>
+        <div id="taskDetailBody">
+            <div class="form-group">
+                <label for="taskDetailDescription">Подробное описание</label>
+                <textarea id="taskDetailDescription" placeholder="Опишите задачу подробнее..."></textarea>
             </div>
-            <div class="modal-right">
-                <div class="modal-days" id="daysContainer"></div>
+            <div class="actions">
+                <button class="btn" style="background:var(--success-color);" onclick="closeModal('taskDetailModal')">Сохранить и закрыть</button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="save-btn btn" id="saveBtn">Закрыть</button>
-        </div>
     </div>
 </div>
 
-<div class="modal" id="profileModal">
-    <div class="modal-content small-modal-content">
-        <h2>Личный кабинет</h2>
-        
-        <div class="profile-section">
-            <h3>Имя пользователя (Ник)</h3>
-            <div class="profile-input-group">
-                <input type="text" id="nickInput" placeholder="Введите новый ник">
-                <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <h3>Управление аккаунтом</h3>
-            <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="pictures/trash.png" width="16" alt="Удалить">
-                Удалить профиль и все данные
-            </button>
-            <button id="logoutBtn" class="btn btn-logout">
-                <img src="pictures/logout.png" width="16" alt="Выход"> 
-                Выйти из аккаунта
-            </button>
-        </div>
-
-        <button class="btn" onclick="closeProfileModal()">Закрыть</button>
+<!-- Модальное окно: Ссылка -->
+<div class="modal" id="shareModal">
+    <div class="modal-content">
+        <h2>Поделиться проектом</h2>
+        <p>Любой, у кого есть эта ссылка, сможет просматривать и редактировать проект.</p>
+        <input type="text" id="shareLinkInput" readonly>
+        <div class="actions"><button id="copyLinkBtn" class="btn">Копировать</button></div>
     </div>
 </div>
 
-<div class="modal" id="confirmModal">
-    <div class="modal-content small-modal-content confirm-modal-content">
-        <h2>⚠️ Подтверждение удаления</h2>
-        <p id="confirmMessage"></p>
-        
-        <div class="confirm-actions">
-            <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
-            <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
-        </div>
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="dontAskAgain">
-            <label for="dontAskAgain">Больше не спрашивать при удалении</label>
-        </div>
-    </div>
-</div>
-
-
-<div id="loadingOverlay">
-    <div class="spinner"></div>
-    <div>Пожалуйста, подождите...</div>
-</div>
-
-<div id="aiAdviceModalOverlay" class="advice-modal-overlay">
-    <div id="aiAdviceModal" class="advice-modal-drawer">
-        <div class="advice-drawer-header">
-            <h2>🤖 AI Совет</h2>
-            <button class="advice-drawer-close" onclick="closeAiAdviceModal()">&times;</button>
-        </div>
-        <div class="advice-drawer-content">
-            <p id="aiAdviceText"></p>
-        </div>
-    </div>
-</div>
-
-<div id="aiButtonContainer">
-    <button id="getAISuggestionBtn" class="btn">
-        🤖 Получить AI совет
-    </button>
-</div>
-    
-<footer id="main-footer">
-    <div id="particles-js"></div> 
-
-    <div class="footer-content">
-        <p>&copy; 2025 dimavenv - разработчик. Все права на Time Owner принадлежат мне.</p>
-        <p>&copy; Все права защищены</p>
-    </div>
-</footer>
+<!-- Оверлей загрузки -->
+<div id="loadingOverlay"><div class="spinner"></div><div>Загрузка...</div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 // =================================================================
-// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ (Обновленные для Supabase)
+// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ
 // =================================================================
-
-// --- КОНСТАНТЫ SUPABASE ---
-// !!! ОБЯЗАТЕЛЬНО ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ !!!
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
 
-// !!! Инициализацию клиента переносим внутрь init или делаем через let !!!
-let supabase = null; 
+let supabase = null;
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey';
+// Добавлена переменная для хранения ключа текущего пользователя
+let userKey = null; 
+let state = { currentView: 'study', projects: [], activeProjectId: null, isSharedView: false };
 
-// --- ОБЩИЕ КОНСТАНТЫ ---
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername';
-const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
-const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
-const STORAGE_KEY_CONFIRM_DELETE = 'plannerConfirmDelete_v1';
-
-const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
-const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
-
-let data = null;
-let dragId = null;
-let dragTitle = null;
-
-const saveAllBtn = document.getElementById('saveAllBtn');
-const saveAllBtnText = document.getElementById('saveAllBtnText');
-const accountControlBtn = document.getElementById('accountControl');
-accountControlBtn.onclick = handleAccountControlClick;
-
-// Элементы для ИИ
-const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
-const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay');
-const aiAdviceText = document.getElementById('aiAdviceText');
-
-// Элементы для Корзины
-const openTrashBtn = document.getElementById('openTrashBtn');
-const trashContainer = document.getElementById('trashContainer');
-
-// Элементы для модального окна подтверждения
-const confirmModal = document.getElementById('confirmModal');
-const confirmMessage = document.getElementById('confirmMessage');
-const confirmCancelBtn = document.getElementById('confirmCancelBtn');
-const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-const dontAskAgainCheckbox = document.getElementById('dontAskAgain');
-let currentDeleteResolve = null; 
-
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ ЗАГРУЗКОЙ (СПИННЕР) --- */
-const loadingOverlay = document.getElementById('loadingOverlay');
-function showLoading() {
-    loadingOverlay.style.display = 'flex';
-    setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10);
-}
-function hideLoading() {
-    loadingOverlay.style.opacity = '0';
-    setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
-}
-
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ --- */
-function setUnsaved(isUnsaved) {
-    if (isUnsaved) {
-        localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
-        saveAllBtn.classList.add('unsaved');
-        document.getElementById('saveAllBtnText').textContent = 'Сохранить все (!)'; 
-    } else {
-        localStorage.removeItem(STORAGE_KEY_UNSAVED);
-        saveAllBtn.classList.remove('unsaved');
-        document.getElementById('saveAllBtnText').textContent = 'Сохранить все';
-    }
-}
-function save() {
-    if (!data) return;
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
-    setUnsaved(true);
-}
-
+const mainContent = document.getElementById('mainContent'), projectList = document.getElementById('projectList'), projectView = document.getElementById('projectView'), placeholder = document.getElementById('placeholder'), loadingOverlay = document.getElementById('loadingOverlay');
+let currentOpenTask = { projectId: null, taskId: null };
 
 // =================================================================
-// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE (Адаптировано под одну таблицу)
+// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // =================================================================
+function showLoading() { loadingOverlay.style.display = 'flex'; setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10); }
+function hideLoading() { loadingOverlay.style.opacity = '0'; setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); }
+function openModal(id) { document.getElementById(id).style.display = 'flex'; setTimeout(() => document.getElementById(id).classList.add('visible'), 10); }
+function closeModal(id) { const modal = document.getElementById(id); modal.classList.remove('visible'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
 
-/**
- * [ОБНОВЛЕНО] Загружает данные пользователя из Supabase по data_key.
- */
-async function loadDataFromSupabase() {
-    // Проверка наличия клиента
-    if (!supabase) { console.error("Supabase client not initialized."); return null; }
-    
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!dataKey) { 
-        window.location.href = 'login.html'; 
-        return null; 
-    }
-
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
-            setUnsaved(true);
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL)); } catch (e) { console.error("Ошибка парсинга локальных данных."); }
-        }
-    }
-
-    showLoading();
-
-    // 1. SELECT data_json FROM public.user_data WHERE data_key = '...'
-    const { data: result, error } = await supabase
-        .from('user_data')
-        .select('data_json')
-        .eq('data_key', dataKey)
-        .single(); 
-
-    hideLoading();
-
-    if (error && error.code !== 'PGRST116') { 
-        console.error("Ошибка Supabase при загрузке:", error);
-        alert(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`);
-    }
-
-    const loadedData = (result && result.data_json) 
-        ? result.data_json 
-        : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
-
-    // Обеспечиваем наличие всех необходимых полей для избежания ошибок
-    if (!loadedData.goals) loadedData.goals = [];
-    if (!loadedData.weeks) loadedData.weeks = {};
-    if (!loadedData.unassigned) loadedData.unassigned = [];
-    if (!loadedData.habits) loadedData.habits = [];
-    if (!loadedData.habitRecords) loadedData.habitRecords = [];
-    if (!loadedData.moodRecords) loadedData.moodRecords = {};
-    if (!loadedData.months) loadedData.months = {};
-    months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
-
-    setUnsaved(false);
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
-    return loadedData;
-}
-
-/**
- * [ОБНОВЛЕНО] Сохраняет данные пользователя в Supabase (UPSERT).
- */
-async function saveDataToSupabase() {
-    if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
-    if (!supabase) { console.error("Supabase client not initialized."); return { status: "error", message: "Клиент не инициализирован." }; }
-
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!dataKey) {
-        alert("Ошибка авторизации. Пожалуйста, войдите в систему снова.");
-        window.location.href = 'login.html';
-        return { status: "error", message: "Нет ключа авторизации." };
-    }
-
-    showLoading();
-
-    // 2. UPSERT в user_data, используя data_key как первичный ключ
-    const payload = {
-        data_key: dataKey, 
-        data_json: data, 
-        created_at: new Date().toISOString() 
-    };
-
-    const { error } = await supabase
-        .from('user_data')
-        .upsert(payload, { onConflict: 'data_key' }); 
-
-    hideLoading();
-
+// Улучшенная функция сохранения (возвращает Promise)
+async function saveProjectToSupabase(project) {
+    // В Supabase при сохранении через анонимный ключ, должен быть включен RLS, разрешающий 
+    // запись для пользователей с определенным userKey или, возможно, для анонимов.
+    const { error } = await supabase.from('kb_projects').update({ project_data: project.project_data }).eq('id', project.id);
     if (error) {
-        console.error("Ошибка Supabase при сохранении:", error);
-        alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
-        return { status: "error", message: error.message };
-    } else {
-        setUnsaved(false);
-        alert("Данные успешно сохранены на сервер!");
-        return { status: "success" };
+        console.error("Ошибка сохранения проекта:", error);
+        return false;
     }
-}
-// Привязываем кнопку к новой функции Supabase
-saveAllBtn.onclick = saveDataToSupabase;
-
-
-/**
- * [ОБНОВЛЕНО] В данной упрощенной схеме смена ника невозможна,
- * так как ник не хранится в базе данных.
- */
-async function changeUsername(newNick) {
-    localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
-    updateAuthButton();
-    alert(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`);
-    closeProfileModal();
-    return { status: "success", newUsername: newNick };
+    return true;
 }
 
-/**
- * [ОБНОВЛЕНО] Удаляет профиль (удаляет строку по data_key).
- */
-async function deleteProfileAndData() {
-    if (!supabase) { console.error("Supabase client not initialized."); return; }
+// Дебаунс сохранен
+let saveTimeout;
+const debouncedSave = (project) => { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => { saveProjectToSupabase(project); }, 800); };
 
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
-    if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
 
-    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
-    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
-    if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
-
+// =================================================================
+// 3. ВЗАИМОДЕЙСТВИЕ С SUPABASE
+// =================================================================
+async function loadProjectsFromSupabase() {
     showLoading();
-    
-    // 3. DELETE FROM user_data WHERE data_key = '...'
-    const { error } = await supabase
-        .from('user_data')
-        .delete()
-        .eq('data_key', dataKey);
-
+    if (!userKey) { window.location.href = 'index.html'; return; }
+    // Использование userKey, который теперь установлен в init
+    const { data, error } = await supabase.from('kb_projects').select('*').eq('user_key', userKey).order('created_at', { ascending: false });
     hideLoading();
-
-    if (error) {
-        console.error("Ошибка Supabase при удалении:", error);
-        alert(`Ошибка при удалении профиля: ${error.message}`);
-    } else {
-        alert("Ваш профиль и все данные успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved', 'ConfirmDelete_v1'].forEach(key => localStorage.removeItem(`planner${key}`));
-        window.location.href = 'login.html';
+    if (error) { console.error("Ошибка загрузки проектов:", error); return []; }
+    return data;
+}
+async function loadSharedProjectFromSupabase(projectId) {
+    showLoading();
+    const { data, error } = await supabase.from('kb_projects').select('*').eq('id', projectId).single();
+    hideLoading();
+    if (error) { mainContent.innerHTML = `<div class='placeholder'>Не удалось найти проект.</div>`; return null; }
+    return data;
+}
+async function createProjectInSupabase(name, type) {
+    showLoading();
+    // Используем userKey, установленный в init
+    let defaultData;
+    switch (type) {
+        case 'study-book': defaultData = { title: name, author: '', genre: '', readDate: '', rating: 0, link: '', comment: '', page: '' }; break;
+        case 'study-course': defaultData = { title: name, platform: '', link: '', status: 'not-started', notes: '' }; break;
+        case 'study-school': defaultData = { title: name, goals: '', definitions: '', content: '' }; break;
+        case 'business': defaultData = { title: name, tasks: [] }; break;
     }
+    const { data, error } = await supabase.from('kb_projects').insert([{ user_key: userKey, project_type: type, project_data: defaultData }]).select().single();
+    hideLoading();
+    if (error) { console.error("Ошибка создания проекта:", error); return null; }
+    return data;
 }
-
-
-// =================================================================
-// 3. ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (Без изменений)
-// =================================================================
-
-const usernameDisplay = document.getElementById('usernameDisplay');
-const profileModal = document.getElementById('profileModal');
-const nickInput = document.getElementById('nickInput');
-
-function updateAuthButton() {
-    const username = localStorage.getItem(STORAGE_KEY_USERNAME);
-    usernameDisplay.textContent = username || 'Профиль';
-}
-function handleAccountControlClick() { openProfileModal(); }
-function openProfileModal() {
-    nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
-    profileModal.style.display='flex';
-    setTimeout(()=>profileModal.classList.add('visible'), 10);
-}
-function closeProfileModal() {
-    profileModal.classList.remove('visible');
-    setTimeout(() => { profileModal.style.display='none'; }, 300);
-}
-document.getElementById('saveNickBtn').onclick = async () => {
-    const newNick = nickInput.value.trim();
-    if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
-    if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
-
-    await changeUsername(newNick); 
-};
-// В функции logoutBtn.onclick:
-document.getElementById('logoutBtn').onclick = () => {
-    // 1. Проверяем несохраненные изменения перед выходом
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        if (!confirm("У вас есть несохраненные изменения, которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
-            return; // Отмена выхода
-        }
-    }
-    
-    // 2. Показываем загрузку, чтобы имитировать процесс выхода
-    showLoading(); 
-
-    // 3. Полная очистка ключей
-    localStorage.removeItem(STORAGE_KEY_AUTH);
-    localStorage.removeItem(STORAGE_KEY_USERNAME);
-    localStorage.removeItem(STORAGE_KEY_LOCAL);
-    localStorage.removeItem(STORAGE_KEY_UNSAVED);
-    localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
-
-    // 4. Задержка и редирект. Даем анимации загрузки время, а браузеру — время на очистку.
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 500); // Задержка в 500мс
-};
-document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
-
-
-/* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ (Без изменений) --- */
-function toggleTrashContainer() {
-    const isVisible = trashContainer.classList.contains('visible');
-    if (isVisible) {
-        trashContainer.classList.remove('visible');
-        openTrashBtn.textContent = 'Открыть Корзину';
-    } else {
-        trashContainer.classList.add('visible');
-        openTrashBtn.textContent = 'Скрыть Корзину';
-    }
-}
-openTrashBtn.onclick = toggleTrashContainer;
-function showConfirmDeleteModal(title) {
-    return new Promise(resolve => {
-        if (localStorage.getItem(STORAGE_KEY_CONFIRM_DELETE) === 'skip') {
-            resolve(true);
-            return;
-        }
-        currentDeleteResolve = resolve;
-        confirmMessage.textContent = `Вы уверены, что хотите безвозвратно удалить элемент "${title}"?`;
-        dontAskAgainCheckbox.checked = false; 
-        confirmModal.style.display = 'flex';
-        setTimeout(() => confirmModal.classList.add('visible'), 10);
-    });
-}
-function closeConfirmDeleteModal() {
-    confirmModal.classList.remove('visible');
-    setTimeout(() => { confirmModal.style.display = 'none'; }, 300);
-}
-confirmDeleteBtn.onclick = () => {
-    if (dontAskAgainCheckbox.checked) {
-        localStorage.setItem(STORAGE_KEY_CONFIRM_DELETE, 'skip');
-    }
-    closeConfirmDeleteModal();
-    if (currentDeleteResolve) {
-        currentDeleteResolve(true);
-    }
-    currentDeleteResolve = null;
-};
-confirmCancelBtn.onclick = () => {
-    closeConfirmDeleteModal();
-    if (currentDeleteResolve) {
-        currentDeleteResolve(false);
-    }
-    currentDeleteResolve = null;
-};
-trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
-trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
-trashContainer.ondrop = async e => {
-    e.preventDefault(); trashContainer.classList.remove('dragover');
-    if (!dragId || !dragTitle) return;
-    const confirmed = await showConfirmDeleteModal(dragTitle);
-
-    if (confirmed) {
-        let deleted = false;
-        const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
-        if (unassignedIndex !== -1) {
-            data.unassigned.splice(unassignedIndex, 1);
-            deleted = true;
-        }
-        if (!deleted) {
-            for (const monthName of months) {
-                if (data.months[monthName]) {
-                    const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
-                    if (weekIndex !== -1) {
-                        data.months[monthName].splice(weekIndex, 1);
-                        deleted = true;
-                        break;
-                    }
-                }
-            }
-        }
-        if (deleted) {
-            save(); 
-            renderAll();
-        }
-    }
-    dragId = null;
-    dragTitle = null;
-};
-
-
-/* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ (Без изменений) --- */
-const goalsList=document.getElementById('goalsList');
-function renderGoals(){
-    goalsList.innerHTML='';
-    data.goals.forEach((t,i)=>{
-        const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
-        div.addEventListener('input',()=> { data.goals[i] = div.innerText.replace(/×/g, '').trim(); save(); });
-        const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-        rm.onclick=()=>{data.goals.splice(i,1); save(); renderGoals(); };
-        div.appendChild(rm);
-        goalsList.appendChild(div);
-    });
-}
-document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
-const unassignedList=document.getElementById('unassignedList');
-const createWeekBtn=document.getElementById('createWeekBtn');
-const unassignedContainer = unassignedList.parentElement;
-unassignedContainer.ondragover = e => { e.preventDefault(); unassignedContainer.classList.add('dragover'); };
-unassignedContainer.ondragleave = () => { unassignedContainer.classList.remove('dragover'); };
-unassignedContainer.ondrop = e => {
-    e.preventDefault(); unassignedContainer.classList.remove('dragover');
-    if (!dragId) return;
-    for (const monthName of months) {
-        if (data.months[monthName]) {
-            const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
-            if (weekIndex !== -1) {
-                const [weekToMove] = data.months[monthName].splice(weekIndex, 1);
-                data.unassigned.push(weekToMove);
-                save(); renderAll();
-                break;
-            }
-        }
-    }
-    dragId = null;
-    dragTitle = null;
-};
-function getWeekById(id) {
-    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
-    return allWeeks.find(w => w.id === id);
-}
-function createWeekEl(week){
-    const div=document.createElement('div'); div.className='week-item';
-    div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
-    div.ondragstart=()=>{
-        dragId=week.id;
-        dragTitle=week.title;
-    };
-    div.onclick=()=>openWeekModal(week.id);
-    return div;
-}
-function renderUnassigned(){
-    unassignedList.innerHTML='';
-    data.unassigned.forEach(w=>{ unassignedList.appendChild(createWeekEl(w)); });
-}
-const monthsContainer=document.getElementById('months');
-function renderMonths(){
-    monthsContainer.innerHTML='';
-    months.forEach((m,i)=>{
-        const div=document.createElement('div'); div.className='month';
-        div.style.borderColor=monthColors[i%monthColors.length];
-        div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
-        monthsContainer.appendChild(div);
-        const dropZone=div.querySelector('.drop-zone');
-        dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
-        dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
-        dropZone.ondrop=e=>{
-            e.preventDefault(); dropZone.classList.remove('dragover');
-            if (!dragId) return;
-            const idx=data.unassigned.findIndex(w=>w.id===dragId);
-            if(idx>=0){
-                const [w] = data.unassigned.splice(idx,1);
-                if(!data.months[m]) data.months[m] = [];
-                data.months[m].push(w);
-                save(); renderAll();
-            }
-            dragId = null;
-            dragTitle = null;
-        };
-        const monthWeeksDiv=div.querySelector('.month-weeks');
-        (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w)); });
-    });
-}
-createWeekBtn.onclick=()=>{
-    const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
-    data.unassigned.push(week); save(); renderAll();
-};
-
-/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (Без изменений) --- */
-const weekModal=document.getElementById('weekModal');
-const weekTitle=document.getElementById('weekTitle');
-const weekDesc=document.getElementById('weekDesc');
-const daysContainer=document.getElementById('daysContainer');
-const modalGoalsList=document.getElementById('modalGoalsList');
-let currentWeek=null;
-function openWeekModal(id){
-    const allWeeks=[...data.unassigned, ...Object.values(data.months).flat()];
-    currentWeek=allWeeks.find(w=>w.id===id);
-    if(!currentWeek) return;
-    weekModal.style.display='flex';
-    setTimeout(()=>weekModal.classList.add('visible'), 10);
-    weekTitle.value=currentWeek.title;
-    weekDesc.value=currentWeek.desc || '';
-    weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
-    weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
-    modalGoalsList.innerHTML='';
-    data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
-    daysContainer.innerHTML='';
-    weekDays.forEach(d=>{
-        const dayDiv=document.createElement('div'); dayDiv.className='day';
-        dayDiv.innerHTML = `<h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
-        const taskContainer=dayDiv.querySelector('.tasks');
-        (currentWeek.tasks[d]||[]).forEach((t,i)=>{
-            const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-            const rm=document.createElement('img'); rm.src='pictures/trash.png'; rm.className='task-delete';
-            rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-            taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
-            taskDiv.appendChild(rm);
-            taskContainer.appendChild(taskDiv);
-        });
-        dayDiv.querySelector('.add-task-btn').onclick=()=>{
-            if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
-            currentWeek.tasks[d].push('');
-            renderWeekModal(); save();
-        };
-        daysContainer.appendChild(dayDiv);
-    });
-}
-function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
-function closeWeekModal() {
-    weekModal.classList.remove('visible');
-    document.getElementById('weekMenu').classList.remove('show');
-    setTimeout(() => { weekModal.style.display='none'; }, 300);
-}
-document.getElementById('closeModal').onclick=()=>closeWeekModal();
-document.getElementById('saveBtn').onclick=()=>closeWeekModal();
-const menuBtn = document.getElementById('menuBtn');
-const weekMenu = document.getElementById('weekMenu');
-menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    weekMenu.classList.toggle('show');
-});
-document.addEventListener('click', (e) => {
-    if (weekMenu.classList.contains('show') && !menuBtn.contains(e.target) && !weekMenu.contains(e.target)) {
-        weekMenu.classList.remove('show');
-    }
-});
-document.getElementById('deleteWeek').onclick=async()=>{
-    if(!currentWeek) return;
-    const weekTitle = currentWeek.title;
-    const confirmed = await showConfirmDeleteModal(weekTitle);
-    if (confirmed) {
-        ['unassigned',...months].forEach(k=>{
-            if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
-            else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
-        });
-        save(); 
-        renderAll(); 
-        closeWeekModal();
-    }
-};
-document.getElementById('downloadWeek').onclick=()=>{
-    if(!currentWeek) return;
-    let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
-    weekDays.forEach(d=>{
-        text+=`\n${d}:\n`;
-        (currentWeek.tasks[d]||[]).forEach((t)=>text+=`  - ${t || 'Без названия'}\n`);
-    });
-    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
-};
-
-
-/* --- ТРЕКЕР ПРИВЫЧЕК (Без изменений) --- */
-const newHabitInput = document.getElementById('newHabitInput');
-const habitTableContainer = document.getElementById('habitTableContainer');
-const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
-let isHabitHistoryCollapsed = true;
-function renderHabitTracker() {
-    habitTableContainer.innerHTML = `<div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>`;
-    const headerRow = document.getElementById('habitHeaderRow');
-    const body = document.getElementById('habitBody');
-    data.habits.forEach((habit, index) => {
-        const th = document.createElement('th');
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'habit-header-content';
-        const textSpan = document.createElement('span');
-        textSpan.contentEditable = true;
-        textSpan.innerText = habit;
-        textSpan.addEventListener('blur', () => { data.habits[index] = textSpan.innerText.trim(); save(); });
-        const removeBtn = document.createElement('span');
-        removeBtn.innerText = '×';
-        removeBtn.className = 'remove-habit';
-        removeBtn.title = 'Удалить привычку';
-        removeBtn.onclick = (e) => {
-            e.stopPropagation();
-            if (confirm(`Удалить привычку "${habit}"? Это действие необратимо.`)) {
-                data.habits.splice(index, 1);
-                data.habitRecords.forEach(record => {
-                    if (record.tasks && record.tasks.hasOwnProperty(habit)) {
-                        delete record.tasks[habit];
-                    }
-                });
-                save();
-                renderHabitTracker();
-            }
-        };
-        contentDiv.appendChild(textSpan);
-        contentDiv.appendChild(removeBtn);
-        th.appendChild(contentDiv);
-        headerRow.appendChild(th);
-    });
-    const progressTh = document.createElement('th');
-    progressTh.className = 'progress-col';
-    progressTh.innerText = 'Прогресс';
-    headerRow.appendChild(progressTh);
-    body.innerHTML = '';
-    const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 7) : data.habitRecords;
-    recordsToShow.forEach(record => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>`;
-        let completed = 0;
-        data.habits.forEach(habit => {
-            const td = document.createElement('td');
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = !!(record.tasks && record.tasks[habit]);
-            if(checkbox.checked) completed++;
-            checkbox.onchange = () => {
-                if(!record.tasks) record.tasks = {};
-                record.tasks[habit] = checkbox.checked;
-                save();
-                renderHabitTracker();
-            };
-            td.appendChild(checkbox);
-            tr.appendChild(td);
-        });
-        const percentage = data.habits.length > 0 ? (completed / data.habits.length) * 100 : 0;
-        const progressTd = document.createElement('td');
-        progressTd.innerHTML = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${percentage}%;"></div><span class="progress-bar-text">${percentage.toFixed(0)}%</span></div>`;
-        tr.appendChild(progressTd);
-        body.appendChild(tr);
-    });
-    toggleHabitHistoryBtn.style.display = data.habitRecords.length > 7 ? 'block' : 'none';
-    toggleHabitHistoryBtn.textContent = isHabitHistoryCollapsed ? 'Показать всю историю' : 'Свернуть историю';
-    habitTableContainer.classList.toggle('collapsed', isHabitHistoryCollapsed && data.habitRecords.length > 7);
-}
-toggleHabitHistoryBtn.onclick = () => { isHabitHistoryCollapsed = !isHabitHistoryCollapsed; renderHabitTracker(); };
-document.getElementById('addHabitBtn').onclick=()=>{
-    const text=newHabitInput.value.trim();
-    if(text && !data.habits.includes(text)){
-        data.habits.push(text);
-        newHabitInput.value='';
-        save(); renderHabitTracker();
-    }
-};
-document.getElementById('newDayBtn').onclick=()=>{
-    const today=new Date().setHours(0,0,0,0);
-    if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
-        alert('Запись за сегодня уже существует.'); return;
-    }
-    const newRecord={ date: new Date().toISOString(), tasks: {} };
-    data.habits.forEach(h=>{newRecord.tasks[h]=false;});
-    data.habitRecords.unshift(newRecord);
-    save(); renderHabitTracker();
-};
-
-/* --- ТРЕКЕР НАСТРОЕНИЯ (Без изменений) --- */
-const moodMonthSelect = document.getElementById('moodMonthSelect');
-const moodCalendar = document.getElementById('moodCalendar');
-function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
-function updateMoodSelect() {
-    const now = new Date();
-    moodMonthSelect.innerHTML = '';
-    for (let i = 0; i < 12; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const option = document.createElement('option');
-        option.value = `${date.getFullYear()}-${date.getMonth()}`;
-        option.textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
-        moodMonthSelect.appendChild(option);
-    }
-    moodMonthSelect.value = `${now.getFullYear()}-${now.getMonth()}`;
-    moodMonthSelect.onchange = renderMoodCalendar;
-}
-function renderMoodCalendar() {
-    moodCalendar.innerHTML = '';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += `<div class="mood-calendar-day">${day}</div>`; });
-    const [year, month] = moodMonthSelect.value.split('-').map(Number);
-    const date = new Date(year, month, 1);
-    let firstDay = date.getDay();
-    if (firstDay === 0) firstDay = 7;
-    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += `<div class="mood-calendar-cell empty"></div>`; }
-    while (date.getMonth() === month) {
-        const dayKey = getDayKey(date);
-        const mood = data.moodRecords[dayKey];
-        moodCalendar.innerHTML += `<div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>`;
-        date.setDate(date.getDate() + 1);
-    }
-}
-function updateMoodSelection() {
-    const todayKey = getDayKey(new Date());
-    const savedMood = data.moodRecords[todayKey];
-    document.querySelectorAll('.mood-option').forEach(el => {
-        el.classList.toggle('selected', savedMood && el.dataset.mood === savedMood);
-        el.onclick = () => {
-            data.moodRecords[todayKey] = (savedMood === el.dataset.mood) ? undefined : el.dataset.mood;
-            save(); updateMoodSelection(); renderMoodCalendar();
-        };
-    });
+async function deleteProjectFromSupabase(projectId) {
+    showLoading();
+    const { error } = await supabase.from('kb_projects').delete().eq('id', projectId);
+    hideLoading();
+    if (error) console.error("Ошибка удаления проекта:", error);
 }
 
 // =================================================================
-// 4. AI ФУНКЦИОНАЛ (Заглушка)
+// 4. РЕНДЕРИНГ ИНТЕРФЕЙСА
 // =================================================================
+// ИЗМЕНЕНИЕ 1: Добавлено группирование учебных проектов
+function renderSidebar() {
+    // Скрываем/показываем кнопку создания проекта в зависимости от режима
+    document.getElementById('createProjectBtn').style.display = state.isSharedView ? 'none' : 'flex';
 
-function closeAiAdviceModal() {
-    aiAdviceModalOverlay.classList.remove('visible');
-    setTimeout(() => { aiAdviceModalOverlay.style.display = 'none'; }, 300);
-}
-aiAdviceModalOverlay.addEventListener('click', (e) => {
-    if (e.target === aiAdviceModalOverlay) {
-        closeAiAdviceModal();
-    }
-});
+    const filteredProjects = state.projects.filter(p => p.project_type.startsWith(state.currentView));
+    projectList.innerHTML = ''; // Очистка перед рендерингом
 
-function openAiAdviceModal(suggestion) {
-    let htmlSuggestion = suggestion;
-    // ... (код форматирования Markdown остается прежним) ...
-
-    aiAdviceText.innerHTML = htmlSuggestion;
-    aiAdviceModalOverlay.style.display = 'block';
-    setTimeout(() => { aiAdviceModalOverlay.classList.add('visible'); }, 10);
-}
-
-function generateAIPrompt() {
-    let prompt = "";
-    // ... (код генерации промпта остается прежним) ...
-    return prompt;
-}
-
-async function callGeminiAPI(prompt) {
-    alert("Для использования AI-совета требуется серверный прокси или отдельная реализация. Функционал временно недоступен после перехода с Apps Script.");
-    return { status: "error", message: "AI функционал требует серверного прокси." };
-}
-
-getAISuggestionBtn.onclick = async () => {
-    const promptText = generateAIPrompt();
-    const result = await callGeminiAPI(promptText);
-
-    if (result.status === 'success' && result.suggestion) {
-        openAiAdviceModal(result.suggestion);
-    } else {
-        // alert(`Ошибка при получении совета: ${result.message}`);
-    }
-};
-
-// =================================================================
-// 5. ИНИЦИАЛИЗАЦИЯ
-// =================================================================
-
-function renderAll(){
-    renderGoals();
-    renderUnassigned();
-    renderMonths();
-    updateMoodSelection();
-}
-
-/**
- * [ИСПРАВЛЕНО] Инициализируем клиент Supabase внутри init, 
- * гарантируя, что window.supabase уже существует.
- */
-async function init() {
-    // Проверяем, загружена ли библиотека Supabase
-    if (window.supabase) {
-        // ✅ Инициализируем клиент Supabase
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-        console.error("Supabase library not found on window. Did the script load correctly?");
-        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Ошибка: Не удалось загрузить библиотеку Supabase.</h2>';
+    if (filteredProjects.length === 0) {
+        projectList.innerHTML = `<p style="color:var(--text-secondary); text-align:center; font-size: 0.9em;">Проектов пока нет.</p>`;
         return;
     }
 
-     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    // ✅ ИСПРАВЛЕНО/ОПТИМИЗИРОВАНО: Ранний выход, если нет ключа
-    if (!authKey) { 
-        // Важно: если мы на 'index.html', но не авторизованы, сразу уходим.
-        window.location.href = 'login.html'; 
-        return; 
+    if (state.currentView === 'study') {
+        const categories = {
+            'study-book': { title: '📚 Книги', projects: [] },
+            'study-course': { title: '💻 Курсы', projects: [] },
+            'study-school': { title: '🏫 Школа/Университет', projects: [] },
+        };
+        filteredProjects.forEach(p => categories[p.project_type].projects.push(p));
+
+        for (const type in categories) {
+            const cat = categories[type];
+            if (cat.projects.length > 0) {
+                // Заголовок "папки"
+                const header = document.createElement('h3');
+                header.textContent = cat.title;
+                header.style.cssText = 'margin: 20px 0 10px 0; color: var(--text-primary); font-size: 1.1em; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; cursor: default;';
+                projectList.appendChild(header);
+
+                // Список проектов в "папке"
+                cat.projects.forEach(project => appendProjectItem(project));
+            }
+        }
+    } else {
+        // Стандартный рендеринг для бизнес-проектов
+        filteredProjects.forEach(project => appendProjectItem(project));
+    }
+}
+
+// Вспомогательная функция для рендеринга элемента проекта
+function appendProjectItem(project) {
+    const div = document.createElement('div');
+    div.className = 'project-item'; div.dataset.id = project.id;
+    // Скрываем кнопку удаления, если проект открыт по ссылке
+    const deleteBtnHtml = state.isSharedView ? '' : `<span class="project-item-delete" title="Удалить проект">×</span>`;
+    div.innerHTML = `<span>${project.project_data.title || 'Без названия'}</span>${deleteBtnHtml}`;
+    if (project.id === state.activeProjectId) div.classList.add('active');
+
+    // Обработчик удаления
+    if (!state.isSharedView) {
+        div.querySelector('.project-item-delete').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (confirm(`Удалить проект "${project.project_data.title}"?`)) {
+                await deleteProjectFromSupabase(project.id);
+                state.projects = state.projects.filter(p => p.id !== project.id);
+                if (state.activeProjectId === project.id) { state.activeProjectId = null; renderActiveProject(); }
+                renderSidebar();
+            }
+        });
+    }
+    
+    // Обработчик выбора проекта
+    div.addEventListener('click', () => { 
+        // В режиме isSharedView мы не меняем activeProjectId, чтобы не сбросить режим
+        if (!state.isSharedView || project.id === state.activeProjectId) { 
+            state.activeProjectId = project.id; 
+            renderSidebar(); 
+            renderActiveProject(); 
+        }
+    });
+    projectList.appendChild(div);
+}
+
+
+function renderActiveProject() {
+    if (!state.activeProjectId) { projectView.innerHTML = ''; placeholder.style.display = 'block'; return; }
+    placeholder.style.display = 'none';
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    switch (project.project_type) {
+        case 'study-book': renderBookProject(project); break;
+        case 'study-course': renderCourseProject(project); break;
+        case 'study-school': renderSchoolProject(project); break;
+        case 'business': renderBusinessProject(project); break;
+    }
+}
+function createProjectHeader(project) {
+    // ИЗМЕНЕНИЕ 2: Кнопка "Сохранить" теперь всегда видна
+    const saveButton = `<button class="btn js-save-project-btn" style="background:var(--success-color); border-color:var(--success-color); color: #fff;">💾 Сохранить</button>`;
+
+    // В sharedView заголовок тоже должен быть редактируемым (иначе не сохранить изменения)
+    const isReadonly = getReadonlyAttr(); // Должно быть ''
+
+    return `
+        <div class="project-header">
+            <input type="text" class="project-title-input" value="${project.project_data.title}" placeholder="Название проекта" ${isReadonly}>
+            <div style="display: flex; gap: 10px;">
+                ${saveButton}
+                <button class="btn js-share-project-btn" data-project-id="${project.id}">🔗 Поделиться</button>
+            </div>
+        </div>`;
+}
+
+// ИЗМЕНЕНИЕ 3: Снятие жесткого ограничения на редактирование
+// Если проект загружен, то разрешаем редактирование на уровне UI (как было в предыдущей версии)
+const getReadonlyAttr = () => ''; 
+
+
+function renderBookProject(project) {
+    const d = project.project_data;
+    const readonly = getReadonlyAttr(); // Будет ''
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group"><label>Автор</label><input type="text" class="data-field" data-key="author" value="${d.author}" ${readonly}></div>
+                <div class="form-group"><label>Жанр</label><input type="text" class="data-field" data-key="genre" value="${d.genre}" ${readonly}></div>
+                <div class="form-group"><label>Дата прочтения</label><input type="date" class="data-field" data-key="readDate" value="${d.readDate}" style="color-scheme: dark;" ${readonly}></div>
+                <div class="form-group"><label>Оценка</label><div class="star-rating" data-rating="${d.rating}" data-readonly="${!!readonly}" data-project-id="${project.id}">${[...Array(10)].map((_,i)=>`<svg class="star" data-value="${i+1}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`).join('')}</div></div>
+                <div class="form-group full-width"><label>Обложка</label><div class="upload-placeholder" style="${readonly ? 'cursor: default; opacity: 0.5;' : ''}"><span>🖼️</span>Нажмите для загрузки (неактивно)</div></div>
+                <div class="form-group full-width"><label>Ссылка на книгу</label><input type="text" class="data-field" data-key="link" value="${d.link}" ${readonly}></div>
+                <div class="form-group full-width"><label>Комментарий</label><textarea class="data-field" data-key="comment" ${readonly}>${d.comment}</textarea></div>
+                <div class="form-group full-width"><label>На какой странице остановился?</label><input type="text" class="data-field" data-key="page" value="${d.page}" ${readonly}></div>
+            </div>
+        </div>`;
+    setupStarRating(project);
+    attachGenericDataListeners(project);
+}
+function renderCourseProject(project) {
+    const d = project.project_data;
+    const readonly = getReadonlyAttr();
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group"><label>Платформа / Автор</label><input type="text" class="data-field" data-key="platform" value="${d.platform}" ${readonly}></div>
+                <div class="form-group"><label>Статус</label><select class="data-field" data-key="status" ${readonly}>
+                    <option value="not-started" ${d.status==='not-started'?'selected':''} ${readonly?'disabled':''}>Не начат</option>
+                    <option value="in-progress" ${d.status==='in-progress'?'selected':''} ${readonly?'disabled':''}>В процессе</option>
+                    <option value="completed" ${d.status==='completed'?'selected':''} ${readonly?'disabled':''}>Завершен</option>
+                </select></div>
+                <div class="form-group full-width"><label>Ссылка на курс</label><input type="text" class="data-field" data-key="link" value="${d.link}" ${readonly}></div>
+                <div class="form-group full-width"><label>Ключевые тезисы и заметки</label><textarea class="data-field" data-key="notes" style="min-height:250px;" ${readonly}>${d.notes}</textarea></div>
+            </div>
+        </div>`;
+    attachGenericDataListeners(project);
+}
+function renderSchoolProject(project) {
+    const d = project.project_data;
+    const readonly = getReadonlyAttr();
+    projectView.innerHTML = `
+        <div class="project-view-container">
+             ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group full-width"><label>Цели</label><textarea class="data-field" data-key="goals" ${readonly}>${d.goals}</textarea></div>
+                <div class="form-group full-width"><label>Определения</label><textarea class="data-field" data-key="definitions" ${readonly}>${d.definitions}</textarea></div>
+                <div class="form-group full-width"><label>Конспект</label><textarea class="data-field" data-key="content" style="min-height:250px;" ${readonly}>${d.content}</textarea></div>
+            </div>
+        </div>`;
+    attachGenericDataListeners(project);
+}
+function renderBusinessProject(project) {
+    const readonly = getReadonlyAttr();
+    // В режиме "только чтение" скрываем кнопки и отключаем перетаскивание
+    const disableKanban = !!readonly; 
+
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="kanban-board">
+                <div class="kanban-column" data-status="todo"><h3>Не начато</h3><div class="task-list"></div>${disableKanban ? '' : '<button class="btn add-task-btn">+ Добавить задачу</button>'}</div>
+                <div class="kanban-column" data-status="inprogress"><h3>В процессе</h3><div class="task-list"></div></div>
+                <div class="kanban-column" data-status="done"><h3>Готово</h3><div class="task-list"></div></div>
+            </div>
+        </div>`;
+    project.project_data.tasks.forEach(task => {
+        const list = projectView.querySelector(`.kanban-column[data-status="${task.status}"] .task-list`);
+        if (list) {
+            const card = document.createElement('div');
+            card.className = 'task-card'; 
+            card.draggable = !disableKanban; // Отключаем перетаскивание
+            card.dataset.taskId = task.id;
+            card.innerHTML = `<div class="task-title">${task.title}</div>${task.client ? `<div class="task-client">Клиент: ${task.client}</div>` : ''}`;
+            list.appendChild(card);
+        }
+    });
+    if (!disableKanban) {
+        attachKanbanListeners(project);
+        attachGenericDataListeners(project);
+    }
+    // Для бизнес-проекта нам не нужны genericDataListeners, так как данные меняются через модалки и канбан-логику.
+    // Оставляем только для заголовка.
+    attachProjectTitleListener(project);
+}
+
+// =================================================================
+// 5. ЛОГИКА ПРИЛОЖЕНИЯ И СОБЫТИЯ
+// =================================================================
+function setupEventListeners() {
+    document.getElementById('viewStudyBtn').addEventListener('click', () => switchView('study'));
+    document.getElementById('viewBusinessBtn').addEventListener('click', () => switchView('business'));
+    document.getElementById('createProjectBtn').addEventListener('click', () => {
+        if (state.currentView === 'study') openModal('studyTypeModal');
+        else {
+            document.getElementById('createModalTitle').innerText = 'Создать новый бизнес-проект';
+            document.getElementById('saveNewProjectBtn').dataset.projectType = 'business'; // Установим тип явно
+            document.getElementById('newProjectName').value = '';
+            openModal('createProjectModal');
+        }
+    });
+    document.querySelectorAll('.study-type-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            closeModal('studyTypeModal');
+            // const type = opt.dataset.type.split('-')[1]; // Убрано: 'book', 'course' и т.д.
+            document.getElementById('createModalTitle').innerText = `Создать: ${opt.querySelector('strong').innerText}`;
+            document.getElementById('saveNewProjectBtn').dataset.projectType = opt.dataset.type;
+            document.getElementById('newProjectName').value = '';
+            openModal('createProjectModal');
+        });
+    });
+    document.getElementById('saveNewProjectBtn').addEventListener('click', async () => {
+        const name = document.getElementById('newProjectName').value.trim();
+        if (!name) return;
+        const type = document.getElementById('saveNewProjectBtn').dataset.projectType; // Берём явно из кнопки
+        const newProject = await createProjectInSupabase(name, type);
+        if (newProject) { 
+            state.projects.unshift(newProject); 
+            state.activeProjectId = newProject.id; 
+            renderSidebar(); 
+            renderActiveProject(); 
+        }
+        closeModal('createProjectModal');
+    });
+    // Добавлено: Обработчик кнопки "Сохранить"
+    projectView.addEventListener('click', async (e) => {
+        const saveButton = e.target.closest('.js-save-project-btn');
+        if (saveButton) { 
+            const project = state.projects.find(p => p.id === state.activeProjectId);
+            if(project) {
+                clearTimeout(saveTimeout); // Отменяем дебаунс
+                showLoading();
+                const saved = await saveProjectToSupabase(project);
+                hideLoading();
+                saveButton.innerText = saved ? '✅ Сохранено' : '❌ Ошибка';
+                setTimeout(() => { saveButton.innerText = '💾 Сохранить'; }, 1500);
+            }
+        }
+
+        const shareButton = e.target.closest('.js-share-project-btn');
+        if (shareButton) { showShareModal(shareButton.dataset.projectId); }
+        const taskCard = e.target.closest('.task-card');
+        if(taskCard && !taskCard.classList.contains('dragging')){ // Открываем модалку только при клике, не при начале перетаскивания
+            const projectId = state.activeProjectId;
+            const taskId = taskCard.dataset.taskId;
+            openTaskDetailModal(projectId, taskId);
+        }
+    });
+    document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
+        document.getElementById('shareLinkInput').select();
+        document.execCommand('copy');
+        e.target.innerText = 'Скопировано!';
+        setTimeout(() => { e.target.innerText = 'Копировать'; closeModal('shareModal'); }, 1500);
+    });
+}
+function switchView(view) {
+    // В режиме isSharedView не позволяем переключать вкладки
+    if (state.isSharedView) return; 
+
+    state.currentView = view; state.activeProjectId = null;
+    document.getElementById('viewStudyBtn').classList.toggle('active', view === 'study');
+    document.getElementById('viewBusinessBtn').classList.toggle('active', view === 'business');
+    renderSidebar(); renderActiveProject();
+}
+function showShareModal(projectId) {
+    const link = `${window.location.origin}${window.location.pathname}?id=${projectId}`;
+    document.getElementById('shareLinkInput').value = link;
+    openModal('shareModal');
+}
+// Вынесен отдельный слушатель для заголовка
+function attachProjectTitleListener(project) {
+    const titleInput = projectView.querySelector('.project-title-input');
+    // Теперь titleInput не имеет атрибута 'readonly'
+    if (!titleInput) return;
+
+    titleInput.addEventListener('input', () => {
+        project.project_data.title = titleInput.value;
+        debouncedSave(project);
+        renderSidebar(); // Update title in sidebar
+    });
+}
+function attachGenericDataListeners(project) {
+    // Поскольку getReadonlyAttr() возвращает '', мы не проверяем права здесь,
+    // просто прикрепляем слушателей
+    projectView.querySelectorAll('.data-field').forEach(field => {
+        field.addEventListener('input', () => {
+            project.project_data[field.dataset.key] = field.value;
+            debouncedSave(project);
+        });
+        field.addEventListener('change', () => { // Для <select>
+            project.project_data[field.dataset.key] = field.value;
+            debouncedSave(project);
+        });
+    });
+    attachProjectTitleListener(project); // Прикрепляем слушатель заголовка
+}
+
+// ИЗМЕНЕНИЕ 4: Исправлена логика Star Rating
+function setupStarRating(project) {
+    const ratingContainer = document.querySelector(`.star-rating[data-project-id="${project.id}"]`);
+    if (!ratingContainer) return;
+
+    const isReadonly = ratingContainer.dataset.readonly === 'true';
+    const stars = ratingContainer.querySelectorAll('.star');
+
+    const updateStars = (rating) => {
+        stars.forEach(star => {
+            star.classList.toggle('selected', parseInt(star.dataset.value) <= parseInt(rating));
+        });
+    };
+
+    updateStars(ratingContainer.dataset.rating); // Инициализация
+
+    if (isReadonly) {
+        stars.forEach(star => {
+            star.style.cursor = 'default';
+        });
+        return; // Выходим, если только для чтения
     }
 
-    updateAuthButton();
-    data = await loadDataFromSupabase();  
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+             // ПРАВИЛЬНАЯ ЛОГИКА: подсветить текущую и все предыдущие при наведении
+             stars.forEach(s => s.classList.remove('hovered'));
+             let current = star;
+             while(current){ current.classList.add('hovered'); current = current.previousElementSibling; }
+        });
+        star.addEventListener('mouseout', () => stars.forEach(s => s.classList.remove('hovered')));
+        star.addEventListener('click', () => {
+            const newRating = parseInt(star.dataset.value);
+            
+            // Логика сброса оценки: если кликнуть по уже выбранной звезде, сбросить оценку на 0
+            if (newRating === parseInt(ratingContainer.dataset.rating)) {
+                 project.project_data.rating = 0;
+                 ratingContainer.dataset.rating = 0;
+            } else {
+                 project.project_data.rating = newRating;
+                 ratingContainer.dataset.rating = newRating;
+            }
 
-    if (data) {
-        renderAll();
-        renderHabitTracker();
-        updateMoodSelect();
-        renderMoodCalendar();
+            updateStars(ratingContainer.dataset.rating);
+            saveProjectToSupabase(project);
+        });
+    });
+    // При уходе мыши с контейнера: убираем hover-стили, но сохраняем selected-стили
+    ratingContainer.addEventListener('mouseout', () => {
+        stars.forEach(s => s.classList.remove('hovered'));
+    });
+}
+function attachKanbanListeners(project) {
+    // Отключаем слушатели, если нет прав на запись
+    if (getReadonlyAttr()) return; 
+
+    let draggedItem = null;
+    // ... (остальная логика канбана не менялась, но включена в общий блок)
+    projectView.querySelector('.add-task-btn').addEventListener('click', () => {
+        document.getElementById('newTaskTitle').value = '';
+        document.getElementById('newTaskClient').value = '';
+        openModal('createTaskModal');
+    });
+    document.getElementById('saveNewTaskBtn').onclick = () => {
+        const title = document.getElementById('newTaskTitle').value.trim(); if (!title) return;
+        const client = document.getElementById('newTaskClient').value.trim();
+        const newTask = { id: 'task_' + Date.now(), title, client, status: 'todo', description: '' };
+        project.project_data.tasks.push(newTask);
+        saveProjectToSupabase(project); renderBusinessProject(project); closeModal('createTaskModal');
+    };
+    projectView.querySelectorAll('.task-card').forEach(item => {
+        item.addEventListener('dragstart', () => { draggedItem = item; setTimeout(() => item.classList.add('dragging'), 0); });
+        item.addEventListener('dragend', () => { draggedItem.classList.remove('dragging'); draggedItem = null; });
+    });
+    projectView.querySelectorAll('.kanban-column').forEach(column => {
+        column.addEventListener('dragover', e => { e.preventDefault(); column.classList.add('drag-over'); });
+        column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
+        column.addEventListener('drop', e => {
+            e.preventDefault(); column.classList.remove('drag-over'); if (!draggedItem) return;
+            column.querySelector('.task-list').appendChild(draggedItem);
+            const task = project.project_data.tasks.find(t => t.id === draggedItem.dataset.taskId);
+            task.status = column.dataset.status;
+            saveProjectToSupabase(project);
+        });
+    });
+}
+function openTaskDetailModal(projectId, taskId){
+    currentOpenTask = { projectId, taskId };
+    const project = state.projects.find(p => p.id === projectId);
+    const task = project.project_data.tasks.find(t => t.id === taskId);
+    if(!task) return;
+
+    // Включение/отключение редактирования в модалке задачи
+    const isTaskReadonly = getReadonlyAttr(); // Будет ''
+    const descriptionField = document.getElementById('taskDetailDescription');
+    const saveButton = document.querySelector('#taskDetailModal .modal-content .actions .btn');
+    const menuBtn = document.getElementById('kebabMenuBtn');
+    
+    // Включаем редактирование и кнопки
+    descriptionField.readOnly = false;
+    saveButton.style.display = 'block';
+    menuBtn.style.display = 'block';
+    
+    document.getElementById('taskDetailTitle').innerText = task.title;
+    descriptionField.value = task.description || '';
+    
+    descriptionField.oninput = () => { task.description = descriptionField.value; debouncedSave(project); };
+    
+    openModal('taskDetailModal');
+}
+function setupTaskDetailListeners() {
+    const menuBtn = document.getElementById('kebabMenuBtn');
+    const dropdown = document.getElementById('taskDropdownMenu');
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+    document.addEventListener('click', (e) => { if (!menuBtn.contains(e.target)) dropdown.classList.remove('show'); });
+    
+    // ... (логика удаления и скачивания задачи не менялась)
+    document.getElementById('deleteTaskBtn').addEventListener('click', async () => {
+        if(confirm('Вы уверены, что хотите удалить эту задачу?')){
+            const {projectId, taskId} = currentOpenTask;
+            const project = state.projects.find(p => p.id === projectId);
+            project.project_data.tasks = project.project_data.tasks.filter(t => t.id !== taskId);
+            await saveProjectToSupabase(project);
+            renderBusinessProject(project);
+            closeModal('taskDetailModal');
+        }
+    });
+    document.getElementById('downloadTaskBtn').addEventListener('click', () => {
+        const {projectId, taskId} = currentOpenTask;
+        const task = state.projects.find(p => p.id === projectId).project_data.tasks.find(t => t.id === taskId);
+        const textContent = `Задача: ${task.title}\nОписание:\n${task.description || 'Нет описания.'}`;
+        const blob = new Blob([textContent], {type: 'text/plain;charset=utf-8'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${task.title}.txt`;
+        a.click();
+    });
+}
+
+// =================================================================
+// 6. ИНИЦИАЛИЗАЦИЯ
+// =================================================================
+async function init() {
+    // Устанавливаем ключ пользователя сразу
+    userKey = localStorage.getItem(STORAGE_KEY_AUTH);
+
+    if (window.supabase) {
+        // Добавляем userKey в заголовки для RLS
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { headers: { 'x-user-key': userKey } } });
+    } else { document.body.innerHTML = '<h2>Ошибка: Не удалось загрузить библиотеку Supabase.</h2>'; return; }
+    
+    setupEventListeners();
+    setupTaskDetailListeners();
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedProjectId = urlParams.get('id');
+
+    if (sharedProjectId) {
+        state.isSharedView = true; // Устанавливаем режим общего доступа
+        document.querySelector('.kb-sidebar').style.display = 'none';
+        mainContent.style.paddingLeft = '30px'; // Уменьшаем отступ
+        // Устанавливаем вид по умолчанию (учеба), чтобы не было ошибки при рендере
+        document.getElementById('viewStudyBtn').classList.add('active'); 
+        document.getElementById('viewBusinessBtn').classList.remove('active');
+        document.querySelector('.kb-nav').style.display = 'none'; // Скрываем переключение вкладок
+
+        const project = await loadSharedProjectFromSupabase(sharedProjectId);
+        if (project) { 
+            state.projects = [project]; 
+            state.activeProjectId = project.id; 
+            // Определяем текущий вид по типу проекта
+            state.currentView = project.project_type.split('-')[0]; 
+            renderActiveProject(); 
+        }
     } else {
-        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
+        if (!userKey) {
+            // Если нет ключа и нет id в URL, перенаправляем на главную
+            window.location.href = 'index.html'; 
+            return;
+        }
+        state.projects = await loadProjectsFromSupabase();
+        renderSidebar(); 
+        renderActiveProject();
     }
 }
 document.addEventListener('DOMContentLoaded', init);
 </script>
-<script src="js/footer.js"></script>
-
 </body>
 </html>
