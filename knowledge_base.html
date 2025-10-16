@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>База Знаний - Time Owner</title>
+<style>
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ (такие же, как на главной) --- */
+:root{--bg-main:#121212;--bg-secondary:#1e1e1e;--bg-tertiary:#2a2a2a;--bg-hover:#333333;--border-color:#383838;--text-primary:#e0e0e0;--text-secondary:#a0a0a0;--accent-color:#007bff;--accent-hover:#0056b3;--danger-color:#e53935;--success-color:#4CAF50;--warning-color:#FFC107;}
+*{box-sizing:border-box;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg-secondary);}
+::-webkit-scrollbar-thumb{background:var(--accent-color);border-radius:5px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent-hover);}
+*{scrollbar-color:var(--accent-color) var(--bg-secondary);scrollbar-width:thin;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";background:var(--bg-main);color:var(--text-primary);display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;animation:fadeIn 0.5s ease-in-out;}
+.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:600;transition:background-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:hover{background-color:var(--bg-hover);transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
+.btn:active{transform:scale(0.98) translateY(0);}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;}
+.modal.visible{opacity:1;}
+.modal-content{background:var(--bg-secondary);padding:25px;width:90%;max-width:500px;border-radius:12px;border:1px solid var(--border-color);transform:scale(0.95);transition:transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);display:flex;flex-direction:column;gap:20px;}
+.modal.visible .modal-content{transform:scale(1);}
+.modal-content h2{margin-top:0;color:var(--accent-color);}
+.modal-content input[type="text"]{width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px;}
+.modal-content .actions{display:flex;justify-content:flex-end;gap:10px;}
+#loadingOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;flex-direction:column;justify-content:center;align-items:center;color:var(--text-primary);font-size:1.2em;z-index:10001;opacity:0;transition:opacity 0.3s ease;}
+.spinner{border:4px solid rgba(255,255,255,0.3);border-radius:50%;border-top:4px solid var(--accent-color);width:40px;height:40px;animation:spin 1s linear infinite;margin-bottom:15px;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+
+/* --- СТИЛИ СТРАНИЦЫ БАЗЫ ЗНАНИЙ --- */
+.kb-container{display:flex;flex-grow:1;height:100vh;}
+.kb-sidebar{width:280px;flex-shrink:0;background-color:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:20px;}
+.kb-sidebar h2{margin:0;color:var(--accent-color);border-bottom:2px solid var(--border-color);padding-bottom:10px;text-align:center;}
+.kb-nav{display:flex;gap:10px;}
+.kb-nav button{flex:1;}
+.kb-nav button.active{background:var(--accent-color);border-color:var(--accent-color);color:#fff;}
+.project-list{flex-grow:1;overflow-y:auto;padding-right:5px;}
+.project-item{background:var(--bg-tertiary);padding:12px 15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:all 0.2s ease;display:flex;justify-content:space-between;align-items:center;}
+.project-item:hover{background:var(--bg-hover);transform:translateX(5px);}
+.project-item.active{background:var(--accent-color);color:#fff;border-left-color:var(--warning-color);}
+.project-item-delete{color:var(--danger-color);font-weight:bold;opacity:0;transition:opacity 0.2s;}
+.project-item:hover .project-item-delete{opacity:1;}
+.kb-main-content{flex-grow:1;padding:30px;overflow-y:auto;}
+.placeholder{text-align:center;color:var(--text-secondary);margin-top:50px;font-size:1.2em;}
+
+/* --- СТИЛИ ДЛЯ ШАБЛОНОВ ПРОЕКТОВ --- */
+.project-view-container{animation:fadeIn 0.4s;display:flex;flex-direction:column;gap:25px;}
+.project-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);padding-bottom:15px;margin-bottom:10px;}
+.project-header input[type="text"]{font-size:2em;font-weight:bold;background:transparent;border:none;padding:0;color:var(--text-primary);width:80%;}
+.project-header input[type="text"]:focus{outline:none;box-shadow:none;border-bottom:2px solid var(--accent-color);border-radius:0;}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
+.form-group{display:flex;flex-direction:column;gap:8px;}
+.form-group label{font-weight:bold;color:var(--text-secondary);font-size:0.9em;text-transform:uppercase;}
+.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:12px;border-radius:8px;font-size:1em;transition:border-color 0.2s,box-shadow 0.2s;}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 8px rgba(0,123,255,0.5);}
+.form-group textarea{min-height:120px;resize:vertical;}
+.full-width{grid-column:1 / -1;}
+.upload-placeholder{background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:var(--text-secondary);cursor:pointer;transition:background-color .2s, border-color .2s;}
+.upload-placeholder:hover{background-color:var(--bg-hover);border-color:var(--accent-color);}
+.upload-placeholder span{font-size:2em;}
+
+/* --- СТИЛИ ДЛЯ РЕЙТИНГА (ЗВЕЗДЫ) --- */
+.star-rating{display:flex;gap:5px;align-items:center;}
+.star{width:24px;height:24px;cursor:pointer;fill:var(--border-color);transition:fill 0.2s,transform 0.2s;}
+.star:hover{transform:scale(1.2);}
+.star-rating[data-rating] .star:hover ~ .star{fill:var(--border-color) !important;}
+.star.selected,.star-rating[data-rating]:not(:hover) .star.hovered{fill:var(--warning-color) !important;}
+
+/* --- СТИЛИ ДЛЯ КАНБАН-ДОСКИ (БИЗНЕС) --- */
+.kanban-board{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.kanban-column{background:var(--bg-secondary);padding:15px;border-radius:12px;display:flex;flex-direction:column;}
+.kanban-column h3{margin:0 0 15px 0;padding-bottom:10px;border-bottom:2px solid var(--border-color);text-align:center;}
+.kanban-column:nth-child(1) h3{color:var(--danger-color);}
+.kanban-column:nth-child(2) h3{color:var(--warning-color);}
+.kanban-column:nth-child(3) h3{color:var(--success-color);}
+.task-list{min-height:150px;flex-grow:1;transition:background-color 0.2s;border-radius:8px;}
+.kanban-column.drag-over .task-list{background-color:rgba(0,123,255,0.1);}
+.task-card{background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:box-shadow 0.2s,transform 0.2s;}
+.task-card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.task-card.dragging{opacity:0.5;}
+.task-title{font-weight:600;margin-bottom:5px;}
+.task-client{font-size:0.8em;color:var(--text-secondary);background:var(--bg-main);padding:2px 6px;border-radius:4px;display:inline-block;}
+.add-task-btn{background:transparent;border:1px dashed var(--border-color);color:var(--text-secondary);margin-top:10px;}
+.add-task-btn:hover{background:var(--accent-color);border-style:solid;color:#fff;}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН --- */
+.large-modal-content{max-width:800px;height:80vh;}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--border-color);margin-bottom:15px;}
+.modal-header h2{margin:0;}
+.modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
+.modal-header .close-btn{font-size:24px;cursor:pointer;color:var(--text-secondary);transition:color .2s;}
+.modal-header .close-btn:hover{color:var(--danger-color);}
+.kebab-menu-btn{font-size:24px;cursor:pointer;font-weight:bold;}
+.dropdown-menu{position:absolute;top:100%;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;min-width:180px;z-index:10;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.3);overflow:hidden;}
+.dropdown-menu.show{display:block;}
+.dropdown-item{padding:10px 15px;cursor:pointer;transition:background-color .2s;display:flex;align-items:center;gap:10px;}
+.dropdown-item:hover{background-color:var(--accent-hover);}
+#taskDetailBody{flex-grow:1;display:flex;flex-direction:column;gap:15px;}
+#taskDetailDescription{flex-grow:1;resize:none;}
+.study-type-selection{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+.study-type-option{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s ease;}
+.study-type-option:hover{transform:translateY(-5px);box-shadow:0 6px 12px rgba(0,0,0,0.3);border-color:var(--accent-color);}
+.study-type-option span{font-size:3em;display:block;margin-bottom:10px;}
+
+/* Адаптивность */
+@media (max-width: 768px){.kb-container{flex-direction:column;height:auto;}.kb-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border-color);height:auto;}.kanban-board{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<div class="kb-container">
+    <aside class="kb-sidebar">
+        <h2>База Знаний</h2>
+        <a href="index.html" class="btn">🏠 Вернуться на главную</a>
+        <div class="kb-nav">
+            <button id="viewStudyBtn" class="btn active" data-view="study">🎓 Учёба</button>
+            <button id="viewBusinessBtn" class="btn" data-view="business">💼 Бизнес</button>
+        </div>
+        <button id="createProjectBtn" class="btn" style="background:var(--success-color); border-color:var(--success-color); color: #fff;">+ Создать проект</button>
+        <div id="projectList" class="project-list"></div>
+    </aside>
+
+    <main id="mainContent" class="kb-main-content">
+        <div id="placeholder" class="placeholder"><p>Выберите проект из списка слева или создайте новый.</p></div>
+        <div id="projectView"></div>
+    </main>
+</div>
+
+<!-- Модальное окно: Выбор типа учебного проекта -->
+<div class="modal" id="studyTypeModal">
+    <div class="modal-content">
+        <h2>Выберите тип учебного проекта</h2>
+        <div class="study-type-selection">
+            <div class="study-type-option" data-type="study-book"><span>📖</span><strong>Книга</strong></div>
+            <div class="study-type-option" data-type="study-course"><span>💻</span><strong>Курс</strong></div>
+            <div class="study-type-option" data-type="study-school" style="grid-column: 1 / -1;"><span>🏫</span><strong>Школа / Университет</strong></div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Создание проекта (общее) -->
+<div class="modal" id="createProjectModal">
+    <div class="modal-content">
+        <h2 id="createModalTitle">Создать новый проект</h2>
+        <input type="text" id="newProjectName" placeholder="Название проекта">
+        <div class="actions">
+            <button class="btn" onclick="closeModal('createProjectModal')">Отмена</button>
+            <button id="saveNewProjectBtn" class="btn" style="background:var(--success-color);">Создать</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Создание задачи (Бизнес) -->
+<div class="modal" id="createTaskModal">
+    <div class="modal-content">
+        <h2>Новая задача</h2>
+        <input type="text" id="newTaskTitle" placeholder="Название задачи">
+        <input type="text" id="newTaskClient" placeholder="Клиент (необязательно)">
+        <div class="actions">
+            <button class="btn" onclick="closeModal('createTaskModal')">Отмена</button>
+            <button id="saveNewTaskBtn" class="btn" style="background:var(--success-color);">Добавить</button>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Детали задачи (Бизнес) -->
+<div class="modal" id="taskDetailModal">
+    <div class="modal-content large-modal-content">
+        <div class="modal-header">
+            <h2 id="taskDetailTitle">Детали задачи</h2>
+            <div class="actions">
+                <div id="kebabMenuBtn" class="kebab-menu-btn">⋮</div>
+                <div id="taskDropdownMenu" class="dropdown-menu">
+                    <div class="dropdown-item" id="downloadTaskBtn">💾 Скачать (.txt)</div>
+                    <div class="dropdown-item" id="deleteTaskBtn" style="color:var(--danger-color);">🗑️ Удалить задачу</div>
+                </div>
+                <span class="close-btn" onclick="closeModal('taskDetailModal')">×</span>
+            </div>
+        </div>
+        <div id="taskDetailBody">
+            <div class="form-group">
+                <label for="taskDetailDescription">Подробное описание</label>
+                <textarea id="taskDetailDescription" placeholder="Опишите задачу подробнее..."></textarea>
+            </div>
+            <div class="actions">
+                <button class="btn" style="background:var(--success-color);" onclick="closeModal('taskDetailModal')">Сохранить и закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно: Ссылка -->
+<div class="modal" id="shareModal">
+    <div class="modal-content">
+        <h2>Поделиться проектом</h2>
+        <p>Любой, у кого есть эта ссылка, сможет просматривать и редактировать проект.</p>
+        <input type="text" id="shareLinkInput" readonly>
+        <div class="actions"><button id="copyLinkBtn" class="btn">Копировать</button></div>
+    </div>
+</div>
+
+<!-- Оверлей загрузки -->
+<div id="loadingOverlay"><div class="spinner"></div><div>Загрузка...</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// =================================================================
+// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ
+// =================================================================
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
+
+let supabase = null;
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey';
+let state = { currentView: 'study', projects: [], activeProjectId: null };
+
+const mainContent = document.getElementById('mainContent'), projectList = document.getElementById('projectList'), projectView = document.getElementById('projectView'), placeholder = document.getElementById('placeholder'), loadingOverlay = document.getElementById('loadingOverlay');
+let currentOpenTask = { projectId: null, taskId: null };
+
+// =================================================================
+// 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+// =================================================================
+function showLoading() { loadingOverlay.style.display = 'flex'; setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10); }
+function hideLoading() { loadingOverlay.style.opacity = '0'; setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); }
+function openModal(id) { document.getElementById(id).style.display = 'flex'; setTimeout(() => document.getElementById(id).classList.add('visible'), 10); }
+function closeModal(id) { const modal = document.getElementById(id); modal.classList.remove('visible'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
+let saveTimeout;
+const debouncedSave = (project) => { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => { saveProjectToSupabase(project); }, 800); };
+
+// =================================================================
+// 3. ВЗАИМОДЕЙСТВИЕ С SUPABASE
+// =================================================================
+async function loadProjectsFromSupabase() {
+    showLoading();
+    const userKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!userKey) { window.location.href = 'index.html'; return; }
+    const { data, error } = await supabase.from('kb_projects').select('*').eq('user_key', userKey).order('created_at', { ascending: false });
+    hideLoading();
+    if (error) { console.error("Ошибка загрузки проектов:", error); return []; }
+    return data;
+}
+async function loadSharedProjectFromSupabase(projectId) {
+    showLoading();
+    const { data, error } = await supabase.from('kb_projects').select('*').eq('id', projectId).single();
+    hideLoading();
+    if (error) { mainContent.innerHTML = `<div class='placeholder'>Не удалось найти проект.</div>`; return null; }
+    return data;
+}
+async function saveProjectToSupabase(project) {
+    const { error } = await supabase.from('kb_projects').update({ project_data: project.project_data }).eq('id', project.id);
+    if (error) console.error("Ошибка сохранения проекта:", error);
+}
+async function createProjectInSupabase(name, type) {
+    showLoading();
+    const userKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    let defaultData;
+    switch (type) {
+        case 'study-book': defaultData = { title: name, author: '', genre: '', readDate: '', rating: 0, link: '', comment: '', page: '' }; break;
+        case 'study-course': defaultData = { title: name, platform: '', link: '', status: 'not-started', notes: '' }; break;
+        case 'study-school': defaultData = { title: name, goals: '', definitions: '', content: '' }; break;
+        case 'business': defaultData = { title: name, tasks: [] }; break;
+    }
+    const { data, error } = await supabase.from('kb_projects').insert([{ user_key: userKey, project_type: type, project_data: defaultData }]).select().single();
+    hideLoading();
+    if (error) { console.error("Ошибка создания проекта:", error); return null; }
+    return data;
+}
+async function deleteProjectFromSupabase(projectId) {
+    showLoading();
+    const { error } = await supabase.from('kb_projects').delete().eq('id', projectId);
+    hideLoading();
+    if (error) console.error("Ошибка удаления проекта:", error);
+}
+
+// =================================================================
+// 4. РЕНДЕРИНГ ИНТЕРФЕЙСА
+// =================================================================
+function renderSidebar() {
+    const filteredProjects = state.projects.filter(p => p.project_type.startsWith(state.currentView));
+    projectList.innerHTML = filteredProjects.length === 0 ? `<p style="color:var(--text-secondary); text-align:center; font-size: 0.9em;">Проектов пока нет.</p>` : '';
+    filteredProjects.forEach(project => {
+        const div = document.createElement('div');
+        div.className = 'project-item'; div.dataset.id = project.id;
+        div.innerHTML = `<span>${project.project_data.title || 'Без названия'}</span><span class="project-item-delete" title="Удалить проект">×</span>`;
+        if (project.id === state.activeProjectId) div.classList.add('active');
+        div.querySelector('.project-item-delete').addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (confirm(`Удалить проект "${project.project_data.title}"?`)) {
+                await deleteProjectFromSupabase(project.id);
+                state.projects = state.projects.filter(p => p.id !== project.id);
+                if (state.activeProjectId === project.id) { state.activeProjectId = null; renderActiveProject(); }
+                renderSidebar();
+            }
+        });
+        div.addEventListener('click', () => { state.activeProjectId = project.id; renderSidebar(); renderActiveProject(); });
+        projectList.appendChild(div);
+    });
+}
+
+function renderActiveProject() {
+    if (!state.activeProjectId) { projectView.innerHTML = ''; placeholder.style.display = 'block'; return; }
+    placeholder.style.display = 'none';
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    switch (project.project_type) {
+        case 'study-book': renderBookProject(project); break;
+        case 'study-course': renderCourseProject(project); break;
+        case 'study-school': renderSchoolProject(project); break;
+        case 'business': renderBusinessProject(project); break;
+    }
+}
+function createProjectHeader(project) {
+    return `
+        <div class="project-header">
+            <input type="text" class="project-title-input" value="${project.project_data.title}" placeholder="Название проекта">
+            <button class="btn js-share-project-btn" data-project-id="${project.id}">🔗 Поделиться</button>
+        </div>`;
+}
+function renderBookProject(project) {
+    const d = project.project_data;
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group"><label>Автор</label><input type="text" class="data-field" data-key="author" value="${d.author}"></div>
+                <div class="form-group"><label>Жанр</label><input type="text" class="data-field" data-key="genre" value="${d.genre}"></div>
+                <div class="form-group"><label>Дата прочтения</label><input type="date" class="data-field" data-key="readDate" value="${d.readDate}" style="color-scheme: dark;"></div>
+                <div class="form-group"><label>Оценка</label><div class="star-rating" data-rating="${d.rating}">${[...Array(10)].map((_,i)=>`<svg class="star" data-value="${i+1}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`).join('')}</div></div>
+                <div class="form-group full-width"><label>Обложка</label><div class="upload-placeholder"><span>🖼️</span>Нажмите для загрузки (неактивно)</div></div>
+                <div class="form-group full-width"><label>Ссылка на книгу</label><input type="text" class="data-field" data-key="link" value="${d.link}"></div>
+                <div class="form-group full-width"><label>Комментарий</label><textarea class="data-field" data-key="comment">${d.comment}</textarea></div>
+                <div class="form-group full-width"><label>На какой странице остановился?</label><input type="text" class="data-field" data-key="page" value="${d.page}"></div>
+            </div>
+        </div>`;
+    setupStarRating();
+    attachGenericDataListeners(project);
+}
+function renderCourseProject(project) {
+    const d = project.project_data;
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group"><label>Платформа / Автор</label><input type="text" class="data-field" data-key="platform" value="${d.platform}"></div>
+                <div class="form-group"><label>Статус</label><select class="data-field" data-key="status">
+                    <option value="not-started" ${d.status==='not-started'?'selected':''}>Не начат</option>
+                    <option value="in-progress" ${d.status==='in-progress'?'selected':''}>В процессе</option>
+                    <option value="completed" ${d.status==='completed'?'selected':''}>Завершен</option>
+                </select></div>
+                <div class="form-group full-width"><label>Ссылка на курс</label><input type="text" class="data-field" data-key="link" value="${d.link}"></div>
+                <div class="form-group full-width"><label>Ключевые тезисы и заметки</label><textarea class="data-field" data-key="notes" style="min-height:250px;">${d.notes}</textarea></div>
+            </div>
+        </div>`;
+    attachGenericDataListeners(project);
+}
+function renderSchoolProject(project) {
+    const d = project.project_data;
+    projectView.innerHTML = `
+        <div class="project-view-container">
+             ${createProjectHeader(project)}
+            <div class="form-grid">
+                <div class="form-group full-width"><label>Цели</label><textarea class="data-field" data-key="goals">${d.goals}</textarea></div>
+                <div class="form-group full-width"><label>Определения</label><textarea class="data-field" data-key="definitions">${d.definitions}</textarea></div>
+                <div class="form-group full-width"><label>Конспект</label><textarea class="data-field" data-key="content" style="min-height:250px;">${d.content}</textarea></div>
+            </div>
+        </div>`;
+    attachGenericDataListeners(project);
+}
+function renderBusinessProject(project) {
+    projectView.innerHTML = `
+        <div class="project-view-container">
+            ${createProjectHeader(project)}
+            <div class="kanban-board">
+                <div class="kanban-column" data-status="todo"><h3>Не начато</h3><div class="task-list"></div><button class="btn add-task-btn">+ Добавить задачу</button></div>
+                <div class="kanban-column" data-status="inprogress"><h3>В процессе</h3><div class="task-list"></div></div>
+                <div class="kanban-column" data-status="done"><h3>Готово</h3><div class="task-list"></div></div>
+            </div>
+        </div>`;
+    project.project_data.tasks.forEach(task => {
+        const list = projectView.querySelector(`.kanban-column[data-status="${task.status}"] .task-list`);
+        if (list) {
+            const card = document.createElement('div');
+            card.className = 'task-card'; card.draggable = true; card.dataset.taskId = task.id;
+            card.innerHTML = `<div class="task-title">${task.title}</div>${task.client ? `<div class="task-client">Клиент: ${task.client}</div>` : ''}`;
+            list.appendChild(card);
+        }
+    });
+    attachKanbanListeners(project);
+    attachGenericDataListeners(project);
+}
+
+// =================================================================
+// 5. ЛОГИКА ПРИЛОЖЕНИЯ И СОБЫТИЯ
+// =================================================================
+function setupEventListeners() {
+    document.getElementById('viewStudyBtn').addEventListener('click', () => switchView('study'));
+    document.getElementById('viewBusinessBtn').addEventListener('click', () => switchView('business'));
+    document.getElementById('createProjectBtn').addEventListener('click', () => {
+        if (state.currentView === 'study') openModal('studyTypeModal');
+        else {
+            document.getElementById('createModalTitle').innerText = 'Создать новый бизнес-проект';
+            document.getElementById('newProjectName').value = '';
+            openModal('createProjectModal');
+        }
+    });
+    document.querySelectorAll('.study-type-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+            closeModal('studyTypeModal');
+            const type = opt.dataset.type.split('-')[1];
+            document.getElementById('createModalTitle').innerText = `Создать: ${opt.querySelector('strong').innerText}`;
+            document.getElementById('saveNewProjectBtn').dataset.projectType = opt.dataset.type;
+            document.getElementById('newProjectName').value = '';
+            openModal('createProjectModal');
+        });
+    });
+    document.getElementById('saveNewProjectBtn').addEventListener('click', async () => {
+        const name = document.getElementById('newProjectName').value.trim();
+        if (!name) return;
+        const type = document.getElementById('saveNewProjectBtn').dataset.projectType || state.currentView;
+        const newProject = await createProjectInSupabase(name, type);
+        if (newProject) { state.projects.unshift(newProject); state.activeProjectId = newProject.id; renderSidebar(); renderActiveProject(); }
+        closeModal('createProjectModal');
+    });
+    projectView.addEventListener('click', (e) => {
+        const shareButton = e.target.closest('.js-share-project-btn');
+        if (shareButton) { showShareModal(shareButton.dataset.projectId); }
+        const taskCard = e.target.closest('.task-card');
+        if(taskCard){
+            const projectId = state.activeProjectId;
+            const taskId = taskCard.dataset.taskId;
+            openTaskDetailModal(projectId, taskId);
+        }
+    });
+    document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
+        document.getElementById('shareLinkInput').select();
+        document.execCommand('copy');
+        e.target.innerText = 'Скопировано!';
+        setTimeout(() => { e.target.innerText = 'Копировать'; closeModal('shareModal'); }, 1500);
+    });
+}
+function switchView(view) {
+    state.currentView = view; state.activeProjectId = null;
+    document.getElementById('viewStudyBtn').classList.toggle('active', view === 'study');
+    document.getElementById('viewBusinessBtn').classList.toggle('active', view === 'business');
+    renderSidebar(); renderActiveProject();
+}
+function showShareModal(projectId) {
+    const link = `${window.location.origin}${window.location.pathname}?id=${projectId}`;
+    document.getElementById('shareLinkInput').value = link;
+    openModal('shareModal');
+}
+function attachGenericDataListeners(project) {
+    projectView.querySelectorAll('.data-field').forEach(field => {
+        field.addEventListener('input', () => {
+            project.project_data[field.dataset.key] = field.value;
+            debouncedSave(project);
+        });
+    });
+    const titleInput = projectView.querySelector('.project-title-input');
+    titleInput.addEventListener('input', () => {
+        project.project_data.title = titleInput.value;
+        debouncedSave(project);
+        renderSidebar(); // Update title in sidebar
+    });
+}
+function setupStarRating() {
+    const ratingContainer = document.querySelector('.star-rating');
+    if (!ratingContainer) return;
+    const stars = ratingContainer.querySelectorAll('.star');
+    const updateStars = (rating) => {
+        stars.forEach(star => star.classList.toggle('selected', star.dataset.value <= rating));
+    };
+    updateStars(ratingContainer.dataset.rating);
+    stars.forEach(star => {
+        star.addEventListener('mouseover', () => {
+             stars.forEach(s => s.classList.remove('hovered'));
+             star.classList.add('hovered');
+             let prev = star.previousElementSibling;
+             while(prev){ prev.classList.add('hovered'); prev = prev.previousElementSibling; }
+        });
+        star.addEventListener('mouseout', () => stars.forEach(s => s.classList.remove('hovered')));
+        star.addEventListener('click', () => {
+            const project = state.projects.find(p => p.id === state.activeProjectId);
+            const newRating = star.dataset.value;
+            project.project_data.rating = newRating;
+            ratingContainer.dataset.rating = newRating;
+            updateStars(newRating);
+            saveProjectToSupabase(project);
+        });
+    });
+}
+function attachKanbanListeners(project) {
+    let draggedItem = null;
+    projectView.querySelector('.add-task-btn').addEventListener('click', () => {
+        document.getElementById('newTaskTitle').value = '';
+        document.getElementById('newTaskClient').value = '';
+        openModal('createTaskModal');
+    });
+    document.getElementById('saveNewTaskBtn').onclick = () => {
+        const title = document.getElementById('newTaskTitle').value.trim(); if (!title) return;
+        const client = document.getElementById('newTaskClient').value.trim();
+        const newTask = { id: 'task_' + Date.now(), title, client, status: 'todo', description: '' };
+        project.project_data.tasks.push(newTask);
+        saveProjectToSupabase(project); renderBusinessProject(project); closeModal('createTaskModal');
+    };
+    projectView.querySelectorAll('.task-card').forEach(item => {
+        item.addEventListener('dragstart', () => { draggedItem = item; setTimeout(() => item.classList.add('dragging'), 0); });
+        item.addEventListener('dragend', () => { draggedItem.classList.remove('dragging'); draggedItem = null; });
+    });
+    projectView.querySelectorAll('.kanban-column').forEach(column => {
+        column.addEventListener('dragover', e => { e.preventDefault(); column.classList.add('drag-over'); });
+        column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
+        column.addEventListener('drop', e => {
+            e.preventDefault(); column.classList.remove('drag-over'); if (!draggedItem) return;
+            column.querySelector('.task-list').appendChild(draggedItem);
+            const task = project.project_data.tasks.find(t => t.id === draggedItem.dataset.taskId);
+            task.status = column.dataset.status;
+            saveProjectToSupabase(project);
+        });
+    });
+}
+function openTaskDetailModal(projectId, taskId){
+    currentOpenTask = { projectId, taskId };
+    const project = state.projects.find(p => p.id === projectId);
+    const task = project.project_data.tasks.find(t => t.id === taskId);
+    if(!task) return;
+    document.getElementById('taskDetailTitle').innerText = task.title;
+    const descriptionField = document.getElementById('taskDetailDescription');
+    descriptionField.value = task.description || '';
+    descriptionField.oninput = () => { task.description = descriptionField.value; debouncedSave(project); };
+    openModal('taskDetailModal');
+}
+function setupTaskDetailListeners() {
+    const menuBtn = document.getElementById('kebabMenuBtn');
+    const dropdown = document.getElementById('taskDropdownMenu');
+    menuBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+    document.addEventListener('click', (e) => { if (!menuBtn.contains(e.target)) dropdown.classList.remove('show'); });
+    
+    document.getElementById('deleteTaskBtn').addEventListener('click', async () => {
+        if(confirm('Вы уверены, что хотите удалить эту задачу?')){
+            const {projectId, taskId} = currentOpenTask;
+            const project = state.projects.find(p => p.id === projectId);
+            project.project_data.tasks = project.project_data.tasks.filter(t => t.id !== taskId);
+            await saveProjectToSupabase(project);
+            renderBusinessProject(project);
+            closeModal('taskDetailModal');
+        }
+    });
+    document.getElementById('downloadTaskBtn').addEventListener('click', () => {
+        const {projectId, taskId} = currentOpenTask;
+        const task = state.projects.find(p => p.id === projectId).project_data.tasks.find(t => t.id === taskId);
+        const textContent = `Задача: ${task.title}\nОписание:\n${task.description || 'Нет описания.'}`;
+        const blob = new Blob([textContent], {type: 'text/plain;charset=utf-8'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${task.title}.txt`;
+        a.click();
+    });
+}
+
+// =================================================================
+// 6. ИНИЦИАЛИЗАЦИЯ
+// =================================================================
+async function init() {
+    if (window.supabase) {
+        const userKey = localStorage.getItem(STORAGE_KEY_AUTH);
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { global: { headers: { 'x-user-key': userKey } } });
+    } else { document.body.innerHTML = '<h2>Ошибка: Не удалось загрузить библиотеку Supabase.</h2>'; return; }
+    
+    setupEventListeners();
+    setupTaskDetailListeners();
+    const urlParams = new URLSearchParams(window.location.search);
+    const sharedProjectId = urlParams.get('id');
+
+    if (sharedProjectId) {
+        document.querySelector('.kb-sidebar').style.display = 'none';
+        mainContent.style.paddingLeft = '50px';
+        const project = await loadSharedProjectFromSupabase(sharedProjectId);
+        if (project) { state.projects = [project]; state.activeProjectId = project.id; state.currentView = project.project_type.split('-')[0]; renderActiveProject(); }
+    } else {
+        state.projects = await loadProjectsFromSupabase();
+        renderSidebar(); renderActiveProject();
+    }
+}
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
