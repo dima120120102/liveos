@@ -351,12 +351,72 @@ body {
 }
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
 .tasks{display:flex;flex-direction:column;gap:8px;overflow-y:auto; flex: 1; min-height: 50px;}
-.tasks div{
-    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;justify-content:space-between;align-items:center;
-    transition: background-color 0.2s; border-left: 3px solid var(--border-color);
+/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
+.task-item{
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:center;
+    transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
+    cursor: grab; /* Курсор для перетаскивания */
 }
-.tasks div:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
-.tasks div[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
+.task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+/* Стиль для выполненных задач */
+.task-done {
+    opacity: 0.7;
+    text-decoration: line-through;
+    border-left-color: var(--success-color);
+}
+.task-done .task-time-input {
+    color: var(--text-secondary);
+}
+.task-item.dragging {
+    opacity: 0.4;
+    transform: rotate(2deg);
+}
+/* Поле для ввода времени */
+.task-time-input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 13px;
+    margin-right: 10px;
+    padding: 0;
+    text-align: right;
+    font-weight: 600;
+}
+.task-time-input:focus {
+    outline: none;
+    border-bottom: 1px dashed var(--warning-color);
+}
+/* Иконка выполнения */
+.task-check {
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1.2em;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+}
+.task-done .task-check {
+    color: var(--success-color);
+    transform: scale(1.1);
+}
+.task-check:hover {
+    color: var(--accent-color);
+    transform: scale(1.2);
+}
+/* Контейнер для текста и удаления */
+.task-text-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.task-text[contenteditable] {
+    flex-grow: 1;
+    padding-right: 10px;
+}
+
 .add-task-btn{
     margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
     border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; /* УЛУЧШЕНИЕ: Кнопка на всю ширину */
@@ -494,7 +554,7 @@ body {
         flex: 1 1 100%; /* Занимает всю ширину на мобильных */
     }
     .trash-hint { display: none; } /* Скрываем подсказку на мобильных */
-    
+
     .top-buttons {
         flex-wrap: wrap;
     }
@@ -831,7 +891,7 @@ body {
     .mood-calendar { grid-template-columns: repeat(4, 1fr); }
     .mood-option { font-size: 30px; }
     .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
-    
+
     /* Адаптация боковой панели AI для мобильных */
     .advice-modal-drawer {
         width: 100%;
@@ -842,7 +902,7 @@ body {
 </head>
 
 <body>
-    
+
 <div class="top-controls">
     <button id="saveAllBtn" class="save-all-btn">
         <img src="pictures/save.png" width="16" height="16" alt="Save">
@@ -873,13 +933,13 @@ body {
         </a>
         <button id="openTrashBtn" class="btn open-trash-btn">Открыть Корзину</button>
     </div>
-    
+
     <div class="top-plan-controls">
         <div class="unassigned-container">
             <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели (перетащите в корзину для удаления)</div>
             <div id="unassignedList" class="unassigned-list"></div>
         </div>
-        
+
         <div id="trashContainer" class="trash-container">
             <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
             <div class="trash-label">Корзина (удаление)</div>
@@ -973,7 +1033,7 @@ body {
 <div class="modal" id="profileModal">
     <div class="modal-content small-modal-content">
         <h2>Личный кабинет</h2>
-        
+
         <div class="profile-section">
             <h3>Имя пользователя (Ник)</h3>
             <div class="profile-input-group">
@@ -1002,7 +1062,7 @@ body {
     <div class="modal-content small-modal-content confirm-modal-content">
         <h2>⚠️ Подтверждение удаления</h2>
         <p id="confirmMessage"></p>
-        
+
         <div class="confirm-actions">
             <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
             <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
@@ -1038,7 +1098,7 @@ body {
         🤖 Получить AI совет
     </button>
 </div>
-    
+
 <footer id="main-footer">
     <div id="particles-js"></div> 
 
@@ -1077,6 +1137,7 @@ const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
 let data = null;
 let dragId = null;
 let dragTitle = null;
+let currentDayDrag = null; // Для Drag&Drop задач
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText');
@@ -1140,7 +1201,7 @@ function save() {
 async function loadDataFromSupabase() {
     // Проверка наличия клиента
     if (!supabase) { console.error("Supabase client not initialized."); return null; }
-    
+
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) { 
         window.location.href = 'login.html'; 
@@ -1183,6 +1244,29 @@ async function loadDataFromSupabase() {
     if (!loadedData.moodRecords) loadedData.moodRecords = {};
     if (!loadedData.months) loadedData.months = {};
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
+
+    // --- ОБНОВЛЕНИЕ СТРУКТУРЫ ДАННЫХ ЗАДАЧ ---
+    // Преобразуем старые строки задач в новую структуру объектов, если это необходимо
+    const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat()];
+    allWeeks.forEach(week => {
+        if (week.tasks) {
+            weekDays.forEach(day => {
+                if (Array.isArray(week.tasks[day])) {
+                    week.tasks[day] = week.tasks[day].map(task => {
+                        if (typeof task === 'string') {
+                            return { text: task, done: false, time: '' };
+                        }
+                        // Добавляем отсутствующие поля для старых объектов
+                        if (typeof task === 'object' && task !== null) {
+                            if (task.done === undefined) task.done = false;
+                            if (task.time === undefined) task.time = '';
+                        }
+                        return task;
+                    });
+                }
+            });
+        }
+    });
 
     setUnsaved(false);
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
@@ -1260,7 +1344,7 @@ async function deleteProfileAndData() {
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
 
     showLoading();
-    
+
     // 3. DELETE FROM user_data WHERE data_key = '...'
     const { error } = await supabase
         .from('user_data')
@@ -1317,7 +1401,7 @@ document.getElementById('logoutBtn').onclick = () => {
             return; // Отмена выхода
         }
     }
-    
+
     // 2. Показываем загрузку, чтобы имитировать процесс выхода
     showLoading(); 
 
@@ -1501,17 +1585,163 @@ function renderMonths(){
     });
 }
 createWeekBtn.onclick=()=>{
+    // Обновленная структура для задач: массив объектов {text, done, time}
     const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
     data.unassigned.push(week); save(); renderAll();
 };
 
-/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (Без изменений) --- */
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (ОБНОВЛЕНО) --- */
 const weekModal=document.getElementById('weekModal');
 const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
 let currentWeek=null;
+
+// Функция для создания элемента задачи
+function createTaskElement(task, day, index) {
+    const taskDiv = document.createElement('div');
+    taskDiv.className = 'task-item';
+    taskDiv.classList.toggle('task-done', task.done);
+    taskDiv.draggable = true;
+    taskDiv.dataset.day = day;
+    taskDiv.dataset.index = index;
+
+    // Drag & Drop для перетаскивания задач внутри дня
+    taskDiv.ondragstart = (e) => {
+        currentDayDrag = day; // Сохраняем день, из которого начали перетаскивать
+        e.dataTransfer.setData('text/plain', index);
+        e.dataTransfer.effectAllowed = 'move';
+        taskDiv.classList.add('dragging');
+    };
+    taskDiv.ondragend = () => {
+        taskDiv.classList.remove('dragging');
+        currentDayDrag = null;
+    };
+    
+    // Иконка выполнения
+    const checkSpan = document.createElement('span');
+    checkSpan.className = 'task-check';
+    checkSpan.innerHTML = task.done ? '✓' : '☐';
+    checkSpan.title = task.done ? 'Отменить' : 'Выполнить';
+    checkSpan.onclick = () => {
+        currentWeek.tasks[day][index].done = !currentWeek.tasks[day][index].done;
+        save();
+        renderWeekModal(); // Перерисовываем для применения стилей
+    };
+    taskDiv.appendChild(checkSpan);
+
+    // Поле для ввода времени
+    const timeInput = document.createElement('input');
+    timeInput.type = 'text';
+    timeInput.className = 'task-time-input';
+    timeInput.placeholder = 'HH:MM';
+    timeInput.maxLength = 5;
+    timeInput.value = task.time || '';
+    timeInput.oninput = (e) => {
+        // Простая валидация HH:MM
+        let val = e.target.value.replace(/[^0-9:]/g, '');
+        if (val.length === 2 && val.indexOf(':') === -1) {
+            val += ':';
+        }
+        e.target.value = val;
+        currentWeek.tasks[day][index].time = val;
+        save();
+    };
+    timeInput.onblur = () => {
+        // Убеждаемся, что сохраняем только корректный формат
+        const val = timeInput.value.trim();
+        if (val.length > 0 && !val.match(/^\d{1,2}:\d{2}$/)) {
+            timeInput.value = '';
+            currentWeek.tasks[day][index].time = '';
+            save();
+        }
+    }
+    taskDiv.appendChild(timeInput);
+
+    // Контейнер для текста и кнопки удаления
+    const textContainer = document.createElement('div');
+    textContainer.className = 'task-text-container';
+    
+    // Поле для ввода текста задачи
+    const textSpan = document.createElement('span');
+    textSpan.className = 'task-text';
+    textSpan.contentEditable = true; 
+    textSpan.innerText = task.text || 'Новая задача';
+    textSpan.oninput = () => { 
+        currentWeek.tasks[day][index].text = textSpan.innerText.replace(/×/g, '').trim(); 
+        save(); 
+    };
+    textContainer.appendChild(textSpan);
+
+    // Кнопка удаления
+    const rm = document.createElement('img');
+    rm.src = 'pictures/trash.png';
+    rm.className = 'task-delete';
+    rm.onclick = () => {
+        currentWeek.tasks[day].splice(index, 1);
+        renderWeekModal(); // Перерисовываем, чтобы обновить индексы
+        save();
+    };
+    textContainer.appendChild(rm);
+
+    taskDiv.appendChild(textContainer);
+    return taskDiv;
+}
+
+function handleTaskDrop(e, day) {
+    e.preventDefault();
+    const targetDayEl = e.currentTarget;
+    targetDayEl.classList.remove('dragover');
+    
+    // Если перетаскивание началось не с задачи или не с этого дня, игнорируем
+    if (currentDayDrag !== day) return; 
+
+    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+    const draggedElement = document.querySelector(`.task-item[data-day="${day}"][data-index="${fromIndex}"]`);
+    if (!draggedElement) return;
+
+    const tasksArray = currentWeek.tasks[day];
+    const draggedTask = tasksArray[fromIndex];
+    if (!draggedTask) return;
+
+    // Удаляем задачу из старой позиции
+    tasksArray.splice(fromIndex, 1);
+    
+    // Находим ближайший элемент для вставки
+    const afterElement = getDragAfterElement(targetDayEl, e.clientY);
+
+    // Определяем новый индекс
+    let newIndex;
+    if (afterElement === null) {
+        newIndex = tasksArray.length; // Вставляем в конец
+    } else {
+        const afterIndex = parseInt(afterElement.dataset.index);
+        newIndex = afterIndex; // Вставляем перед следующим элементом
+    }
+
+    // Вставляем задачу в новую позицию
+    tasksArray.splice(newIndex, 0, draggedTask);
+
+    save();
+    renderWeekModal(); // Полная перерисовка дня для корректного обновления DOM и индексов
+}
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
+    
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
 function openWeekModal(id){
     const allWeeks=[...data.unassigned, ...Object.values(data.months).flat()];
     currentWeek=allWeeks.find(w=>w.id===id);
@@ -1522,29 +1752,46 @@ function openWeekModal(id){
     weekDesc.value=currentWeek.desc || '';
     weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
     weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
+    
     modalGoalsList.innerHTML='';
     data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
+    
     daysContainer.innerHTML='';
     weekDays.forEach(d=>{
         const dayDiv=document.createElement('div'); dayDiv.className='day';
-        dayDiv.innerHTML = `<h4>${d} <span>${(currentWeek.tasks[d]||[]).length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
+        const tasks = currentWeek.tasks[d] || [];
+        // ВАЖНО: Обновляем счетчик задач
+        dayDiv.innerHTML = `<h4>${d} <span>${tasks.length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
         const taskContainer=dayDiv.querySelector('.tasks');
-        (currentWeek.tasks[d]||[]).forEach((t,i)=>{
-            const taskDiv=document.createElement('div'); taskDiv.contentEditable=true; taskDiv.innerText=t;
-            const rm=document.createElement('img'); rm.src='pictures/trash.png'; rm.className='task-delete';
-            rm.onclick=()=>{currentWeek.tasks[d].splice(i,1);renderWeekModal();save();}
-            taskDiv.addEventListener('input',()=>{currentWeek.tasks[d][i]=taskDiv.innerText.replace(/×/g, '').trim();save();});
-            taskDiv.appendChild(rm);
-            taskContainer.appendChild(taskDiv);
+        
+        // --- DRAG & DROP ДЛЯ ЗАДАЧ ---
+        taskContainer.ondragover = e => { 
+            e.preventDefault(); 
+            taskContainer.classList.add('dragover'); 
+            const afterElement = getDragAfterElement(taskContainer, e.clientY);
+            if (afterElement) {
+                // Визуальный индикатор места вставки (не обязательно, но улучшает UX)
+            }
+        };
+        taskContainer.ondragleave = () => taskContainer.classList.remove('dragover');
+        taskContainer.ondrop = e => handleTaskDrop(e, d);
+        // -----------------------------
+
+        tasks.forEach((t, i) => {
+            taskContainer.appendChild(createTaskElement(t, d, i));
         });
+
         dayDiv.querySelector('.add-task-btn').onclick=()=>{
             if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
-            currentWeek.tasks[d].push('');
-            renderWeekModal(); save();
+            // Новая структура задачи
+            currentWeek.tasks[d].push({ text: 'Новая задача', done: false, time: '' });
+            renderWeekModal(); 
+            save();
         };
         daysContainer.appendChild(dayDiv);
     });
 }
+
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 function closeWeekModal() {
     weekModal.classList.remove('visible');
@@ -1583,7 +1830,10 @@ document.getElementById('downloadWeek').onclick=()=>{
     let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
     weekDays.forEach(d=>{
         text+=`\n${d}:\n`;
-        (currentWeek.tasks[d]||[]).forEach((t)=>text+=`  - ${t || 'Без названия'}\n`);
+        // Обновлен экспорт для новой структуры задачи
+        (currentWeek.tasks[d]||[]).forEach((t)=>
+            text+=`  - [${t.done?'X':' '}] ${t.time?`(${t.time}) ` : ''}${t.text || 'Без названия'}\n`
+        );
     });
     const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
     const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
