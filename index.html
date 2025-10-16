@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Owner</title>
+<link rel="icon" type="image/png" href="pictures/favicon.png">
 <style>
 /* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
 :root {
@@ -839,8 +840,9 @@ body {
 }
 </style>
 </head>
-<body>
 
+<body>
+    
 <div class="top-controls">
     <button id="saveAllBtn" class="save-all-btn">
         <img src="pictures/save.png" width="16" height="16" alt="Save">
@@ -1309,18 +1311,27 @@ document.getElementById('saveNickBtn').onclick = async () => {
 };
 // В функции logoutBtn.onclick:
 document.getElementById('logoutBtn').onclick = () => {
-    if (confirm("Вы уверены, что хотите выйти из аккаунта?")) {
-        // ... (проверка несохраненных данных)
-        
-        // ✅ Правильная очистка:
-        localStorage.removeItem(STORAGE_KEY_AUTH);
-        localStorage.removeItem(STORAGE_KEY_USERNAME);
-        localStorage.removeItem(STORAGE_KEY_LOCAL);
-        localStorage.removeItem(STORAGE_KEY_UNSAVED);
-        localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
-        
-        window.location.href = 'login.html';
+    // 1. Проверяем несохраненные изменения перед выходом
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения, которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
+            return; // Отмена выхода
+        }
     }
+    
+    // 2. Показываем загрузку, чтобы имитировать процесс выхода
+    showLoading(); 
+
+    // 3. Полная очистка ключей
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    localStorage.removeItem(STORAGE_KEY_USERNAME);
+    localStorage.removeItem(STORAGE_KEY_LOCAL);
+    localStorage.removeItem(STORAGE_KEY_UNSAVED);
+    localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
+
+    // 4. Задержка и редирект. Даем анимации загрузки время, а браузеру — время на очистку.
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 500); // Задержка в 500мс
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
@@ -1788,11 +1799,16 @@ async function init() {
         return;
     }
 
-    const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!authKey) { window.location.href = 'login.html'; return; }
+     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    // ✅ ИСПРАВЛЕНО/ОПТИМИЗИРОВАНО: Ранний выход, если нет ключа
+    if (!authKey) { 
+        // Важно: если мы на 'index.html', но не авторизованы, сразу уходим.
+        window.location.href = 'login.html'; 
+        return; 
+    }
 
     updateAuthButton();
-    data = await loadDataFromSupabase(); 
+    data = await loadDataFromSupabase();  
 
     if (data) {
         renderAll();
