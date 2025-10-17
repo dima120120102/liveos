@@ -306,10 +306,25 @@ body {
     max-width: 1200px; /* Шире для удобства */
     height: 90vh;
 }
-.modal-header input{
-    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;width:60%;
+
+/* Изменения в заголовке модального окна недели */
+.week-header-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; /* Для адаптивности */
+}
+.week-header-inputs input[type="text"] {
+    flex-grow: 1;
+    min-width: 200px;
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
+.week-header-inputs input[type="date"] {
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
 .modal-header input:focus { 
     border-color: var(--warning-color); 
     outline: none;
@@ -326,6 +341,7 @@ body {
 .menu div:hover{background:var(--accent-color); color: #fff;}
 .menu div img { transition: filter 0.2s; }
 
+/* ИЗМЕНЕНИЕ: Горизонтальный скролл и растягивание дней в высоту */
 .modal-body{display:flex;flex:1;overflow:hidden;}
 .modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
 .modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
@@ -338,36 +354,77 @@ body {
     outline: none; 
     box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
 } 
-.modal-days{display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); overflow-y:auto; gap:12px;flex:1; padding-bottom: 10px;}
+.modal-days{
+    display: flex; /* Используем flex для горизонтального расположения */
+    flex-direction: row; /* Дни идут горизонтально */
+    overflow-x: auto; /* Появится горизонтальный скролл */
+    gap: 12px;
+    flex: 1; /* Занимает всю доступную высоту */
+    align-items: stretch; /* Растягивает дни по высоте */
+    padding-bottom: 10px;
+}
 .day{
-    background: var(--bg-secondary); border-radius:10px;padding:12px;flex-shrink:0;display:flex;flex-direction:column;gap:10px;
-    /* УЛУЧШЕНИЕ: Добавлена рамка сверху */
+    background: var(--bg-secondary); border-radius:10px;padding:12px;
+    min-width: 250px; /* Увеличена минимальная ширина дня */
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
     border-top: 3px solid var(--accent-color);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    /* ИЗМЕНЕНИЕ: Позволяем дню растягиваться на всю высоту flex-контейнера */
+    height: 100%; 
 }
 .day:hover {
-    transform: translateY(-3px);
+    transform: none; /* Убираем эффект поднятия, чтобы не мешал скроллу */
     box-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
+/* Обновленные стили для заголовка дня: название и дата */
 .day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
-.tasks{display:flex;flex-direction:column;gap:8px;overflow-y:auto; flex: 1; min-height: 50px;}
+.day h4 .day-label { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+.day h4 .day-label .day-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: normal;
+    margin-top: 2px;
+}
+
+/* ИЗМЕНЕНИЕ: Контейнер задач растягивается по вертикали */
+.tasks{
+    display:flex;flex-direction:column;gap:8px;overflow-y:auto; 
+    flex: 1; /* Занимает все оставшееся место по высоте */
+    min-height: 50px;
+}
+
 /* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
 .task-item{
-    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:center;
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:flex-start; /* Выравнивание по верху */
     transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
-    cursor: grab; /* Курсор для перетаскивания */
+    cursor: grab;
 }
 .task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
 .task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
 /* Стиль для выполненных задач */
 .task-done {
     opacity: 0.7;
-    text-decoration: line-through;
+    /* ИЗМЕНЕНИЕ: Убираем зачеркивание для всего элемента */
+    text-decoration: none; 
     border-left-color: var(--success-color);
 }
 .task-done .task-time-input {
     color: var(--text-secondary);
 }
+/* ИЗМЕНЕНИЕ: Зачеркивание ТОЛЬКО текста задачи */
+.task-done .task-text[contenteditable] {
+    text-decoration: line-through;
+}
+
 .task-item.dragging {
     opacity: 0.4;
     transform: rotate(2deg);
@@ -383,6 +440,7 @@ body {
     padding: 0;
     text-align: right;
     font-weight: 600;
+    flex-shrink: 0;
 }
 .task-time-input:focus {
     outline: none;
@@ -396,8 +454,12 @@ body {
     line-height: 1;
     color: var(--text-secondary);
     transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0; /* Галочка не сжимается */
+    margin-top: 2px; /* Небольшой отступ, чтобы выглядело лучше */
 }
 .task-done .task-check {
+    /* ИЗМЕНЕНИЕ: Галочка остается незачеркнутой */
+    text-decoration: none; 
     color: var(--success-color);
     transform: scale(1.1);
 }
@@ -410,11 +472,13 @@ body {
     flex-grow: 1;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start; /* Выравнивание по верху */
 }
 .task-text[contenteditable] {
     flex-grow: 1;
     padding-right: 10px;
+    min-height: 18px; /* Минимальная высота для пустых задач */
+    word-break: break-word; /* Перенос длинных слов */
 }
 
 .add-task-btn{
@@ -434,7 +498,7 @@ body {
     font-size: 15px;
 }
 .modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s;}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s; flex-shrink: 0;}
 .task-delete:hover { filter: invert(80%); transform: scale(1.1); }
 
 /* --- МОДАЛЬНОЕ ОКНО ЛК --- */
@@ -998,7 +1062,11 @@ body {
 <div class="modal" id="weekModal">
     <div class="modal-content week-editor">
         <div class="modal-header">
-            <input id="weekTitle" placeholder="Название недели">
+            <div class="week-header-inputs">
+                <input id="weekTitle" type="text" placeholder="Название недели">
+                <input id="weekStartDate" type="date" title="Начальная дата недели (Понедельник)">
+                <h6>- Начальная дата недели (Понедельник)</h6>
+            </div>
             <div class="actions">
                 <div id="menuContainer" style="position: relative;">
                     <span id="menuBtn">⋮</span>
@@ -1116,9 +1184,8 @@ body {
 
 // --- КОНСТАНТЫ SUPABASE ---
 // !!! ОБЯЗАТЕЛЬНО ЗАМЕНИТЕ ЭТИ ЗНАЧЕНИЯ !!!
-const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co'; 
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs'; 
-
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
 // !!! Инициализацию клиента переносим внутрь init или делаем через let !!!
 let supabase = null; 
 
@@ -1134,10 +1201,13 @@ const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','
 const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
 
+// Сборник активных таймеров уведомлений для очистки
+let notificationTimers = {}; 
+
 let data = null;
 let dragId = null;
 let dragTitle = null;
-let currentDayDrag = null; // Для Drag&Drop задач
+let currentDayDrag = null; 
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText');
@@ -1190,42 +1260,29 @@ function save() {
     setUnsaved(true);
 }
 
-
 // =================================================================
-// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE (Адаптировано под одну таблицу)
+// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE 
 // =================================================================
-
-/**
- * [ОБНОВЛЕНО] Загружает данные пользователя из Supabase по data_key.
- */
 async function loadDataFromSupabase() {
-    // Проверка наличия клиента
     if (!supabase) { console.error("Supabase client not initialized."); return null; }
-
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) { 
         window.location.href = 'login.html'; 
         return null; 
     }
-
     if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
         if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
             setUnsaved(true);
             try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL)); } catch (e) { console.error("Ошибка парсинга локальных данных."); }
         }
     }
-
     showLoading();
-
-    // 1. SELECT data_json FROM public.user_data WHERE data_key = '...'
     const { data: result, error } = await supabase
         .from('user_data')
         .select('data_json')
         .eq('data_key', dataKey)
         .single(); 
-
     hideLoading();
-
     if (error && error.code !== 'PGRST116') { 
         console.error("Ошибка Supabase при загрузке:", error);
         alert(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`);
@@ -1235,7 +1292,7 @@ async function loadDataFromSupabase() {
         ? result.data_json 
         : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}};
 
-    // Обеспечиваем наличие всех необходимых полей для избежания ошибок
+    // Обеспечиваем наличие всех необходимых полей и обновляем структуру
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
     if (!loadedData.unassigned) loadedData.unassigned = [];
@@ -1245,10 +1302,14 @@ async function loadDataFromSupabase() {
     if (!loadedData.months) loadedData.months = {};
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
 
-    // --- ОБНОВЛЕНИЕ СТРУКТУРЫ ДАННЫХ ЗАДАЧ ---
-    // Преобразуем старые строки задач в новую структуру объектов, если это необходимо
+    // --- ОБНОВЛЕНИЕ СТРУКТУРЫ ДАННЫХ ЗАДАЧ И НЕДЕЛИ ---
     const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat()];
     allWeeks.forEach(week => {
+        // Добавление поля startDate, если оно отсутствует
+        if (!week.startDate) {
+            week.startDate = null; 
+        }
+
         if (week.tasks) {
             weekDays.forEach(day => {
                 if (Array.isArray(week.tasks[day])) {
@@ -1256,7 +1317,6 @@ async function loadDataFromSupabase() {
                         if (typeof task === 'string') {
                             return { text: task, done: false, time: '' };
                         }
-                        // Добавляем отсутствующие поля для старых объектов
                         if (typeof task === 'object' && task !== null) {
                             if (task.done === undefined) task.done = false;
                             if (task.time === undefined) task.time = '';
@@ -1273,13 +1333,9 @@ async function loadDataFromSupabase() {
     return loadedData;
 }
 
-/**
- * [ОБНОВЛЕНО] Сохраняет данные пользователя в Supabase (UPSERT).
- */
 async function saveDataToSupabase() {
     if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
     if (!supabase) { console.error("Supabase client not initialized."); return { status: "error", message: "Клиент не инициализирован." }; }
-
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
@@ -1287,22 +1343,16 @@ async function saveDataToSupabase() {
         window.location.href = 'login.html';
         return { status: "error", message: "Нет ключа авторизации." };
     }
-
     showLoading();
-
-    // 2. UPSERT в user_data, используя data_key как первичный ключ
     const payload = {
         data_key: dataKey, 
         data_json: data, 
         created_at: new Date().toISOString() 
     };
-
     const { error } = await supabase
         .from('user_data')
         .upsert(payload, { onConflict: 'data_key' }); 
-
     hideLoading();
-
     if (error) {
         console.error("Ошибка Supabase при сохранении:", error);
         alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
@@ -1313,14 +1363,8 @@ async function saveDataToSupabase() {
         return { status: "success" };
     }
 }
-// Привязываем кнопку к новой функции Supabase
 saveAllBtn.onclick = saveDataToSupabase;
 
-
-/**
- * [ОБНОВЛЕНО] В данной упрощенной схеме смена ника невозможна,
- * так как ник не хранится в базе данных.
- */
 async function changeUsername(newNick) {
     localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
     updateAuthButton();
@@ -1329,30 +1373,20 @@ async function changeUsername(newNick) {
     return { status: "success", newUsername: newNick };
 }
 
-/**
- * [ОБНОВЛЕНО] Удаляет профиль (удаляет строку по data_key).
- */
 async function deleteProfileAndData() {
     if (!supabase) { console.error("Supabase client not initialized."); return; }
-
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
     if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
-
     if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
     const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
     if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
-
     showLoading();
-
-    // 3. DELETE FROM user_data WHERE data_key = '...'
     const { error } = await supabase
         .from('user_data')
         .delete()
         .eq('data_key', dataKey);
-
     hideLoading();
-
     if (error) {
         console.error("Ошибка Supabase при удалении:", error);
         alert(`Ошибка при удалении профиля: ${error.message}`);
@@ -1365,7 +1399,7 @@ async function deleteProfileAndData() {
 
 
 // =================================================================
-// 3. ФУНКЦИИ ЛИЧНОГО КАБИНЕТА (Без изменений)
+// 3. ФУНКЦИИ ЛИЧНОГО КАБИНЕТА
 // =================================================================
 
 const usernameDisplay = document.getElementById('usernameDisplay');
@@ -1390,35 +1424,25 @@ document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
     if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
-
     await changeUsername(newNick); 
 };
-// В функции logoutBtn.onclick:
 document.getElementById('logoutBtn').onclick = () => {
-    // 1. Проверяем несохраненные изменения перед выходом
     if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
         if (!confirm("У вас есть несохраненные изменения, которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
-            return; // Отмена выхода
+            return; 
         }
     }
-
-    // 2. Показываем загрузку, чтобы имитировать процесс выхода
     showLoading(); 
-
-    // 3. Полная очистка ключей
     localStorage.removeItem(STORAGE_KEY_AUTH);
     localStorage.removeItem(STORAGE_KEY_USERNAME);
     localStorage.removeItem(STORAGE_KEY_LOCAL);
     localStorage.removeItem(STORAGE_KEY_UNSAVED);
     localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
-
-    // 4. Задержка и редирект. Даем анимации загрузки время, а браузеру — время на очистку.
     setTimeout(() => {
         window.location.href = 'login.html';
-    }, 500); // Задержка в 500мс
+    }, 500); 
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
-
 
 /* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ (Без изменений) --- */
 function toggleTrashContainer() {
@@ -1493,6 +1517,8 @@ trashContainer.ondrop = async e => {
             }
         }
         if (deleted) {
+            // Также очищаем все уведомления, связанные с этой неделей
+            clearWeekNotifications(dragId);
             save(); 
             renderAll();
         }
@@ -1500,7 +1526,6 @@ trashContainer.ondrop = async e => {
     dragId = null;
     dragTitle = null;
 };
-
 
 /* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ (Без изменений) --- */
 const goalsList=document.getElementById('goalsList');
@@ -1585,20 +1610,111 @@ function renderMonths(){
     });
 }
 createWeekBtn.onclick=()=>{
-    // Обновленная структура для задач: массив объектов {text, done, time}
-    const week={id:'w'+Date.now(),title:'Новая неделя',desc:'',tasks:{}};
+    // Получаем дату ближайшего понедельника (для новой недели)
+    const now = new Date();
+    const day = now.getDay();
+    // 1 = Понедельник, 0 = Воскресенье (нужно 1)
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const closestMonday = new Date(now.setDate(diff));
+    const formattedDate = closestMonday.toISOString().split('T')[0];
+
+    const week={
+        id:'w'+Date.now(),
+        title:'Новая неделя',
+        desc:'',
+        startDate: formattedDate, // Добавлено: дата начала недели (Понедельник)
+        tasks:{}
+    };
     data.unassigned.push(week); save(); renderAll();
 };
+/**
+ * Автоматически прокручивает контейнер месяцев к текущему месяцу.
+ * Должна быть вызвана после renderMonths().
+ */
+function scrollToCurrentMonth() {
+    const monthsContainer = document.getElementById('months');
+    const monthsWrapper = monthsContainer.parentElement; // Это .months-wrapper
+
+    // 1. Определяем индекс текущего месяца
+    const now = new Date();
+    const currentMonthIndex = now.getMonth(); // 0-11
+
+    // 2. Находим элемент текущего месяца
+    const currentMonthEl = monthsContainer.children[currentMonthIndex];
+
+    if (currentMonthEl && monthsWrapper) {
+        // 3. Вычисляем позицию прокрутки
+        // scrollLeft = позиция элемента - (ширина контейнера / 2) + (ширина элемента / 2)
+        // Это центрирует элемент, если он не слишком близко к краю.
+        const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
+
+        // Применяем прокрутку с плавной анимацией
+        monthsWrapper.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    }
+}/**
+ * Автоматически прокручивает контейнер месяцев к текущему месяцу.
+ * Должна быть вызвана после renderMonths().
+ */
+function scrollToCurrentMonth() {
+    const monthsContainer = document.getElementById('months');
+    const monthsWrapper = monthsContainer.parentElement; // Это .months-wrapper
+
+    // 1. Определяем индекс текущего месяца
+    const now = new Date();
+    const currentMonthIndex = now.getMonth(); // 0-11
+
+    // 2. Находим элемент текущего месяца
+    const currentMonthEl = monthsContainer.children[currentMonthIndex];
+
+    if (currentMonthEl && monthsWrapper) {
+        // 3. Вычисляем позицию прокрутки
+        // scrollLeft = позиция элемента - (ширина контейнера / 2) + (ширина элемента / 2)
+        // Это центрирует элемент, если он не слишком близко к краю.
+        const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
+
+        // Применяем прокрутку с плавной анимацией
+        monthsWrapper.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    }
+}
 
 /* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (ОБНОВЛЕНО) --- */
 const weekModal=document.getElementById('weekModal');
 const weekTitle=document.getElementById('weekTitle');
 const weekDesc=document.getElementById('weekDesc');
+const weekStartDateInput = document.getElementById('weekStartDate'); // Новый элемент
 const daysContainer=document.getElementById('daysContainer');
 const modalGoalsList=document.getElementById('modalGoalsList');
 let currentWeek=null;
 
-// Функция для создания элемента задачи
+/**
+ * Вспомогательная функция для получения даты дня недели
+ * @param {string} dateString - Дата начала недели (YYYY-MM-DD)
+ * @param {number} dayIndex - Индекс дня недели (0=Пн, 6=Вс)
+ * @returns {string} Дата в формате ДД.ММ.ГГ
+ */
+function getDateForDay(dateString, dayIndex) {
+    if (!dateString) return 'Не выбрана';
+    const date = new Date(dateString + 'T00:00:00'); // Используем T00:00:00 для избежания проблем с часовыми поясами
+    if (isNaN(date.getTime())) return 'Ошибка даты';
+    
+    // Добавляем смещение (индекс дня недели)
+    const dayOffset = dayIndex;
+    date.setDate(date.getDate() + dayOffset);
+    
+    // Форматируем в ДД.ММ.ГГ
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = String(date.getFullYear()).slice(2);
+    return `${day}.${month}.${year}`;
+}
+
+
 function createTaskElement(task, day, index) {
     const taskDiv = document.createElement('div');
     taskDiv.className = 'task-item';
@@ -1607,9 +1723,8 @@ function createTaskElement(task, day, index) {
     taskDiv.dataset.day = day;
     taskDiv.dataset.index = index;
 
-    // Drag & Drop для перетаскивания задач внутри дня
     taskDiv.ondragstart = (e) => {
-        currentDayDrag = day; // Сохраняем день, из которого начали перетаскивать
+        currentDayDrag = day; 
         e.dataTransfer.setData('text/plain', index);
         e.dataTransfer.effectAllowed = 'move';
         taskDiv.classList.add('dragging');
@@ -1618,8 +1733,7 @@ function createTaskElement(task, day, index) {
         taskDiv.classList.remove('dragging');
         currentDayDrag = null;
     };
-    
-    // Иконка выполнения
+
     const checkSpan = document.createElement('span');
     checkSpan.className = 'task-check';
     checkSpan.innerHTML = task.done ? '✓' : '☐';
@@ -1627,11 +1741,10 @@ function createTaskElement(task, day, index) {
     checkSpan.onclick = () => {
         currentWeek.tasks[day][index].done = !currentWeek.tasks[day][index].done;
         save();
-        renderWeekModal(); // Перерисовываем для применения стилей
+        renderWeekModal(); 
     };
     taskDiv.appendChild(checkSpan);
 
-    // Поле для ввода времени
     const timeInput = document.createElement('input');
     timeInput.type = 'text';
     timeInput.className = 'task-time-input';
@@ -1639,7 +1752,6 @@ function createTaskElement(task, day, index) {
     timeInput.maxLength = 5;
     timeInput.value = task.time || '';
     timeInput.oninput = (e) => {
-        // Простая валидация HH:MM
         let val = e.target.value.replace(/[^0-9:]/g, '');
         if (val.length === 2 && val.indexOf(':') === -1) {
             val += ':';
@@ -1649,21 +1761,20 @@ function createTaskElement(task, day, index) {
         save();
     };
     timeInput.onblur = () => {
-        // Убеждаемся, что сохраняем только корректный формат
         const val = timeInput.value.trim();
         if (val.length > 0 && !val.match(/^\d{1,2}:\d{2}$/)) {
             timeInput.value = '';
             currentWeek.tasks[day][index].time = '';
             save();
         }
+        // Перепланируем уведомления при изменении времени
+        scheduleCurrentWeekNotifications();
     }
     taskDiv.appendChild(timeInput);
 
-    // Контейнер для текста и кнопки удаления
     const textContainer = document.createElement('div');
     textContainer.className = 'task-text-container';
-    
-    // Поле для ввода текста задачи
+
     const textSpan = document.createElement('span');
     textSpan.className = 'task-text';
     textSpan.contentEditable = true; 
@@ -1674,14 +1785,15 @@ function createTaskElement(task, day, index) {
     };
     textContainer.appendChild(textSpan);
 
-    // Кнопка удаления
     const rm = document.createElement('img');
     rm.src = 'pictures/trash.png';
     rm.className = 'task-delete';
     rm.onclick = () => {
         currentWeek.tasks[day].splice(index, 1);
-        renderWeekModal(); // Перерисовываем, чтобы обновить индексы
         save();
+        renderWeekModal(); 
+        // При удалении задачи очищаем и перепланируем уведомления
+        scheduleCurrentWeekNotifications();
     };
     textContainer.appendChild(rm);
 
@@ -1693,8 +1805,6 @@ function handleTaskDrop(e, day) {
     e.preventDefault();
     const targetDayEl = e.currentTarget;
     targetDayEl.classList.remove('dragover');
-    
-    // Если перетаскивание началось не с задачи или не с этого дня, игнорируем
     if (currentDayDrag !== day) return; 
 
     const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
@@ -1705,35 +1815,26 @@ function handleTaskDrop(e, day) {
     const draggedTask = tasksArray[fromIndex];
     if (!draggedTask) return;
 
-    // Удаляем задачу из старой позиции
     tasksArray.splice(fromIndex, 1);
-    
-    // Находим ближайший элемент для вставки
     const afterElement = getDragAfterElement(targetDayEl, e.clientY);
-
-    // Определяем новый индекс
     let newIndex;
     if (afterElement === null) {
-        newIndex = tasksArray.length; // Вставляем в конец
+        newIndex = tasksArray.length;
     } else {
         const afterIndex = parseInt(afterElement.dataset.index);
-        newIndex = afterIndex; // Вставляем перед следующим элементом
+        newIndex = afterIndex; 
     }
-
-    // Вставляем задачу в новую позицию
     tasksArray.splice(newIndex, 0, draggedTask);
 
     save();
-    renderWeekModal(); // Полная перерисовка дня для корректного обновления DOM и индексов
+    renderWeekModal(); 
 }
 
 function getDragAfterElement(container, y) {
     const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
-    
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
-
         if (offset < 0 && offset > closest.offset) {
             return { offset: offset, element: child };
         } else {
@@ -1746,36 +1847,53 @@ function openWeekModal(id){
     const allWeeks=[...data.unassigned, ...Object.values(data.months).flat()];
     currentWeek=allWeeks.find(w=>w.id===id);
     if(!currentWeek) return;
+    
+    // --- ИНИЦИАЛИЗАЦИЯ ИНПУТОВ ---
     weekModal.style.display='flex';
     setTimeout(()=>weekModal.classList.add('visible'), 10);
     weekTitle.value=currentWeek.title;
     weekDesc.value=currentWeek.desc || '';
+    weekStartDateInput.value = currentWeek.startDate || '';
+
+    // --- ОБРАБОТЧИКИ ИЗМЕНЕНИЙ ---
     weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
     weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
-    
+    weekStartDateInput.onchange = () => { 
+        currentWeek.startDate = weekStartDateInput.value; 
+        save(); 
+        renderWeekModal(); // Перерисовка для обновления дат под днями
+    };
+
     modalGoalsList.innerHTML='';
     data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
-    
+
     daysContainer.innerHTML='';
-    weekDays.forEach(d=>{
+    weekDays.forEach((d, dayIndex)=>{
         const dayDiv=document.createElement('div'); dayDiv.className='day';
         const tasks = currentWeek.tasks[d] || [];
-        // ВАЖНО: Обновляем счетчик задач
-        dayDiv.innerHTML = `<h4>${d} <span>${tasks.length}</span></h4><div class="tasks"></div><button class="add-task-btn">＋ Добавить задачу</button>`;
-        const taskContainer=dayDiv.querySelector('.tasks');
         
-        // --- DRAG & DROP ДЛЯ ЗАДАЧ ---
+        // Получаем и форматируем дату для отображения
+        const dayDate = getDateForDay(currentWeek.startDate, dayIndex);
+
+        // Обновлен заголовок дня для включения даты
+        dayDiv.innerHTML = `<h4>
+            <span class="day-label">
+                ${d} 
+                <span class="day-date">${dayDate}</span>
+            </span>
+            <span>${tasks.length}</span>
+        </h4>
+        <div class="tasks"></div>
+        <button class="add-task-btn">＋ Добавить задачу</button>`;
+        
+        const taskContainer=dayDiv.querySelector('.tasks');
+
         taskContainer.ondragover = e => { 
             e.preventDefault(); 
             taskContainer.classList.add('dragover'); 
-            const afterElement = getDragAfterElement(taskContainer, e.clientY);
-            if (afterElement) {
-                // Визуальный индикатор места вставки (не обязательно, но улучшает UX)
-            }
         };
         taskContainer.ondragleave = () => taskContainer.classList.remove('dragover');
         taskContainer.ondrop = e => handleTaskDrop(e, d);
-        // -----------------------------
 
         tasks.forEach((t, i) => {
             taskContainer.appendChild(createTaskElement(t, d, i));
@@ -1783,20 +1901,27 @@ function openWeekModal(id){
 
         dayDiv.querySelector('.add-task-btn').onclick=()=>{
             if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
-            // Новая структура задачи
             currentWeek.tasks[d].push({ text: 'Новая задача', done: false, time: '' });
-            renderWeekModal(); 
             save();
+            renderWeekModal(); 
         };
         daysContainer.appendChild(dayDiv);
     });
+
+    // Планируем уведомления при открытии недели
+    scheduleCurrentWeekNotifications();
 }
 
 function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
 function closeWeekModal() {
+    // При закрытии модального окна очищаем все связанные уведомления
+    clearWeekNotifications(currentWeek.id); 
+    
     weekModal.classList.remove('visible');
     document.getElementById('weekMenu').classList.remove('show');
     setTimeout(() => { weekModal.style.display='none'; }, 300);
+    
+    currentWeek = null; // Очищаем текущую неделю
 }
 document.getElementById('closeModal').onclick=()=>closeWeekModal();
 document.getElementById('saveBtn').onclick=()=>closeWeekModal();
@@ -1816,6 +1941,7 @@ document.getElementById('deleteWeek').onclick=async()=>{
     const weekTitle = currentWeek.title;
     const confirmed = await showConfirmDeleteModal(weekTitle);
     if (confirmed) {
+        clearWeekNotifications(currentWeek.id); // Очистка уведомлений перед удалением
         ['unassigned',...months].forEach(k=>{
             if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
             else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
@@ -1827,10 +1953,10 @@ document.getElementById('deleteWeek').onclick=async()=>{
 };
 document.getElementById('downloadWeek').onclick=()=>{
     if(!currentWeek) return;
-    let text=`Название: ${currentWeek.title}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
-    weekDays.forEach(d=>{
-        text+=`\n${d}:\n`;
-        // Обновлен экспорт для новой структуры задачи
+    let text=`Название: ${currentWeek.title}\nНачало недели: ${currentWeek.startDate || 'Не указано'}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
+    weekDays.forEach((d, dayIndex)=>{
+        const dayDate = getDateForDay(currentWeek.startDate, dayIndex);
+        text+=`\n${d} (${dayDate}):\n`;
         (currentWeek.tasks[d]||[]).forEach((t)=>
             text+=`  - [${t.done?'X':' '}] ${t.time?`(${t.time}) ` : ''}${t.text || 'Без названия'}\n`
         );
@@ -1995,7 +2121,6 @@ aiAdviceModalOverlay.addEventListener('click', (e) => {
 function openAiAdviceModal(suggestion) {
     let htmlSuggestion = suggestion;
     // ... (код форматирования Markdown остается прежним) ...
-
     aiAdviceText.innerHTML = htmlSuggestion;
     aiAdviceModalOverlay.style.display = 'block';
     setTimeout(() => { aiAdviceModalOverlay.classList.add('visible'); }, 10);
@@ -2024,24 +2149,133 @@ getAISuggestionBtn.onclick = async () => {
 };
 
 // =================================================================
-// 5. ИНИЦИАЛИЗАЦИЯ
+// 5. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API) (Полностью переработано)
+// =================================================================
+
+/**
+ * Очищает все запланированные уведомления для конкретной недели.
+ * @param {string} weekId - ID недели
+ */
+function clearWeekNotifications(weekId) {
+    if (notificationTimers[weekId]) {
+        notificationTimers[weekId].forEach(timerId => clearTimeout(timerId));
+        delete notificationTimers[weekId];
+        console.log(`Очищены все уведомления для недели ${weekId}`);
+    }
+}
+
+/**
+ * Запрашивает разрешение на показ уведомлений.
+ */
+function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        console.warn("Этот браузер не поддерживает Desktop Notifications.");
+        return;
+    }
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            console.log("Разрешение на уведомления:", permission);
+        });
+    }
+}
+
+/**
+ * Планирует уведомление для одной задачи на конкретную дату.
+ */
+function scheduleTaskNotification(weekId, taskText, time, dayName, taskDate) {
+    if (Notification.permission !== "granted" || !time || !taskDate) {
+        return; 
+    }
+
+    const [day, month, year] = taskDate.split('.').map(Number); // ДД.ММ.ГГ
+    const [hour, minute] = time.split(':').map(Number);
+
+    // Создаем полную дату уведомления (ГГГГ-ММ-ДД)
+    // ВАЖНО: 2000 + year (ГГ)
+    const fullYear = (year > 50) ? 1900 + year : 2000 + year; // Предполагаем, что даты ГГ >= 00
+    const notificationTime = new Date(fullYear, month - 1, day, hour, minute, 0);
+
+    const now = new Date();
+    // Если время уведомления уже прошло, не планируем
+    if (notificationTime <= now) {
+        return;
+    }
+
+    const delay = notificationTime.getTime() - now.getTime();
+
+    const timerId = setTimeout(() => {
+        const notification = new Notification("Напоминание о задаче!", {
+            body: `${dayName}, ${taskDate} в ${time}: ${taskText}`,
+            icon: 'pictures/favicon.png' 
+        });
+
+        notification.onclick = function () {
+            window.focus(); 
+        };
+        // Удаляем таймер из списка после срабатывания
+        if (notificationTimers[weekId]) {
+            notificationTimers[weekId] = notificationTimers[weekId].filter(id => id !== timerId);
+        }
+
+    }, delay);
+
+    // Сохраняем ID таймера
+    if (!notificationTimers[weekId]) notificationTimers[weekId] = [];
+    notificationTimers[weekId].push(timerId);
+
+    console.log(`Уведомление для '${taskText}' запланировано на ${taskDate} в ${time} (${Math.round(delay / 1000)} сек).`);
+}
+
+/**
+ * Перебирает все задачи текущей недели и планирует для них уведомления.
+ */
+function scheduleCurrentWeekNotifications() {
+    if (!currentWeek || !currentWeek.startDate) {
+        console.warn("Невозможно запланировать уведомления: неделя не выбрана или не имеет начальной даты.");
+        return;
+    }
+    
+    // 1. Очищаем все старые таймеры для текущей недели, чтобы избежать дублирования
+    clearWeekNotifications(currentWeek.id);
+
+    // 2. Получаем индекс текущего дня в массиве weekDays (0=Пн)
+    const weekStart = new Date(currentWeek.startDate + 'T00:00:00'); 
+    
+    weekDays.forEach((dayName, dayIndex) => {
+        const tasks = currentWeek.tasks[dayName] || [];
+        
+        // Вычисляем дату для этого дня недели
+        const dayDate = new Date(weekStart);
+        dayDate.setDate(dayDate.getDate() + dayIndex);
+
+        // Преобразуем в формат ДД.ММ.ГГ
+        const taskDateFormatted = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}.${String(dayDate.getFullYear()).slice(2)}`;
+        
+        tasks.forEach(task => {
+            if (!task.done && task.time && task.time.match(/^\d{1,2}:\d{2}$/)) {
+                scheduleTaskNotification(currentWeek.id, task.text, task.time, dayName, taskDateFormatted);
+            }
+        });
+    });
+}
+
+
+// =================================================================
+// 6. ИНИЦИАЛИЗАЦИЯ
 // =================================================================
 
 function renderAll(){
     renderGoals();
     renderUnassigned();
     renderMonths();
-    updateMoodSelection();
+    renderHabitTracker();
+    updateMoodSelect();
+    renderMoodCalendar();
+    updateMoodSelection(); // Обновление настроения
 }
 
-/**
- * [ИСПРАВЛЕНО] Инициализируем клиент Supabase внутри init, 
- * гарантируя, что window.supabase уже существует.
- */
 async function init() {
-    // Проверяем, загружена ли библиотека Supabase
     if (window.supabase) {
-        // ✅ Инициализируем клиент Supabase
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } else {
         console.error("Supabase library not found on window. Did the script load correctly?");
@@ -2049,10 +2283,8 @@ async function init() {
         return;
     }
 
-     const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    // ✅ ИСПРАВЛЕНО/ОПТИМИЗИРОВАНО: Ранний выход, если нет ключа
+    const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!authKey) { 
-        // Важно: если мы на 'index.html', но не авторизованы, сразу уходим.
         window.location.href = 'login.html'; 
         return; 
     }
@@ -2062,9 +2294,8 @@ async function init() {
 
     if (data) {
         renderAll();
-        renderHabitTracker();
-        updateMoodSelect();
-        renderMoodCalendar();
+        scrollToCurrentMonth();
+        requestNotificationPermission(); 
     } else {
         document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
     }
