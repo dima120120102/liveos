@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Time Owner</title>
 <link rel="icon" type="image/png" href="pictures/favicon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0099ff">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <style>
 /* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
 :root {
@@ -1206,8 +1209,7 @@ body {
     <div id="particles-js"></div> 
 
     <div class="footer-content">
-        <p>&copy; 2025 dimavenv - разработчик. Все права на Time Owner принадлежат мне.</p>
-        <p>&copy; Все права защищены</p>
+        <p>Time Owner: Станьте настоящим Владельцем своего времени, а не его заложником. <br>Платформа для организации, контроля и управления самым ценным ресурсом — вашей жизнью. <br>Достигайте целей, управляйте задачами и максимизируйте продуктивность с полным осознанием и контролем.</p>
     </div>
 </footer>
 
@@ -2154,48 +2156,106 @@ function requestNotificationPermission() {
         });
     }
 }
-function scheduleTaskNotification(weekId, taskText, time, dayName, taskDate) {
-    if (Notification.permission !== "granted" || !time || !taskDate) {
-        return; 
+// =================================================================
+// 5. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API) - ИСПРАВЛЕНО
+// =================================================================
+
+function clearWeekNotifications(weekId) {
+    if (notificationTimers[weekId]) {
+        notificationTimers[weekId].forEach(timerId => clearTimeout(timerId));
+        delete notificationTimers[weekId];
+        console.log(`Очищены все уведомления для недели ${weekId}`);
     }
-    const [day, month, year] = taskDate.split('.').map(Number); // ДД.ММ.ГГ
-    const [hour, minute] = time.split(':').map(Number);
-    const fullYear = (year > 50) ? 1900 + year : 2000 + year; 
-    const notificationTime = new Date(fullYear, month - 1, day, hour, minute, 0);
-    const now = new Date();
-    if (notificationTime <= now) {
+}
+function requestNotificationPermission() {
+    if (!("Notification" in window)) {
+        console.warn("Этот браузер не поддерживает Desktop Notifications.");
         return;
     }
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(permission => {
+            console.log("Разрешение на уведомления:", permission);
+        });
+    }
+}
+
+/**
+ * ИСПРАВЛЕНО: Теперь использует полную дату начала недели (currentWeek.startDate) 
+ * для надежного расчета даты напоминания, устраняя проблему парсинга ДД.ММ.ГГ.
+ */
+function scheduleTaskNotification(weekId, taskText, time, dayName, taskDateString, dayIndex) {
+    if (Notification.permission !== "granted" || !time || !taskDateString) {
+        return; 
+    }
+
+    const [hour, minute] = time.split(':').map(Number);
+    
+    // Используем дату начала недели для построения точной даты дня
+    const weekStartDate = new Date(taskDateString + 'T00:00:00'); // ПН 00:00:00
+    const notificationTime = new Date(weekStartDate);
+    notificationTime.setDate(notificationTime.getDate() + dayIndex); // Получаем дату нужного дня
+    
+    // Устанавливаем время HH:MM
+    notificationTime.setHours(hour, minute, 0, 0);
+
+    const now = new Date();
+    if (notificationTime <= now) {
+        // Уведомление на прошлое время
+        return;
+    }
+
     const delay = notificationTime.getTime() - now.getTime();
+    
+    // Форматируем дату для текста уведомления
+    const bodyDate = notificationTime.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    
     const timerId = setTimeout(() => {
         const notification = new Notification("Напоминание о задаче!", {
-            body: `${dayName}, ${taskDate} в ${time}: ${taskText}`,
+            body: `${dayName}, ${bodyDate} в ${time}: ${taskText}`,
             icon: 'pictures/favicon.png' 
         });
         notification.onclick = function () { window.focus(); };
+        
+        // Очищаем таймер после срабатывания
         if (notificationTimers[weekId]) {
             notificationTimers[weekId] = notificationTimers[weekId].filter(id => id !== timerId);
         }
     }, delay);
+    
     if (!notificationTimers[weekId]) notificationTimers[weekId] = [];
     notificationTimers[weekId].push(timerId);
-    console.log(`Уведомление для '${taskText}' запланировано на ${taskDate} в ${time} (${Math.round(delay / 1000)} сек).`);
+    console.log(`Уведомление для '${taskText}' запланировано на ${bodyDate} в ${time} (${Math.round(delay / 1000)} сек).`);
 }
 function scheduleCurrentWeekNotifications() {
     if (!currentWeek || !currentWeek.startDate) {
         console.warn("Невозможно запланировать уведомления: неделя не выбрана или не имеет начальной даты.");
         return;
     }
+    
+    // Проверка формата даты начала недели
+    if (!currentWeek.startDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+         console.error("Некорректный формат startDate. Уведомления не запланированы.");
+         return;
+    }
+    
     clearWeekNotifications(currentWeek.id);
-    const weekStart = new Date(currentWeek.startDate + 'T00:00:00'); 
+    
+    // В новой версии scheduleTaskNotification нам нужен только ISO-формат даты начала недели
+    const weekStartDateISO = currentWeek.startDate; 
+    
     weekDays.forEach((dayName, dayIndex) => {
         const tasks = currentWeek.tasks[dayName] || [];
-        const dayDate = new Date(weekStart);
-        dayDate.setDate(dayDate.getDate() + dayIndex);
-        const taskDateFormatted = `${String(dayDate.getDate()).padStart(2, '0')}.${String(dayDate.getMonth() + 1).padStart(2, '0')}.${String(dayDate.getFullYear()).slice(2)}`;
         tasks.forEach(task => {
             if (!task.done && task.time && task.time.match(/^\d{1,2}:\d{2}$/)) {
-                scheduleTaskNotification(currentWeek.id, task.text, task.time, dayName, taskDateFormatted);
+                // Передаем дату начала недели (в ISO формате) и индекс дня
+                scheduleTaskNotification(
+                    currentWeek.id, 
+                    task.text, 
+                    task.time, 
+                    dayName, 
+                    weekStartDateISO, 
+                    dayIndex 
+                );
             }
         });
     });
