@@ -83,10 +83,15 @@ body {
     display:flex;
     flex-direction:column;
     gap: 15px; 
-    max-height: 800px; 
+    /* max-height: 800px;  УБРАНО */
     overflow-y: auto; 
     position:relative; 
     flex-shrink: 0;
+    
+    /* === ИЗМЕНЕНИЯ === */
+    position: sticky;
+    top: 20px; /* Отступ при прилипании */
+    max-height: calc(100vh - 40px); /* Макс. высота = высота экрана минус отступы */
 }
 .right{
     flex:1;
@@ -233,6 +238,11 @@ body {
     border-color: var(--accent-color);
     background: rgba(0, 123, 255, 0.08);
 }
+/* НОВЫЙ СТИЛЬ: подсветка при перетаскивании из архива */
+.unassigned-container.dragover-from-archive {
+    border-color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.08);
+}
 .unassigned-list{
     max-height: 250px; 
     overflow-y: auto;
@@ -274,6 +284,58 @@ body {
 .month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
 .drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
 .drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
+
+/* --- НОВЫЕ СТИЛИ: БЛОК АРХИВА --- */
+.archive-container-wrapper {
+    margin-top: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+.archive-container-wrapper h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.archive-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+.archive-container {
+    min-height: 100px;
+    max-height: 400px; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 5px;
+}
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+.drop-zone-archive {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: 0.2s ease-in-out;
+    margin-top: 10px;
+}
+.drop-zone-archive.dragover {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: rgba(76, 175, 80, 0.08);
+}
+/* --- КОНЕЦ СТИЛЕЙ АРХИВА --- */
+
 
 /* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
 .modal{
@@ -879,7 +941,7 @@ body {
     font-size: 14px;
 }
 
-/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (СТАРЫЕ, ПЕРЕОПРЕДЕЛЕНЫ НИЖЕ) --- */
+/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ --- */
 .mobile-bottom-nav {
     position: fixed;
     bottom: 0;
@@ -891,7 +953,8 @@ body {
     justify-content: space-around;
     align-items: flex-start; 
     padding: 6px 0 8px 0;
-    z-index: 10001; 
+    /* === ИЗМЕНЕНИЕ: z-index поднят === */
+    z-index: 10003; /* Был 10001. Теперь он НАД оверлеем */
     box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
 }
 .mobile-nav-btn {
@@ -966,7 +1029,16 @@ body {
         display: flex;
     }
 
-    .goals { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding: 15px; height: auto; max-height: none; overflow-y: visible; }
+    .goals { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border-color); 
+        padding: 15px; 
+        height: auto; 
+        max-height: none; /* Убираем max-height для мобильных */
+        overflow-y: visible; 
+        position: static; /* Убираем sticky на мобильных */
+    }
     .right { padding: 15px; overflow-y: visible; }
     .months-wrapper { overflow-x: auto; } 
 
@@ -1026,9 +1098,7 @@ body {
     font-weight: 600;
     color: var(--accent-color);
 }
-#archiveMonthlyTasksBtn {
-    width: 100%;
-}
+
 
 /* --- НОВЫЕ СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (РЕДИЗАЙН) --- */
 @media (max-width: 768px) {
@@ -1057,6 +1127,7 @@ body {
         justify-content: center;
         height: 100%;
         align-items: flex-start; /* Выравниваем по верху, чтобы кнопка "выступала" */
+        /* z-index: 10003;  УДАЛЕНО: z-index теперь на родителе .mobile-bottom-nav */
     }
 
     .mobile-nav-center-btn {
@@ -1108,7 +1179,7 @@ body {
     }
 }
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ --- */
+/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ (РЕДИЗАЙН) --- */
 .mobile-menu-overlay {
     position: fixed;
     bottom: 0;
@@ -1117,14 +1188,17 @@ body {
     height: 100%;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
-    z-index: 10002; /* Выше чем .mobile-bottom-nav */
+    /* z-index: 10002;  ОН НИЖЕ чем .mobile-bottom-nav (10003) */
+    z-index: 10002;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-end; /* Align to bottom */
     align-items: center;
     opacity: 0;
     visibility: hidden;
     transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* Add padding to raise menu above nav bar */
+    padding-bottom: 95px; 
 }
 .mobile-menu-overlay.visible {
     opacity: 1;
@@ -1132,62 +1206,73 @@ body {
 }
 
 .mobile-menu-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    padding: 20px;
-    width: 100%;
-    max-width: 400px;
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* REPLACED GRID with FLEX */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Spacing between list items */
+    
+    padding: 15px;
+    width: 90%;
+    max-width: 320px; /* Constrain width */
+    
+    /* NEW STYLING for list appearance */
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+
+    /* REWORKED ANIMATION for scale/fade from bottom */
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
 }
 .mobile-menu-overlay.visible .mobile-menu-content {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
 .mobile-menu-btn {
-    background: var(--bg-tertiary);
+    background: var(--bg-hover); /* Darker than content bg */
     border: 1px solid var(--border-color);
     color: var(--text-primary);
-    border-radius: 12px;
-    padding: 15px;
+    border-radius: 10px; /* Slightly smaller radius */
+    padding: 12px 15px;
+    
+    /* REWORKED for list view */
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Icon + text horizontally */
     align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: 600;
+    justify-content: flex-start; /* Align content left */
+    gap: 15px; /* Space between icon and text */
+    
+    font-size: 16px; /* Larger base font */
+    font-weight: 500; /* Medium weight */
     cursor: pointer;
     transition: transform 0.2s ease, background-color 0.2s ease;
 }
 .mobile-menu-btn .icon {
-    font-size: 28px;
+    font-size: 24px; /* Readjust icon size */
+    flex-shrink: 0;
+    width: 30px; /* Give icon fixed width for alignment */
+    text-align: center;
 }
 .mobile-menu-btn .label {
-    font-size: 12px;
+    font-size: 15px; /* Readjust label size */
+    font-weight: 500;
 }
 .mobile-menu-btn:hover {
-    background-color: var(--bg-hover);
-    transform: translateY(-3px);
+    background-color: var(--accent-color); /* Use accent on hover */
+    transform: translateY(-2px);
+    color: #fff;
+}
+.mobile-menu-btn:active {
+    transform: scale(0.98);
 }
 
+/* REMOVED .mobile-menu-close-btn styles */
 .mobile-menu-close-btn {
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 40px;
-    font-weight: 300;
-    cursor: pointer;
-    position: absolute;
-    bottom: 75px; /* Над выступающей кнопкой */
-    opacity: 0.8;
-    transition: opacity 0.2s, transform 0.2s;
-    padding: 10px;
-    line-height: 1;
-}
-.mobile-menu-close-btn:hover {
-    opacity: 1;
-    transform: rotate(90deg);
+    display: none; /* Hide the old button */
 }
 </style>
 </head>
@@ -1240,7 +1325,25 @@ body {
     <div class="months-wrapper">
         <div class="months" id="months"></div>
     </div>
-  </main>
+    
+    <div class="archive-container-wrapper">
+        <h2>🗄️ Архив недель</h2>
+        <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать. Недели из архива можно перетащить обратно в "Не распределённые".</p>
+        
+        <button id="archiveAllMonthsBtn" class="btn" style="width: 100%; margin-bottom: 15px; background-color: var(--bg-tertiary);">
+            <img src="pictures/save.png" width="16" alt="Архив"> 
+            Архивировать все недели из "Месяцев"
+        </button>
+        <p class="archive-hint" style="font-size: 12px; margin-top: -5px; margin-bottom: 15px;">
+            Это действие перенесет все недели из разделов "Месяцы" в "Архив".
+        </p>
+        <div id="archiveContainer" class="archive-container">
+            <div id="archiveList" class="archive-list">
+                </div>
+            <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
+        </div>
+    </div>
+    </main>
 </div>
 
 <section class="habit-tracker mobile-section" id="mobileSectionHabits">
@@ -1349,17 +1452,6 @@ body {
                 <input type="text" id="nickInput" placeholder="Введите новый ник">
                 <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
             </div>
-        </div>
-
-        <div class="profile-section">
-            <h3>Архив</h3>
-            <button id="archiveMonthlyTasksBtn" class="btn btn-logout">
-                <img src="pictures/save.png" width="16" alt="Архив"> 
-                Архивировать задачи из "Месяцев"
-            </button>
-            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 10px;">
-                Это действие перенесет все задачи из недель, добавленных в месяцы, в архив и очистит эти недели.
-            </p>
         </div>
 
         <div class="profile-section">
@@ -1476,10 +1568,7 @@ body {
             <span class="label">AI</span>
         </button>
     </div>
-    <button class="mobile-menu-close-btn" id="mobileMenuCloseBtn">&times;</button>
-</div>
-
-
+    </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script src="https://unpkg.com/drag-drop-touch"></script>
@@ -1510,6 +1599,7 @@ let notificationTimers = {};
 let data = null;
 let dragId = null;
 let dragTitle = null;
+let dragOrigin = null; // НОВАЯ ПЕРЕМЕННАЯ: Откуда перетаскиваем ('unassigned', 'month', 'archive')
 let currentDayDrag = null; 
 
 const saveAllBtn = document.getElementById('saveAllBtn');
@@ -1593,7 +1683,7 @@ async function loadDataFromSupabase() {
 
     const loadedData = (result && result.data_json) 
         ? result.data_json 
-        : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}, archivedTasks: []}; // Добавлено archivedTasks
+        : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}, archive: []}; // ИЗМЕНЕНО: archivedTasks на archive
 
     if (!loadedData.goals) loadedData.goals = [];
     if (!loadedData.weeks) loadedData.weeks = {};
@@ -1602,11 +1692,12 @@ async function loadDataFromSupabase() {
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
     if (!loadedData.moodRecords) loadedData.moodRecords = {};
     if (!loadedData.months) loadedData.months = {};
-    if (!loadedData.archivedTasks) loadedData.archivedTasks = []; // Добавлена проверка
+    if (!loadedData.archive) loadedData.archive = []; // ДОБАВЛЕНО: проверка archive
 
     months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
 
-    const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat()];
+    // ОБНОВЛЕНО: allWeeks теперь включает data.archive
+    const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat(), ...(loadedData.archive || [])];
     allWeeks.forEach(week => {
         if (!week.startDate) {
             week.startDate = null; 
@@ -1711,7 +1802,7 @@ function calculateTaskStats() {
     let completed = 0;
     let uncompleted = 0;
     
-    // Собираем все недели из нераспределенных и из всех месяцев
+    // ОБНОВЛЕНО: Собираем все недели, *кроме* архива, для статистики
     const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
     
     allWeeks.forEach(week => {
@@ -1760,12 +1851,13 @@ function closeProfileModal() {
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
-async function archiveMonthlyTasks() {
-    if (!confirm("Вы уверены, что хотите заархивировать все задачи из недель, добавленных в 'Месяцы'?\n\nВсе задачи из этих недель будут перемещены в архив и удалены из самих недель. Это действие необратимо.")) {
+// === НОВАЯ ФУНКЦИЯ АРХИВАЦИИ НЕДЕЛЬ ===
+async function archiveAllMonths() {
+    if (!confirm("Вы уверены, что хотите заархивировать все недели из 'Месяцев'?\n\nОни будут перемещены в раздел 'Архив'.")) {
         return;
     }
 
-    if (!data.archivedTasks) data.archivedTasks = [];
+    if (!data.archive) data.archive = [];
     
     let archivedCount = 0;
     const monthsToArchive = Object.keys(data.months);
@@ -1773,42 +1865,27 @@ async function archiveMonthlyTasks() {
     monthsToArchive.forEach(monthName => {
         const weeksInMonth = data.months[monthName] || [];
         
-        weeksInMonth.forEach(week => {
-            if (!week.tasks) return;
+        if (weeksInMonth.length > 0) {
+            // Добавляем все недели из этого месяца в архив
+            data.archive.push(...weeksInMonth);
+            archivedCount += weeksInMonth.length;
             
-            weekDays.forEach(dayName => {
-                const tasks = week.tasks[dayName] || [];
-                if (tasks.length > 0) {
-                    tasks.forEach(task => {
-                        // Добавляем задачу в архив с доп. информацией
-                        data.archivedTasks.push({ 
-                            ...task, 
-                            originalWeekId: week.id,
-                            originalWeekTitle: week.title, 
-                            originalDay: dayName,
-                            archivedOn: new Date().toISOString()
-                        });
-                        archivedCount++;
-                    });
-                    
-                    // Очищаем задачи за этот день
-                    week.tasks[dayName] = [];
-                }
-            });
-        });
+            // Очищаем массив недель этого месяца
+            data.months[monthName] = [];
+        }
     });
 
     if (archivedCount > 0) {
         save(); 
-        // Если модальное окно открыто, обновляем его
-        if(currentWeek) renderWeekModal(); 
-        alert(`Успешно заархивировано ${archivedCount} задач.`);
+        renderAll(); // Перерисовываем все
+        alert(`Успешно заархивировано ${archivedCount} недель.`);
     } else {
-        alert("Не найдено задач для архивации в 'Месяцах'.");
+        alert("Не найдено недель для архивации в 'Месяцах'.");
     }
     
-    closeProfileModal();
+    // closeProfileModal(); // Кнопка больше не в модальном окне
 }
+// === КОНЕЦ НОВОЙ ФУНКЦИИ АРХИВАЦИИ ===
 
 
 document.getElementById('saveNickBtn').onclick = async () => {
@@ -1835,11 +1912,12 @@ document.getElementById('logoutBtn').onclick = () => {
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-// Привязываем кнопку архива
-const archiveBtn = document.getElementById('archiveMonthlyTasksBtn');
-if (archiveBtn) {
-    archiveBtn.onclick = archiveMonthlyTasks;
-}
+// Привязываем НОВУЮ кнопку архива (теперь в init)
+// const archiveMonthsBtn = document.getElementById('archiveAllMonthsBtn');
+// if (archiveMonthsBtn) {
+//     archiveMonthsBtn.onclick = archiveAllMonths;
+// }
+
 
 /* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ --- */
 function toggleTrashContainer() {
@@ -1889,6 +1967,7 @@ confirmCancelBtn.onclick = () => {
 };
 trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
 trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
+// ОБНОВЛЕНО: ondrop для корзины теперь проверяет и data.archive
 trashContainer.ondrop = async e => {
     e.preventDefault(); trashContainer.classList.remove('dragover');
     if (!dragId || !dragTitle) return;
@@ -1896,11 +1975,15 @@ trashContainer.ondrop = async e => {
 
     if (confirmed) {
         let deleted = false;
+        
+        // 1. Проверяем нераспределенные
         const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
         if (unassignedIndex !== -1) {
             data.unassigned.splice(unassignedIndex, 1);
             deleted = true;
         }
+        
+        // 2. Проверяем месяцы
         if (!deleted) {
             for (const monthName of months) {
                 if (data.months[monthName]) {
@@ -1913,6 +1996,16 @@ trashContainer.ondrop = async e => {
                 }
             }
         }
+        
+        // 3. НОВАЯ ПРОВЕРКА: Проверяем архив
+        if (!deleted && data.archive) {
+             const archiveIndex = data.archive.findIndex(w => w.id === dragId);
+            if (archiveIndex !== -1) {
+                data.archive.splice(archiveIndex, 1);
+                deleted = true;
+            }
+        }
+
         if (deleted) {
             clearWeekNotifications(dragId);
             save(); 
@@ -1921,6 +2014,7 @@ trashContainer.ondrop = async e => {
     }
     dragId = null;
     dragTitle = null;
+    dragOrigin = null; // Сбрасываем origin
 };
 
 /* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
@@ -1940,42 +2034,89 @@ document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая �
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
 const unassignedContainer = unassignedList.parentElement;
-unassignedContainer.ondragover = e => { e.preventDefault(); unassignedContainer.classList.add('dragover'); };
-unassignedContainer.ondragleave = () => { unassignedContainer.classList.remove('dragover'); };
+
+// ОБНОВЛЕНО: ondragover для unassigned
+unassignedContainer.ondragover = e => { 
+    e.preventDefault(); 
+    if (dragOrigin === 'month') {
+        unassignedContainer.classList.add('dragover'); 
+    } else if (dragOrigin === 'archive') {
+        unassignedContainer.classList.add('dragover-from-archive'); // Другой стиль для перетаскивания из архива
+    }
+};
+// ОБНОВЛЕНО: ondragleave для unassigned
+unassignedContainer.ondragleave = () => { 
+    unassignedContainer.classList.remove('dragover'); 
+    unassignedContainer.classList.remove('dragover-from-archive'); 
+};
+// ОБНОВЛЕНО: ondrop для unassigned
 unassignedContainer.ondrop = e => {
-    e.preventDefault(); unassignedContainer.classList.remove('dragover');
-    if (!dragId) return;
-    for (const monthName of months) {
-        if (data.months[monthName]) {
-            const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+    e.preventDefault(); 
+    unassignedContainer.classList.remove('dragover'); 
+    unassignedContainer.classList.remove('dragover-from-archive'); 
+    
+    // Проверяем, что перетаскиваем из 'month' или 'archive'
+    if (!dragId || (dragOrigin !== 'month' && dragOrigin !== 'archive')) { 
+        dragId = null; dragTitle = null; dragOrigin = null;
+        return;
+    }
+
+    let weekToMove = null;
+
+    if (dragOrigin === 'month') {
+        for (const monthName of months) {
+            if (data.months[monthName]) {
+                const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+                if (weekIndex !== -1) {
+                    [weekToMove] = data.months[monthName].splice(weekIndex, 1);
+                    break;
+                }
+            }
+        }
+    } else if (dragOrigin === 'archive') { // НОВЫЙ БЛОК: ищем в архиве
+        if (data.archive) {
+             const weekIndex = data.archive.findIndex(w => w.id === dragId);
             if (weekIndex !== -1) {
-                const [weekToMove] = data.months[monthName].splice(weekIndex, 1);
-                data.unassigned.push(weekToMove);
-                save(); renderAll();
-                break;
+                [weekToMove] = data.archive.splice(weekIndex, 1);
             }
         }
     }
+
+    if (weekToMove) {
+        data.unassigned.push(weekToMove);
+        save(); 
+        renderAll();
+    }
+
     dragId = null;
     dragTitle = null;
+    dragOrigin = null;
 };
+
+// ОБНОВЛЕНО: getWeekById теперь ищет и в архиве
 function getWeekById(id) {
-    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
+    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat(), ...(data.archive || [])];
     return allWeeks.find(w => w.id === id);
 }
-function createWeekEl(week){
+
+// ОБНОВЛЕНО: createWeekEl принимает 'origin'
+function createWeekEl(week, origin){
     const div=document.createElement('div'); div.className='week-item';
     div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
+    div.dataset.origin = origin; // Сохраняем origin
+    
     div.ondragstart=()=>{
         dragId=week.id;
         dragTitle=week.title;
+        dragOrigin = origin; // Устанавливаем глобальный origin
     };
     div.onclick=()=>openWeekModal(week.id);
     return div;
 }
 function renderUnassigned(){
     unassignedList.innerHTML='';
-    data.unassigned.forEach(w=>{ unassignedList.appendChild(createWeekEl(w)); });
+    // ОБНОВЛЕНО: передаем origin
+    data.unassigned.forEach(w=>{ unassignedList.appendChild(createWeekEl(w, 'unassigned')); });
 }
 const monthsContainer=document.getElementById('months');
 function renderMonths(){
@@ -1986,11 +2127,22 @@ function renderMonths(){
         div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
         monthsContainer.appendChild(div);
         const dropZone=div.querySelector('.drop-zone');
-        dropZone.ondragover=e=>{e.preventDefault(); dropZone.classList.add('dragover');};
+        
+        dropZone.ondragover=e=>{
+            e.preventDefault(); 
+            // Принимаем только из 'unassigned'
+            if (dragOrigin === 'unassigned') {
+                dropZone.classList.add('dragover');
+            }
+        };
         dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
         dropZone.ondrop=e=>{
             e.preventDefault(); dropZone.classList.remove('dragover');
-            if (!dragId) return;
+            // Принимаем только из 'unassigned'
+            if (!dragId || dragOrigin !== 'unassigned') {
+                dragId = null; dragTitle = null; dragOrigin = null;
+                return;
+            }
             const idx=data.unassigned.findIndex(w=>w.id===dragId);
             if(idx>=0){
                 const [w] = data.unassigned.splice(idx,1);
@@ -2000,11 +2152,74 @@ function renderMonths(){
             }
             dragId = null;
             dragTitle = null;
+            dragOrigin = null;
         };
         const monthWeeksDiv=div.querySelector('.month-weeks');
-        (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w)); });
+        // ОБНОВЛЕНО: передаем origin
+        (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w, 'month')); });
     });
 }
+
+// === НОВАЯ ФУНКЦИЯ: РЕНДЕРИНГ АРХИВА ===
+const archiveList = document.getElementById('archiveList');
+const archiveDropZone = document.querySelector('.drop-zone-archive');
+
+function renderArchive() {
+    if (!archiveList || !archiveDropZone) return;
+    
+    archiveList.innerHTML = '';
+    // ОБНОВЛЕНО: передаем origin
+    (data.archive || []).forEach(w => {
+        archiveList.appendChild(createWeekEl(w, 'archive'));
+    });
+
+    archiveDropZone.ondragover = e => { 
+        e.preventDefault(); 
+        // Принимаем из 'unassigned' и 'month'
+        if (dragOrigin === 'unassigned' || dragOrigin === 'month') {
+            archiveDropZone.classList.add('dragover'); 
+        }
+    };
+    archiveDropZone.ondragleave = () => archiveDropZone.classList.remove('dragover');
+    archiveDropZone.ondrop = e => {
+        e.preventDefault();
+        archiveDropZone.classList.remove('dragover');
+        
+        // Принимаем из 'unassigned' и 'month'
+        if (!dragId || (dragOrigin !== 'unassigned' && dragOrigin !== 'month')) {
+            dragId = null; dragTitle = null; dragOrigin = null;
+            return;
+        }
+
+        let weekToMove = null;
+        // 1. Ищем в unassigned
+        let idx = data.unassigned.findIndex(w => w.id === dragId);
+        if (idx !== -1) {
+            [weekToMove] = data.unassigned.splice(idx, 1);
+        } else {
+            // 2. Ищем в months
+            for (const monthName of months) {
+                if (data.months[monthName]) {
+                    idx = data.months[monthName].findIndex(w => w.id === dragId);
+                    if (idx !== -1) {
+                        [weekToMove] = data.months[monthName].splice(idx, 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (weekToMove) {
+            if (!data.archive) data.archive = [];
+            data.archive.push(weekToMove);
+            save();
+            renderAll();
+        }
+        dragId = null; dragTitle = null; dragOrigin = null;
+    };
+}
+// === КОНЕЦ НОВОЙ ФУНКЦИИ АРХИВА ===
+
 createWeekBtn.onclick=()=>{
     const now = new Date();
     const day = now.getDay();
@@ -2184,8 +2399,8 @@ function getDragAfterElement(container, y) {
 }
 
 function openWeekModal(id){
-    const allWeeks=[...data.unassigned, ...Object.values(data.months).flat()];
-    currentWeek=allWeeks.find(w=>w.id===id);
+    // ОБНОВЛЕНО: getWeekById теперь ищет везде
+    currentWeek = getWeekById(id);
     if(!currentWeek) return;
 
     weekModal.style.display='flex';
@@ -2258,16 +2473,36 @@ document.addEventListener('click', (e) => {
         weekMenu.classList.remove('show');
     }
 });
+// ОБНОВЛЕНО: deleteWeek теперь ищет везде
 document.getElementById('deleteWeek').onclick=async()=>{
     if(!currentWeek) return;
     const weekTitle = currentWeek.title;
     const confirmed = await showConfirmDeleteModal(weekTitle);
     if (confirmed) {
         clearWeekNotifications(currentWeek.id); 
-        ['unassigned',...months].forEach(k=>{
-            if(k==='unassigned'){data.unassigned=data.unassigned.filter(w=>w.id!==currentWeek.id);}
-            else if(data.months[k]) {data.months[k]=data.months[k].filter(w=>w.id!==currentWeek.id);}
-        });
+        
+        // Ищем и удаляем неделю из всех 3-х возможных мест
+        let deleted = false;
+        // 1. unassigned
+        let idx = data.unassigned.findIndex(w => w.id === currentWeek.id);
+        if (idx > -1) { data.unassigned.splice(idx, 1); deleted = true; }
+        
+        // 2. months
+        if (!deleted) {
+            for (const monthName of months) {
+                if(data.months[monthName]) {
+                    idx = data.months[monthName].findIndex(w => w.id === currentWeek.id);
+                    if (idx > -1) { data.months[monthName].splice(idx, 1); deleted = true; break; }
+                }
+            }
+        }
+        
+        // 3. archive
+        if (!deleted && data.archive) {
+            idx = data.archive.findIndex(w => w.id === currentWeek.id);
+            if (idx > -1) { data.archive.splice(idx, 1); deleted = true; }
+        }
+
         save(); 
         renderAll(); 
         closeWeekModal();
@@ -2594,10 +2829,12 @@ function scheduleCurrentWeekNotifications() {
 // 6. ИНИЦИАЛИЗАЦИЯ
 // =================================================================
 
+// ОБНОВЛЕНО: renderAll теперь вызывает renderArchive
 function renderAll(){
     renderGoals();
     renderUnassigned();
     renderMonths();
+    renderArchive(); // ДОБАВЛЕН ВЫЗОВ
     renderHabitTracker();
     updateMoodSelect();
     renderMoodCalendar();
@@ -2606,6 +2843,7 @@ function renderAll(){
 
 /**
  * НОВАЯ ФУНКЦИЯ: Настраивает слушатели для мобильной навигации (РЕДИЗАЙН)
+ * ОБНОВЛЕНО: Удалена логика для mobileMenuCloseBtn
  */
 function setupMobileNav() {
     // --- Секции ---
@@ -2627,7 +2865,7 @@ function setupMobileNav() {
 
     // --- Всплывающее меню ---
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-    const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn');
+    // const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn'); // УДАЛЕНО
     const mobileMenuGoals = document.getElementById('mobileMenuGoals');
     const mobileMenuMood = document.getElementById('mobileMenuMood');
     const mobileMenuKB = document.getElementById('mobileMenuKB');
@@ -2674,7 +2912,8 @@ function setupMobileNav() {
             openMobileMenuOverlay();
         }
     };
-    if (mobileMenuCloseBtn) mobileMenuCloseBtn.onclick = closeMobileMenuOverlay;
+    // if (mobileMenuCloseBtn) mobileMenuCloseBtn.onclick = closeMobileMenuOverlay; // УДАЛЕНО
+    
     // Закрытие по клику на фон
     if (mobileMenuOverlay) mobileMenuOverlay.onclick = (e) => {
         if (e.target === mobileMenuOverlay) {
@@ -2721,10 +2960,10 @@ async function init() {
         return; 
     }
 
-    // Привязываем кнопку архива (на случай, если она не привязалась раньше)
-    const archiveBtn = document.getElementById('archiveMonthlyTasksBtn');
-    if (archiveBtn) {
-        archiveBtn.onclick = archiveMonthlyTasks;
+    // === ПРИВЯЗЫВАЕМ КНОПКУ АРХИВА (теперь она в основном DOM) ===
+    const archiveMonthsBtn = document.getElementById('archiveAllMonthsBtn');
+    if (archiveMonthsBtn) {
+        archiveMonthsBtn.onclick = archiveAllMonths;
     }
 
     updateAuthButton();
