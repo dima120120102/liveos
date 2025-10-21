@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time Owner - Лекарства</title>
+<link rel="icon" type="image/png" href="pictures/favicon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0099ff">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<style>
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+}
+* {
+    box-sizing: border-box;
+}
+
+/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
+::-webkit-scrollbar {
+    width: 10px; 
+    height: 10px; 
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color); 
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+* {
+  scrollbar-color: var(--accent-color) var(--bg-secondary); 
+  scrollbar-width: thin;
+}
+
+/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    animation: fadeIn 0.5s ease-in-out;
+}
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
+
+/* --- ОСНОВНАЯ СТРУКТУРА --- */
+.main-container{
+    display:flex;
+    padding: 0 10px;
+    overflow-x: hidden; 
+    transition: padding 0.3s ease; 
+}
+.goals{
+    width:240px;
+    background:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px; 
+    /* max-height: 800px;  УБРАНО */
+    overflow-y: auto; 
+    position:relative; 
+    flex-shrink: 0;
+    
+    /* === ИЗМЕНЕНИЯ === */
+    position: sticky;
+    top: 20px; /* Отступ при прилипании */
+    max-height: calc(100vh - 40px); /* Макс. высота = высота экрана минус отступы */
+}
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    gap:15px;
+    overflow: hidden; 
+}
+
+/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
+.btn{
+    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Для выравнивания иконки и текста */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn:hover{
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.btn:active { transform: scale(0.98) translateY(0); } 
+.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+
+/* --- КНОПКИ УПРАВЛЕНИЯ (НОВЫЙ БЛОК) --- */
+.top-controls {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 10px; 
+    z-index: 10000;
+}
+.save-all-btn, .account-control-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.save-all-btn:hover {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn:hover{
+    background: var(--accent-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn img, .save-all-btn img {
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img, .save-all-btn:hover img {
+    filter: invert(10%);
+}
+.save-all-btn.unsaved {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+}
+
+/* --- ЦЕЛИ (Goal Styles) --- */
+.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+.goal{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:10px;
+    position:relative;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
+    min-height: 40px;
+    border-left: 6px solid var(--success-color); 
+    font-size: 16px; 
+}
+.goal:hover{
+    background:var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
+}
+.goal .goal-remove{
+    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
+    transition: opacity 0.2s, transform 0.2s; 
+}
+.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
+.goal:hover .goal-remove{opacity:1;}
+.goal[contenteditable]:focus{
+    outline:2px solid var(--accent-color);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.add-goal-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:15px;
+    background:#555;
+    color:var(--text-primary);
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    cursor:pointer;
+    display:none; 
+    transition: background-color 0.2s, transform 0.2s ease-out; 
+}
+.goals:hover .add-goal-btn{display:flex}
+.add-goal-btn:hover { 
+    background-color: var(--accent-color); 
+    transform: translateX(-50%) translateY(-5px) scale(1.05); 
+}
+
+/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+/* НОВЫЙ СТИЛЬ: подсветка при перетаскивании из архива */
+.unassigned-container.dragover-from-archive {
+    border-color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.08);
+}
+.unassigned-list{
+    max-height: 250px; 
+    overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-right: 5px;
+}
+.week-item,.week-card{
+    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
+    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
+    font-weight: 500;
+}
+.week-item:hover { 
+    border-color: var(--accent-color);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
+.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
+.month{
+    min-width:280px; 
+    background-color: var(--bg-secondary);
+    border-radius:12px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px;
+    flex-shrink:0; 
+    border-top: 4px solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.month:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
+.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
+.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
+.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
+
+/* --- НОВЫЕ СТИЛИ: БЛОК АРХИВА --- */
+.archive-container-wrapper {
+    margin-top: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+.archive-container-wrapper h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.archive-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+.archive-container {
+    min-height: 100px;
+    max-height: 400px; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 5px;
+}
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+.drop-zone-archive {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: 0.2s ease-in-out;
+    margin-top: 10px;
+}
+.drop-zone-archive.dragover {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: rgba(76, 175, 80, 0.08);
+}
+/* --- КОНЕЦ СТИЛЕЙ АРХИВА --- */
+
+
+/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } 
+.modal-content {
+    background: var(--bg-main);
+    width: 95%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transform: scale(0.95); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal.visible .modal-content { transform: scale(1); } 
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
+.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
+.modal-header span:hover { color: var(--accent-color); }
+.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
+
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
+.modal-content.week-editor {
+    max-width: 1200px; 
+    height: 90vh;
+}
+.week-header-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; 
+}
+.week-header-inputs input[type="text"] {
+    flex-grow: 1;
+    min-width: 200px;
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.week-header-inputs input[type="date"] {
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-header input:focus { 
+    border-color: var(--warning-color); 
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.menu{
+    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
+    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    opacity: 0; visibility: hidden; transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
+.menu div:hover{background:var(--accent-color); color: #fff;}
+.menu div img { transition: filter 0.2s; }
+.modal-body{display:flex;flex:1;overflow:hidden;}
+.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
+.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
+.modal-description textarea{
+    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-description textarea:focus { 
+    border-color: var(--warning-color); 
+    outline: none; 
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.modal-days{
+    display: flex; 
+    flex-direction: row; 
+    overflow-x: auto; 
+    gap: 12px;
+    flex: 1; 
+    align-items: stretch; 
+    padding-bottom: 10px;
+}
+.day{
+    background: var(--bg-secondary); border-radius:10px;padding:12px;
+    min-width: 250px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 3px solid var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; 
+}
+.day:hover {
+    transform: none; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
+.day h4 .day-label { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+.day h4 .day-label .day-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: normal;
+    margin-top: 2px;
+}
+.tasks{
+    display:flex;flex-direction:column;gap:8px;overflow-y:auto; 
+    flex: 1; 
+    min-height: 50px;
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
+.task-item{
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:flex-start; 
+    transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
+    cursor: grab;
+}
+.task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
+.task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.task-done {
+    opacity: 0.7;
+    text-decoration: none; 
+    border-left-color: var(--success-color);
+}
+.task-done .task-time-input {
+    color: var(--text-secondary);
+}
+.task-done .task-text[contenteditable] {
+    text-decoration: line-through;
+}
+.task-item.dragging {
+    opacity: 0.4;
+    transform: rotate(2deg);
+}
+.task-time-input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 13px;
+    margin-right: 10px;
+    padding: 0;
+    text-align: right;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.task-time-input:focus {
+    outline: none;
+    border-bottom: 1px dashed var(--warning-color);
+}
+.task-check {
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1.2em;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0; 
+    margin-top: 2px; 
+}
+.task-done .task-check {
+    text-decoration: none; 
+    color: var(--success-color);
+    transform: scale(1.1);
+}
+.task-check:hover {
+    color: var(--accent-color);
+    transform: scale(1.2);
+}
+.task-text-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; 
+}
+.task-text[contenteditable] {
+    flex-grow: 1;
+    padding-right: 10px;
+    min-height: 18px; 
+    word-break: break-word; 
+}
+.add-task-btn{
+    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
+    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; 
+}
+.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
+.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
+    gap: 10px; 
+}
+.modal-goals ul li{
+    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
+    border-left: 6px solid var(--success-color); 
+    font-size: 15px;
+}
+.modal-goals ul li:hover{background:var(--bg-hover);}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s; flex-shrink: 0;}
+.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
+
+/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
+.small-modal-content {
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 20px;
+    gap: 15px;
+}
+/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
+.top-plan-controls {
+    display: flex;
+    gap: 15px; 
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+}
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+.trash-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px dashed var(--danger-color); 
+    flex: 0 0 200px; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease;
+    height: 100%; 
+    max-height: 250px;
+    opacity: 0;
+    pointer-events: none;
+}
+.trash-container.visible { 
+    opacity: 1;
+    pointer-events: auto; 
+}
+.trash-container .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
+    transition: transform 0.2s;
+}
+.trash-container.dragover {
+    background-color: rgba(229, 57, 53, 0.15); 
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-container.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+.trash-hint {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.open-trash-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.open-trash-btn:hover {
+    background: #c32727;
+    border-color: #c32727;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .top-plan-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .trash-container {
+        max-height: 100px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 20px;
+        width: 100%;
+        min-height: auto;
+        flex: 1 1 100%; 
+    }
+    .trash-hint { display: none; } 
+    .top-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
+#aiButtonContainer {
+    position: fixed;
+    bottom: 20px; 
+    left: 20px; 
+    z-index: 9999; 
+}
+#aiButtonContainer .btn {
+    background: #39556d; 
+    border-color: #39556d; 
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+#aiButtonContainer .btn:hover {
+    background: #476a8a;
+    border-color: #476a8a;
+}
+@media (max-width: 768px) {
+    #aiButtonContainer {
+        bottom: 15px;
+        left: 15px;
+    }
+    #aiButtonContainer .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
+.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
+.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
+.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
+.habit-table-wrapper { overflow-x: auto; }
+.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
+.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
+.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
+.habit-table tr:hover td { background-color: var(--bg-hover); }
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
+.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
+.progress-col { width: 150px; }
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+.habit-table th { position: relative; }
+.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
+.remove-habit {
+    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
+    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
+}
+.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
+.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
+.habit-table-container.collapsed { max-height: 250px; }
+.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
+.toggle-history-btn:hover { background: var(--bg-hover); }
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; }
+.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
+.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
+.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
+.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
+.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
+.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
+.mood-calendar-cell:hover { transform: scale(1.05); }
+.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
+.day-number { font-size: 12px; color: var(--text-secondary); }
+.day-mood { font-size: 18px; margin-top: 2px; }
+.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+
+/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
+.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
+.profile-input-group { display: flex; gap: 10px; align-items: center; }
+.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
+.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
+.btn-save-nick:hover { background: #3e8e41; }
+.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
+.btn-logout:hover { background: var(--bg-hover); }
+.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
+.btn-delete:hover { background: #c32727; }
+
+/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
+#loadingOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
+    flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
+    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+}
+.spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
+.confirm-modal-content {
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+}
+.confirm-modal-content h2 {
+    color: var(--danger-color);
+    margin-top: 0;
+}
+.confirm-modal-content p {
+    margin-bottom: 25px;
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.confirm-actions .btn {
+    flex: 1;
+}
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--danger-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+.advice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: none;
+    z-index: 10000000000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.advice-modal-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+.advice-modal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 400px; 
+    max-width: 90%; 
+    height: 100%;
+    background-color: var(--bg-secondary);
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
+    z-index: 100100000000;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.advice-modal-overlay.visible .advice-modal-drawer {
+    transform: translateX(0);
+}
+.advice-drawer-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+.advice-drawer-header h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.3em;
+}
+.advice-drawer-close {
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+    transition: color 0.2s;
+}
+.advice-drawer-close:hover {
+    color: var(--danger-color);
+}
+.advice-drawer-content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; 
+}
+.advice-drawer-content p {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-primary);
+    padding-right: 5px; 
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
+.advice-drawer-content h3 {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--accent-color); 
+    margin-top: 25px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--border-color);
+}
+.advice-drawer-content ul {
+    list-style: none; 
+    padding-left: 0;
+    margin-top: 0;
+}
+.advice-drawer-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    padding-left: 18px; 
+    position: relative;
+}
+.advice-drawer-content li::before {
+    content: '•';
+    color: var(--warning-color); 
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: 0;
+}
+.advice-drawer-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
+.knowledge-base-btn {
+    color: #fff;
+    border: none;
+    text-decoration: none; 
+    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
+    background-size: 200% 200%;
+    animation: gradient-animation 5s ease infinite;
+}
+.knowledge-base-btn:hover {
+    color: #fff;
+    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
+}
+@keyframes gradient-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+    /* Основные стили футера */
+#main-footer {
+    position: relative; 
+    width: 100%;
+    min-height: 200px; 
+    background-color: #333; 
+    color: #fff;
+    padding: 20px 0;
+    overflow: hidden; 
+}
+#particles-js {
+    position: absolute; 
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1; 
+}
+.footer-content {
+    position: relative;
+    text-align: center;
+    padding-top: 50px; 
+    z-index: 2; 
+}
+.footer-content p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ --- */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    display: none; /* Скрыто по умолчанию */
+    justify-content: space-around;
+    align-items: flex-start; 
+    padding: 6px 0 8px 0;
+    /* === ИЗМЕНЕНИЕ: z-index поднят === */
+    z-index: 10003; /* Был 10001. Теперь он НАД оверлеем */
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+.mobile-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 4px;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
+}
+.mobile-nav-btn .icon {
+    font-size: 20px;
+    margin-bottom: 3px;
+    line-height: 1;
+}
+.mobile-nav-btn .label {
+    line-height: 1.2;
+}
+.mobile-nav-btn:hover {
+    color: var(--text-primary);
+}
+/* НОВЫЙ СТИЛЬ: Активная кнопка-вкладка */
+.mobile-nav-btn.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.mobile-nav-btn#mobileNavSave.unsaved {
+    color: var(--warning-color);
+    animation: pulse-mobile 1.5s infinite;
+}
+.mobile-nav-btn#mobileNavSave.unsaved .icon {
+    animation: pulse-icon 1.5s infinite;
+}
+@keyframes pulse-mobile {
+    0% { color: var(--warning-color); }
+    50% { color: var(--text-primary); }
+    100% { color: var(--warning-color); }
+}
+@keyframes pulse-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+@media (max-width: 768px) {
+    body { 
+        font-size: 14px; 
+        /* Увеличиваем отступ снизу для новой выступающей кнопки */
+        padding-bottom: 80px; 
+    }
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
+    
+    /* ИЗМЕНЕНИЕ: Скрываем/показываем секции по запросу */
+    .mobile-section {
+        display: none; /* Скрываем все секции по умолчанию */
+    }
+    .mobile-section.active {
+        display: block; /* Показываем только активную */
+    }
+    /* Специфичное правило для .goals, т.к. на десктопе он flex-item */
+    .mobile-section.goals.active {
+        display: flex;
+    }
+
+    .goals { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border-color); 
+        padding: 15px; 
+        height: auto; 
+        max-height: none; /* Убираем max-height для мобильных */
+        overflow-y: visible; 
+        position: static; /* Убираем sticky на мобильных */
+    }
+    .right { padding: 15px; overflow-y: visible; }
+    .months-wrapper { overflow-x: auto; } 
+
+    /* --- ИЗМЕНЕНИЯ ПО ЗАПРОСУ --- */
+    .mobile-bottom-nav {
+        display: flex;
+    }
+    .top-controls { 
+        display: none; 
+    }
+    #aiButtonContainer {
+        display: none; 
+    }
+    .knowledge-base-btn {
+        display: none; 
+    }
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ ПО ЗАПРОСУ --- */
+
+    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
+    .habit-controls { flex-direction: column; align-items: stretch; }
+    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
+    .modal-body { flex-direction: column; }
+    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
+    .modal-right { overflow-y: auto; }
+    .modal-days { grid-template-columns: 1fr; }
+    .modal-header input { width: 50%; }
+    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
+    .mood-option { font-size: 30px; }
+    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    .advice-modal-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ В ПРОФИЛЕ --- */
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+}
+.profile-stats div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.profile-stats span {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.profile-stats strong {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (РЕДИЗАЙН) --- */
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end; /* Выравниваем по низу */
+        height: 75px; /* Увеличиваем высоту для выступающей кнопки */
+        padding: 0 10px;
+        padding-bottom: 8px; /* Отступ снизу для лейблов */
+    }
+    .mobile-bottom-nav .mobile-nav-btn {
+        flex: 1;
+        max-width: 60px; /* Ограничиваем ширину кнопок */
+        align-items: center;
+        justify-content: center;
+        padding-top: 6px; /* Возвращаем отступ */
+        height: 60px; /* Фиксируем высоту */
+        align-self: center; /* Центрируем обычные кнопки по вертикали */
+    }
+
+    .mobile-nav-center-btn-container {
+        flex: 0 0 70px; /* Фиксированная ширина для центральной кнопки */
+        position: relative;
+        display: flex;
+        justify-content: center;
+        height: 100%;
+        align-items: flex-start; /* Выравниваем по верху, чтобы кнопка "выступала" */
+        /* z-index: 10003;  УДАЛЕНО: z-index теперь на родителе .mobile-bottom-nav */
+    }
+
+    .mobile-nav-center-btn {
+        position: absolute;
+        top: -20px; /* Выступ кнопки вверх */
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        border: 4px solid var(--bg-main);
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, background-color 0.2s;
+    }
+    .mobile-nav-center-btn:hover {
+        transform: scale(1.1);
+        background-color: var(--accent-hover);
+    }
+    .mobile-nav-center-btn:active {
+        transform: scale(0.95);
+    }
+
+    .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 22px;
+    }
+    .hamburger-icon span {
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        border-radius: 2px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* Анимация гамбургера в крестик (при открытии меню) */
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(2) {
+        opacity: 0;
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ (РЕДИЗАЙН) --- */
+.mobile-menu-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    /* z-index: 10002;  ОН НИЖЕ чем .mobile-bottom-nav (10003) */
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align to bottom */
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    /* Add padding to raise menu above nav bar */
+    padding-bottom: 95px; 
+}
+.mobile-menu-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu-content {
+    /* REPLACED GRID with FLEX */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Spacing between list items */
+    
+    padding: 15px;
+    width: 90%;
+    max-width: 320px; /* Constrain width */
+    
+    /* NEW STYLING for list appearance */
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+
+    /* REWORKED ANIMATION for scale/fade from bottom */
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
+}
+.mobile-menu-overlay.visible .mobile-menu-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.mobile-menu-btn {
+    background: var(--bg-hover); /* Darker than content bg */
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 10px; /* Slightly smaller radius */
+    padding: 12px 15px;
+    
+    /* REWORKED for list view */
+    display: flex;
+    flex-direction: row; /* Icon + text horizontally */
+    align-items: center;
+    justify-content: flex-start; /* Align content left */
+    gap: 15px; /* Space between icon and text */
+    
+    font-size: 16px; /* Larger base font */
+    font-weight: 500; /* Medium weight */
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.mobile-menu-btn .icon {
+    font-size: 24px; /* Readjust icon size */
+    flex-shrink: 0;
+    width: 30px; /* Give icon fixed width for alignment */
+    text-align: center;
+}
+.mobile-menu-btn .label {
+    font-size: 15px; /* Readjust label size */
+    font-weight: 500;
+}
+.mobile-menu-btn:hover {
+    background-color: var(--accent-color); /* Use accent on hover */
+    transform: translateY(-2px);
+    color: #fff;
+}
+.mobile-menu-btn:active {
+    transform: scale(0.98);
+}
+
+/* REMOVED .mobile-menu-close-btn styles */
+.mobile-menu-close-btn {
+    display: none; /* Hide the old button */
+}
+
+/* =================================================================
+--- 💊 НОВЫЕ СТИЛИ ДЛЯ ТРЕКЕРА ЛЕКАРСТВ ---
+=================================================================
+*/
+
+/* --- Контейнер страницы --- */
+.med-tracker-page {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+}
+
+/* --- Переключатель дней --- */
+.day-navigator {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+.day-navigator h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.5em;
+    text-align: center;
+    flex-grow: 1;
+}
+.day-nav-btn {
+    font-size: 24px;
+    padding: 5px 15px;
+    background: var(--bg-tertiary);
+}
+.day-nav-btn:hover {
+    background: var(--accent-color);
+    color: #fff;
+}
+.day-nav-btn#todayBtn {
+    font-size: 14px;
+}
+
+/* --- Секции (Прием сегодня / Все лекарства) --- */
+.med-section {
+    background: var(--bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+.med-section h3 {
+    margin-top: 0;
+    font-size: 1.3em;
+    color: var(--text-primary);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* --- Карточка лекарства (для "Прием сегодня") --- */
+.med-card {
+    background: var(--bg-tertiary);
+    border-radius: 10px;
+    margin-bottom: 15px;
+    border-left: 6px solid var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.med-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.med-card-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.med-card-header h4 {
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--text-primary);
+}
+.med-card-header span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.med-card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+#noMedsToday {
+    text-align: center;
+    color: var(--text-secondary);
+    font-style: italic;
+    padding: 20px;
+}
+
+/* --- Строка приема (Время + Кнопка) --- */
+.dose-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-main);
+    padding: 12px 15px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.dose-item.taken {
+    background: rgba(76, 175, 80, 0.1);
+}
+.dose-time {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+.dose-item.taken .dose-time {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+}
+
+/* --- Красивый переключатель "Принять" --- */
+.take-toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+.take-toggle-label input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+.take-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    transition: .3s;
+    border-radius: 34px;
+}
+.take-toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 3px;
+    background-color: var(--text-secondary);
+    transition: .3s;
+    border-radius: 50%;
+}
+.take-toggle-label input:checked + .take-toggle-slider {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+.take-toggle-label input:focus + .take-toggle-slider {
+    box-shadow: 0 0 1px var(--success-color);
+}
+.take-toggle-label input:checked + .take-toggle-slider:before {
+    transform: translateX(20px);
+    background-color: white;
+}
+.take-toggle-label input:disabled + .take-toggle-slider {
+    background-color: var(--bg-tertiary);
+    cursor: not-allowed;
+}
+.take-toggle-label input:disabled + .take-toggle-slider:before {
+    background-color: var(--border-color);
+}
+
+
+/* --- Прогресс-бар и Сообщение --- */
+.med-progress-container {
+    padding-top: 15px;
+    border-top: 1px dashed var(--border-color);
+    margin-top: 5px;
+}
+/* Используем стиль из index.html */
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+
+.encouragement-text {
+    text-align: center;
+    font-weight: 600;
+    color: var(--success-color);
+    margin-top: 10px;
+    display: none; /* Показывается через JS */
+}
+.med-card.all-taken .encouragement-text {
+    display: block;
+}
+.med-card.all-taken {
+    border-left-color: var(--success-color);
+}
+
+
+/* --- Список "Все лекарства" --- */
+#allMedsList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.all-med-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, border-left 0.2s;
+    border-left: 4px solid var(--border-color);
+}
+.all-med-item:hover {
+    background: var(--bg-hover);
+    border-left-color: var(--warning-color);
+}
+.all-med-item div h5 {
+    margin: 0;
+    font-size: 1.1em;
+}
+.all-med-item div span {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.all-med-item .med-end-date {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    text-align: right;
+}
+
+/* --- Стили модального окна добавления/редактирования --- */
+#medModal .modal-content {
+    max-width: 600px;
+    max-height: 90vh;
+}
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-group.full-width {
+    grid-column: 1 / -1;
+}
+.form-group label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 1em;
+    font-family: inherit;
+}
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--warning-color);
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+}
+
+/* --- Селектор дней недели --- */
+.day-selector {
+    display: flex;
+    justify-content: space-between;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    padding: 5px;
+}
+.day-selector label {
+    flex: 1;
+    text-align: center;
+    padding: 8px 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-secondary);
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.9em;
+}
+.day-selector input {
+    display: none;
+}
+.day-selector input:checked + label {
+    background: var(--accent-color);
+    color: #fff;
+}
+.day-selector label:hover {
+    background: var(--bg-hover);
+}
+
+/* --- Инпуты времени --- */
+#timeInputsContainer {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 10px;
+}
+
+#deleteMedBtn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+    margin-right: auto; /* Прижимаем кнопку "Удалить" влево */
+}
+#deleteMedBtn:hover {
+    background: #c32727;
+}
+
+@media (max-width: 768px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .form-group.full-width {
+        grid-column: 1;
+    }
+    .modal-footer {
+        flex-direction: column-reverse; /* Кнопки одна под другой */
+    }
+    #deleteMedBtn {
+        margin-right: 0;
+    }
+    .day-navigator h2 {
+        font-size: 1.2em;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top-controls">
+    <button id="saveAllBtn" class="save-all-btn">
+        <img src="pictures/save.png" width="16" height="16" alt="Save">
+        <span id="saveAllBtnText">Сохранить</span>
+    </button>
+    <div id="accountControl" class="account-control-btn">
+        <img src="pictures/account.png" width="16" height="16" alt="Profile">
+        <span id="usernameDisplay">Профиль</span>
+    </div>
+</div>
+
+<div class="banner">
+  <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
+</div>
+
+<div class="main-container">
+  <main class="right">
+    
+    <a href="index.html" class="btn" style="background: var(--bg-tertiary);">
+        ⬅️ Вернуться к Неделям
+    </a>
+
+    <div class="med-tracker-page">
+        
+        <div class="day-navigator">
+            <button id="prevDayBtn" class="btn day-nav-btn">⬅️</button>
+            <button id="todayBtn" class="btn day-nav-btn">Сегодня</button>
+            <h2 id="currentDayTitle"></h2>
+            <button id="nextDayBtn" class="btn day-nav-btn">➡️</button>
+        </div>
+
+        <div class="med-section">
+            <h3>Прием на <span id="currentDayMiniTitle"></span></h3>
+            <div id="todayViewContainer">
+                <div id="noMedsToday">
+                    На этот день приемов не запланировано.
+                </div>
+            </div>
+        </div>
+        
+        <button id="openAddMedModalBtn" class="btn create-med-btn">
+            ➕ Добавить новое лекарство
+        </button>
+
+        <div class="med-section">
+            <h3>Мои курсы (Активные)</h3>
+            <div id="allMedsList">
+                </div>
+        </div>
+
+    </div>
+
+  </main>
+</div>
+
+
+<div class="modal" id="medModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="medModalTitle">Добавить лекарство</h2>
+            <span id="closeMedModal">×</span>
+        </div>
+        
+        <div class="modal-body">
+            <input type="hidden" id="medId">
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="medName">Название</label>
+                    <input type="text" id="medName" placeholder="Например, Ибупрофен">
+                </div>
+                <div class="form-group">
+                    <label for="medDosage">Дозировка</label>
+                    <input type="text" id="medDosage" placeholder="Например, 200мг">
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="medStartDate">Дата начала</label>
+                    <input type="date" id="medStartDate">
+                </div>
+                <div class="form-group">
+                    <label for="medDuration">Длительность (дней)</label>
+                    <input type="number" id="medDuration" placeholder="Оставить пустым для 'постоянно'">
+                </div>
+            </div>
+
+            <div class="form-group full-width">
+                <label for="medFrequency">Частота приема</label>
+                <select id="medFrequency">
+                    <option value="daily">Каждый день</option>
+                    <option value="everyOtherDay">Через день</option>
+                    <option value="specificDays">Определенные дни недели</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width" id="specificDaysContainer" style="display: none;">
+                <label>Выберите дни</label>
+                <div class="day-selector">
+                    <input type="checkbox" id="day-1" data-day="1"><label for="day-1">Пн</label>
+                    <input type="checkbox" id="day-2" data-day="2"><label for="day-2">Вт</label>
+                    <input type="checkbox" id="day-3" data-day="3"><label for="day-3">Ср</label>
+                    <input type="checkbox" id="day-4" data-day="4"><label for="day-4">Чт</label>
+                    <input type="checkbox" id="day-5" data-day="5"><label for="day-5">Пт</label>
+                    <input type="checkbox" id="day-6" data-day="6"><label for="day-6">Сб</label>
+                    <input type="checkbox" id="day-0" data-day="0"><label for="day-0">Вс</label>
+                </div>
+            </div>
+            
+            <hr style="border-color: var(--border-color); width: 100%; grid-column: 1/-1;">
+
+            <div class="form-group full-width">
+                <label for="medTimesPerDay">Количество раз в день</label>
+                <select id="medTimesPerDay">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width">
+                <label>Укажите время приема</label>
+                <div id="timeInputsContainer">
+                    </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button id="deleteMedBtn" class="btn">Удалить</button>
+            <button id="saveMedBtn" class="btn create-med-btn">Сохранить</button>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal" id="profileModal">
+    <div class="modal-content small-modal-content">
+        <h2>Личный кабинет</h2>
+        <div class="profile-section">
+            <h3>Имя пользователя (Ник)</h3>
+            <div class="profile-input-group">
+                <input type="text" id="nickInput" placeholder="Введите новый ник">
+                <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
+            </div>
+        </div>
+        <div class="profile-section">
+            <h3>Управление аккаунтом</h3>
+            <button id="deleteProfileBtn" class="btn btn-delete">
+                <img src="pictures/trash.png" width="16" alt="Удалить">
+                Удалить профиль и все данные
+            </button>
+            <button id="logoutBtn" class="btn btn-logout">
+                <img src="pictures/logout.png" width="16" alt="Выход"> 
+                Выйти из аккаунта
+            </button>
+        </div>
+        <button class="btn" onclick="closeProfileModal()">Закрыть</button>
+    </div>
+</div>
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div>Пожалуйста, подождите...</div>
+</div>
+
+<footer id="main-footer">
+    <div id="particles-js"></div> 
+    <div class="footer-content">
+        <p>Time Owner: Станьте настоящим Владельцем своего времени, а не его заложником.</p>
+    </div>
+</footer>
+
+<nav class="mobile-bottom-nav">
+    <a href="index.html" class="mobile-nav-btn">
+        <span class="icon">🗓️</span>
+        <span class="label">Недели</span>
+    </a>
+    <a href="meds.html" class="mobile-nav-btn active">
+        <span class="icon">💊</span>
+        <span class="label">Лекарства</span>
+    </a>
+    
+    <button class="mobile-nav-btn" id="mobileNavSave">
+        <span class="icon">💾</span>
+        <span class="label">Сохранить</span>
+    </button>
+    <button class="mobile-nav-btn" id="mobileNavProfile">
+        <span class="icon">👤</span>
+        <span class="label">Профиль</span>
+    </button>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+
+<script>
+// =================================================================
+// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ (Обновленные)
+// =================================================================
+
+// --- КОНСТАНТЫ SUPABASE ---
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
+let supabase = null; 
+
+// --- ОБЩИЕ КОНСТАНТЫ (копия из index) ---
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+const STORAGE_KEY_USERNAME = 'plannerUsername';
+const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
+const STORAGE_KEY_LOCAL_MEDS = 'plannerMeds_v1_local'; // Локальный ключ для лекарств
+
+// --- ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ---
+let data = {
+    medications: [], // Массив объектов лекарств
+    log: {}          // Объект логов { "YYYY-MM-DD": { "med_id": { "time_id": true/false } } }
+};
+let currentViewDate = new Date(); // Дата, которую мы просматриваем
+let currentEditMedId = null; // ID лекарства, которое редактируется
+
+// --- ОСНОВНЫЕ ЭЛЕМЕНТЫ UI ---
+const saveAllBtn = document.getElementById('saveAllBtn');
+const saveAllBtnText = document.getElementById('saveAllBtnText');
+const accountControlBtn = document.getElementById('accountControl');
+accountControlBtn.onclick = handleAccountControlClick;
+const loadingOverlay = document.getElementById('loadingOverlay');
+
+// --- ЭЛЕМЕНТЫ СТРАНИЦЫ ЛЕКАРСТВ ---
+const currentDayTitle = document.getElementById('currentDayTitle');
+const currentDayMiniTitle = document.getElementById('currentDayMiniTitle');
+const todayViewContainer = document.getElementById('todayViewContainer');
+const allMedsList = document.getElementById('allMedsList');
+const openAddMedModalBtn = document.getElementById('openAddMedModalBtn');
+
+// --- ЭЛЕМЕНТЫ МОДАЛЬНОГО ОКНА ЛЕКАРСТВ ---
+const medModal = document.getElementById('medModal');
+const medModalTitle = document.getElementById('medModalTitle');
+const closeMedModal = document.getElementById('closeMedModal');
+const saveMedBtn = document.getElementById('saveMedBtn');
+const deleteMedBtn = document.getElementById('deleteMedBtn');
+
+// Поля формы
+const medIdInput = document.getElementById('medId');
+const medNameInput = document.getElementById('medName');
+const medDosageInput = document.getElementById('medDosage');
+const medStartDateInput = document.getElementById('medStartDate');
+const medDurationInput = document.getElementById('medDuration');
+const medFrequencySelect = document.getElementById('medFrequency');
+const specificDaysContainer = document.getElementById('specificDaysContainer');
+const medTimesPerDaySelect = document.getElementById('medTimesPerDay');
+const timeInputsContainer = document.getElementById('timeInputsContainer');
+
+// --- ФУНКЦИИ-ПОМОЩНИКИ ---
+function showLoading() {
+    loadingOverlay.style.display = 'flex';
+    setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10);
+}
+function hideLoading() {
+    loadingOverlay.style.opacity = '0';
+    setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
+}
+function setUnsaved(isUnsaved) {
+    const mobileSaveBtn = document.getElementById('mobileNavSave'); 
+    if (isUnsaved) {
+        localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
+        saveAllBtn.classList.add('unsaved');
+        saveAllBtnText.textContent = 'Сохранить (!)'; 
+        if (mobileSaveBtn) mobileSaveBtn.classList.add('unsaved');
+    } else {
+        localStorage.removeItem(STORAGE_KEY_UNSAVED);
+        saveAllBtn.classList.remove('unsaved');
+        saveAllBtnText.textContent = 'Сохранить';
+        if (mobileSaveBtn) mobileSaveBtn.classList.remove('unsaved');
+    }
+}
+function saveLocally() {
+    if (!data) return;
+    localStorage.setItem(STORAGE_KEY_LOCAL_MEDS, JSON.stringify(data));
+    setUnsaved(true);
+}
+// Форматирует дату в YYYY-MM-DD
+function getYMD(date) {
+    return date.toISOString().split('T')[0];
+}
+// Форматирует дату для заголовка (на русском)
+function formatViewDate(date) {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (getYMD(date) === getYMD(today)) return 'Сегодня';
+    if (getYMD(date) === getYMD(yesterday)) return 'Вчера';
+    
+    return date.toLocaleDateString('ru-RU', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+    });
+}
+// Очищает время у даты (для сравнений)
+function dateOnly(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+}
+
+// =================================================================
+// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE (НОВАЯ ТАБЛИЦА)
+// =================================================================
+
+async function loadDataFromSupabase() {
+    if (!supabase) { console.error("Supabase client not initialized."); return null; }
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) { 
+        window.location.href = 'login.html'; 
+        return null; 
+    }
+    
+    // Проверка на несохраненные изменения (из index.html)
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения на другой странице. Загрузить данные с сервера и потерять их? (Отмена - продолжить работу с локальными данными)")) {
+            setUnsaved(true);
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL_MEDS)); } 
+            catch (e) { console.error("Ошибка парсинга локальных данных лекарств."); }
+        }
+    }
+    
+    showLoading();
+    // ИЗМЕНЕНО: Запрос к новой таблице 'user_meds' и полю 'meds_json'
+    const { data: result, error } = await supabase
+        .from('user_meds')
+        .select('meds_json')
+        .eq('data_key', dataKey)
+        .single(); 
+    hideLoading();
+    
+    if (error && error.code !== 'PGRST116') { // PGRST116 = 'no rows found'
+        console.error("Ошибка Supabase при загрузке лекарств:", error);
+        alert(`Ошибка загрузки: ${error.message}.`);
+    }
+
+    const loadedData = (result && result.meds_json) 
+        ? result.meds_json 
+        : { medications: [], log: {} }; // Структура по умолчанию
+
+    // Валидация
+    if (!loadedData.medications) loadedData.medications = [];
+    if (!loadedData.log) loadedData.log = {};
+
+    setUnsaved(false);
+    localStorage.setItem(STORAGE_KEY_LOCAL_MEDS, JSON.stringify(loadedData));
+    return loadedData;
+}
+
+async function saveDataToSupabase() {
+    if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
+    if (!supabase) { console.error("Supabase client not initialized."); return { status: "error", message: "Клиент не инициализирован." }; }
+    
+    localStorage.setItem(STORAGE_KEY_LOCAL_MEDS, JSON.stringify(data));
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        alert("Ошибка авторизации. Пожалуйста, войдите в систему снова.");
+        window.location.href = 'login.html';
+        return { status: "error", message: "Нет ключа авторизации." };
+    }
+    
+    showLoading();
+    // ИЗМЕНЕНО: Запись в 'user_meds' и 'meds_json'
+    const payload = {
+        data_key: dataKey, 
+        meds_json: data, 
+        updated_at: new Date().toISOString() 
+    };
+    
+    const { error } = await supabase
+        .from('user_meds')
+        .upsert(payload, { onConflict: 'data_key' }); 
+        
+    hideLoading();
+    if (error) {
+        console.error("Ошибка Supabase при сохранении лекарств:", error);
+        alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
+        return { status: "error", message: error.message };
+    } else {
+        setUnsaved(false);
+        alert("Данные о лекарствах успешно сохранены на сервер!");
+        return { status: "success" };
+    }
+}
+saveAllBtn.onclick = saveDataToSupabase;
+// Привязываем мобильную кнопку сохранения
+const mobileSaveBtn = document.getElementById('mobileNavSave');
+if (mobileSaveBtn) mobileSaveBtn.onclick = saveDataToSupabase;
+
+
+// =================================================================
+// 3. ЛОГИКА ЛИЧНОГО КАБИНЕТА (копия из index.html)
+// =================================================================
+const usernameDisplay = document.getElementById('usernameDisplay');
+const profileModal = document.getElementById('profileModal');
+const nickInput = document.getElementById('nickInput');
+
+function updateAuthButton() {
+    const username = localStorage.getItem(STORAGE_KEY_USERNAME);
+    usernameDisplay.textContent = username || 'Профиль';
+}
+function handleAccountControlClick() { openProfileModal(); }
+
+function openProfileModal() {
+    nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
+    profileModal.style.display='flex';
+    setTimeout(()=>profileModal.classList.add('visible'), 10);
+}
+function closeProfileModal() {
+    profileModal.classList.remove('visible');
+    setTimeout(() => { profileModal.style.display='none'; }, 300);
+}
+
+document.getElementById('saveNickBtn').onclick = async () => {
+    const newNick = nickInput.value.trim();
+    if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
+    localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
+    updateAuthButton();
+    alert(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`);
+    closeProfileModal();
+};
+
+document.getElementById('logoutBtn').onclick = () => {
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения. Вы уверены, что хотите выйти и потерять их?")) {
+            return; 
+        }
+    }
+    showLoading(); 
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    localStorage.removeItem(STORAGE_KEY_USERNAME);
+    localStorage.removeItem(STORAGE_KEY_LOCAL_MEDS); // Чистим локальные лекарства
+    localStorage.removeItem(STORAGE_KEY_UNSAVED);
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 500); 
+};
+
+document.getElementById('deleteProfileBtn').onclick = async () => {
+    if (!supabase) return;
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
+    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные (включая лекарства) и профиль? Это действие необратимо!")) { return; }
+    
+    showLoading();
+    // УДАЛЕНИЕ СРАБОТАЕТ КАСКАДНО:
+    // Удаление из user_data по dataKey автоматически удалит
+    // связанную запись в user_meds за счет (ON DELETE CASCADE)
+    const { error } = await supabase
+        .from('user_data')
+        .delete()
+        .eq('data_key', dataKey);
+    hideLoading();
+    
+    if (error) {
+        alert(`Ошибка при удалении профиля: ${error.message}`);
+    } else {
+        alert("Ваш профиль и все данные (включая лекарства) успешно удалены.");
+        ['Auth', 'Username', 'Local', 'Unsaved', 'Local_v9', 'LocalMeds_v1'].forEach(key => localStorage.removeItem(`planner${key}`));
+        window.location.href = 'login.html';
+    }
+};
+
+// =================================================================
+// 4. 💊 ЛОГИКА ТРЕКЕРА ЛЕКАРСТВ
+// =================================================================
+
+/**
+ * Главная функция рендеринга. Обновляет всю страницу.
+ */
+function renderAll() {
+    renderDayNavigator();
+    renderTodayView();
+    renderAllMedsList();
+}
+
+/**
+ * 4.1. Навигация по дням
+ */
+function renderDayNavigator() {
+    const title = formatViewDate(currentViewDate);
+    currentDayTitle.textContent = title;
+    currentDayMiniTitle.textContent = title.toLowerCase();
+    
+    // Блокируем кнопку "вперед", если смотрим "сегодня"
+    const nextBtn = document.getElementById('nextDayBtn');
+    nextBtn.disabled = (getYMD(currentViewDate) === getYMD(new Date()));
+    if(nextBtn.disabled) {
+        nextBtn.style.opacity = 0.5;
+        nextBtn.style.cursor = "not-allowed";
+    } else {
+        nextBtn.style.opacity = 1;
+        nextBtn.style.cursor = "pointer";
+    }
+}
+
+document.getElementById('prevDayBtn').onclick = () => {
+    currentViewDate.setDate(currentViewDate.getDate() - 1);
+    renderAll();
+};
+document.getElementById('nextDayBtn').onclick = () => {
+    if (getYMD(currentViewDate) === getYMD(new Date())) return; // Не даем уйти в будущее
+    currentViewDate.setDate(currentViewDate.getDate() + 1);
+    renderAll();
+};
+document.getElementById('todayBtn').onclick = () => {
+    currentViewDate = new Date();
+    renderAll();
+};
+
+
+/**
+ * 4.2. Рендеринг секции "Прием на сегодня"
+ */
+function renderTodayView() {
+    todayViewContainer.innerHTML = '';
+    
+    // 1. Получаем все лекарства, запланированные на `currentViewDate`
+    const scheduledMeds = data.medications.filter(med => 
+        isMedScheduledFor(med, currentViewDate)
+    );
+    
+    if (scheduledMeds.length === 0) {
+        todayViewContainer.innerHTML = `
+            <div id="noMedsToday">
+                На ${formatViewDate(currentViewDate).toLowerCase()} приемов не запланировано.
+            </div>`;
+        return;
+    }
+    
+    // 2. Получаем лог за этот день
+    const dateKey = getYMD(currentViewDate);
+    const dayLog = data.log[dateKey] || {};
+    const isPastDate = dateOnly(currentViewDate) < dateOnly(new Date());
+
+    // 3. Рендерим карточку для каждого лекарства
+    scheduledMeds.forEach(med => {
+        const medCard = document.createElement('div');
+        medCard.className = 'med-card';
+        medCard.dataset.medId = med.id;
+        
+        const medLog = dayLog[med.id] || {};
+        let takenCount = 0;
+        
+        // --- Рендеринг строк приема (дозы) ---
+        const dosesHtml = med.timesPerDay.map(timeObj => {
+            const timeId = timeObj.id;
+            const isTaken = medLog[timeId] === true;
+            if (isTaken) takenCount++;
+            
+            // Если дата в прошлом и отметки нет, мы не можем ее отметить
+            // (включено, если isPastDate и !isTaken)
+            // ИЗМЕНЕНО: Разрешаем отмечать за прошлые дни
+            const isDisabled = false; 
+            
+            return `
+                <div class="dose-item ${isTaken ? 'taken' : ''}">
+                    <span class="dose-time">${timeObj.time}</span>
+                    <label class="take-toggle-label">
+                        <input 
+                            type="checkbox" 
+                            ${isTaken ? 'checked' : ''}
+                            ${isDisabled ? 'disabled' : ''}
+                            onchange="toggleDose('${med.id}', '${timeId}', '${dateKey}', this.checked)"
+                        >
+                        <span class="take-toggle-slider"></span>
+                    </label>
+                </div>
+            `;
+        }).join('');
+        
+        // --- Прогресс-бар ---
+        const totalCount = med.timesPerDay.length;
+        const progress = totalCount > 0 ? (takenCount / totalCount) * 100 : 0;
+        
+        if (progress === 100) {
+            medCard.classList.add('all-taken');
+        }
+        
+        // --- Собираем карточку ---
+        medCard.innerHTML = `
+            <div class="med-card-header">
+                <h4>${med.name}</h4>
+                <span>${med.dosage}</span>
+            </div>
+            <div class="med-card-body">
+                ${dosesHtml}
+                
+                <div class="med-progress-container">
+                    <div class="progress-bar-container">
+                        <div class="progress-bar" style="width: ${progress}%;"></div>
+                        <span class="progress-bar-text">${takenCount} / ${totalCount}</span>
+                    </div>
+                    <p class="encouragement-text">
+                        🎉 Отлично! Курс на сегодня выполнен!
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        todayViewContainer.appendChild(medCard);
+    });
+}
+
+/**
+ * 4.3. Рендеринг списка "Все мои лекарства"
+ */
+function renderAllMedsList() {
+    allMedsList.innerHTML = '';
+    
+    const activeMeds = data.medications.filter(med => {
+        if (!med.durationDays || med.durationDays <= 0) return true; // Постоянный прием
+        const endDate = getMedEndDate(med);
+        return endDate >= dateOnly(new Date()); // Еще не закончился
+    });
+
+    if (activeMeds.length === 0) {
+        allMedsList.innerHTML = `<span style="color: var(--text-secondary); font-style: italic;">У вас нет добавленных лекарств.</span>`;
+        return;
+    }
+    
+    activeMeds.forEach(med => {
+        const item = document.createElement('div');
+        item.className = 'all-med-item';
+        item.onclick = () => openMedModal(med.id);
+        
+        let durationText = "Постоянный прием";
+        if (med.durationDays && med.durationDays > 0) {
+            const endDate = getMedEndDate(med);
+            durationText = `До ${endDate.toLocaleDateString('ru-RU', {day: '2-digit', month: '2-digit', year: 'numeric'})}`;
+        }
+        
+        item.innerHTML = `
+            <div>
+                <h5>${med.name} (${med.dosage})</h5>
+                <span>${getFrequencyText(med)}</span>
+            </div>
+            <span class="med-end-date">${durationText}</span>
+        `;
+        allMedsList.appendChild(item);
+    });
+}
+
+/**
+ * 4.4. Логика модального окна (Добавление/Редактирование)
+ */
+
+// Открытие модалки
+openAddMedModalBtn.onclick = () => openMedModal(null);
+closeMedModal.onclick = closeMedModalWindow;
+
+function openMedModal(medId) {
+    currentEditMedId = medId;
+    if (medId) {
+        // --- РЕЖИМ РЕДАКТИРОВАНИЯ ---
+        medModalTitle.textContent = "Редактировать лекарство";
+        deleteMedBtn.style.display = 'flex';
+        
+        const med = data.medications.find(m => m.id === medId);
+        if (!med) return;
+        
+        medNameInput.value = med.name;
+        medDosageInput.value = med.dosage;
+        medStartDateInput.value = med.startDate;
+        medDurationInput.value = med.durationDays || '';
+        medFrequencySelect.value = med.frequencyType;
+        
+        // Дни недели
+        document.querySelectorAll('.day-selector input').forEach(chk => {
+            chk.checked = med.specificDays?.includes(chk.dataset.day);
+        });
+        
+        medTimesPerDaySelect.value = med.timesPerDay.length.toString();
+        
+        // Показываем нужные поля
+        handleFrequencyChange();
+        renderTimeInputs(med.timesPerDay);
+
+    } else {
+        // --- РЕЖИМ ДОБАВЛЕНИЯ ---
+        medModalTitle.textContent = "Добавить лекарство";
+        deleteMedBtn.style.display = 'none';
+        
+        // Сброс формы
+        medIdInput.value = '';
+        medNameInput.value = '';
+        medDosageInput.value = '';
+        medStartDateInput.value = getYMD(new Date()); // Сегодня
+        medDurationInput.value = '';
+        medFrequencySelect.value = 'daily';
+        medTimesPerDaySelect.value = '1';
+        
+        document.querySelectorAll('.day-selector input').forEach(chk => {
+            chk.checked = false;
+        });
+
+        handleFrequencyChange();
+        renderTimeInputs();
+    }
+    
+    medModal.style.display='flex';
+    setTimeout(()=>medModal.classList.add('visible'), 10);
+}
+
+function closeMedModalWindow() {
+    medModal.classList.remove('visible');
+    setTimeout(() => { medModal.style.display='none'; }, 300);
+    currentEditMedId = null;
+}
+
+// Динамическое отображение полей
+medFrequencySelect.onchange = handleFrequencyChange;
+function handleFrequencyChange() {
+    const freq = medFrequencySelect.value;
+    specificDaysContainer.style.display = (freq === 'specificDays') ? 'block' : 'none';
+}
+
+// Динамическое создание инпутов времени
+medTimesPerDaySelect.onchange = () => renderTimeInputs();
+function renderTimeInputs(times = []) {
+    timeInputsContainer.innerHTML = '';
+    const count = parseInt(medTimesPerDaySelect.value, 10);
+    
+    for (let i = 0; i < count; i++) {
+        const timeInput = document.createElement('input');
+        timeInput.type = 'time';
+        timeInput.className = 'time-input';
+        timeInput.dataset.timeId = times[i]?.id || `t${i + 1}`; // Сохраняем старый ID или генерируем новый
+        timeInput.value = times[i]?.time || '09:00'; // Значение по умолчанию
+        timeInputsContainer.appendChild(timeInput);
+    }
+}
+
+// Сохранение из модалки
+saveMedBtn.onclick = () => {
+    // 1. Сбор данных
+    const name = medNameInput.value.trim();
+    const dosage = medDosageInput.value.trim();
+    const startDate = medStartDateInput.value;
+    
+    if (!name || !startDate) {
+        alert("Пожалуйста, введите название и дату начала.");
+        return;
+    }
+    
+    // Сбор времени
+    const timeInputs = timeInputsContainer.querySelectorAll('.time-input');
+    const timesPerDay = Array.from(timeInputs).map(input => ({
+        id: input.dataset.timeId,
+        time: input.value
+    }));
+
+    // Сбор дней недели
+    let specificDays = [];
+    if (medFrequencySelect.value === 'specificDays') {
+        specificDays = Array.from(document.querySelectorAll('.day-selector input:checked'))
+                            .map(chk => chk.dataset.day); // [ "1", "3", "5" ]
+    }
+    
+    const medData = {
+        id: currentEditMedId || `med_${Date.now()}`,
+        name: name,
+        dosage: dosage,
+        startDate: startDate,
+        durationDays: parseInt(medDurationInput.value, 10) || null,
+        frequencyType: medFrequencySelect.value, // "daily", "everyOtherDay", "specificDays"
+        specificDays: specificDays, // [ "1", "3", "5" ]
+        timesPerDay: timesPerDay  // [ {id: "t1", time: "09:00"}, ... ]
+    };
+    
+    // 2. Обновление или добавление в `data`
+    if (currentEditMedId) {
+        // Редактирование
+        const index = data.medications.findIndex(m => m.id === currentEditMedId);
+        data.medications[index] = medData;
+    } else {
+        // Добавление
+        data.medications.push(medData);
+    }
+    
+    // 3. Сохранение и обновление UI
+    saveLocally();
+    renderAll();
+    closeMedModalWindow();
+};
+
+// Удаление
+deleteMedBtn.onclick = () => {
+    if (!currentEditMedId) return;
+    if (!confirm(`Вы уверены, что хотите удалить "${medNameInput.value}"? Это действие также удалит всю историю приема.`)) {
+        return;
+    }
+    
+    // 1. Удаляем лекарство
+    data.medications = data.medications.filter(m => m.id !== currentEditMedId);
+    
+    // 2. (Опционально, но чисто) Чистим лог от этого лекарства
+    Object.keys(data.log).forEach(dateKey => {
+        if (data.log[dateKey][currentEditMedId]) {
+            delete data.log[dateKey][currentEditMedId];
+            // Если на эту дату не осталось логов, удаляем и дату
+            if (Object.keys(data.log[dateKey]).length === 0) {
+                delete data.log[dateKey];
+            }
+        }
+    });
+
+    // 3. Сохранение и обновление UI
+    saveLocally();
+    renderAll();
+    closeMedModalWindow();
+};
+
+
+/**
+ * 4.5. Логика обработки приема (Toggle)
+ */
+function toggleDose(medId, timeId, dateKey, isTaken) {
+    // 1. Инициализация лога, если его нет
+    if (!data.log[dateKey]) {
+        data.log[dateKey] = {};
+    }
+    if (!data.log[dateKey][medId]) {
+        data.log[dateKey][medId] = {};
+    }
+    
+    // 2. Обновляем лог
+    data.log[dateKey][medId][timeId] = isTaken;
+    
+    // 3. Сохраняем локально (с отметкой "несохранено")
+    saveLocally();
+    
+    // 4. Перерисовываем UI (только секцию "сегодня")
+    renderTodayView();
+}
+
+
+/**
+ * 4.6. Функции-хелперы для проверки дат и расписаний
+ */
+
+// Проверяет, нужно ли принимать лекарство в указанную дату
+function isMedScheduledFor(med, date) {
+    const checkDate = dateOnly(date);
+    const startDate = dateOnly(med.startDate);
+
+    // 1. Проверка даты начала
+    if (checkDate < startDate) {
+        return false;
+    }
+    
+    // 2. Проверка длительности
+    if (med.durationDays && med.durationDays > 0) {
+        const endDate = getMedEndDate(med);
+        if (checkDate > endDate) {
+            return false;
+        }
+    }
+    
+    // 3. Проверка частоты
+    const frequency = med.frequencyType;
+    
+    if (frequency === 'daily') {
+        return true;
+    }
+    
+    if (frequency === 'everyOtherDay') {
+        const diffTime = Math.abs(checkDate - startDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays % 2 === 0;
+    }
+    
+    if (frequency === 'specificDays') {
+        const dayOfWeek = checkDate.getDay().toString(); // 0 (Вс) - 6 (Сб)
+        return med.specificDays.includes(dayOfWeek);
+    }
+    
+    return false;
+}
+
+// Рассчитывает дату окончания приема
+function getMedEndDate(med) {
+    const startDate = dateOnly(med.startDate);
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + med.durationDays - 1);
+    return endDate;
+}
+
+// Возвращает текстовое описание частоты
+function getFrequencyText(med) {
+    switch(med.frequencyType) {
+        case 'daily': return `Каждый день, ${med.timesPerDay.length} раз(а)`;
+        case 'everyOtherDay': return `Через день, ${med.timesPerDay.length} раз(а)`;
+        case 'specificDays': 
+            const days = med.specificDays.map(d => ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][d]).join(', ');
+            return `По дням: ${days}, ${med.timesPerDay.length} раз(а)`;
+        default: return "N/A";
+    }
+}
+
+
+// =================================================================
+// 5. ИНИЦИАЛИЗАЦИЯ СТРАНИЦЫ
+// =================================================================
+
+async function init() {
+    if (window.supabase) {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+        console.error("Supabase library not found");
+        document.body.innerHTML = '<h2>Ошибка: Не удалось загрузить Supabase.</h2>';
+        return;
+    }
+
+    const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!authKey) { 
+        window.location.href = 'login.html'; 
+        return; 
+    }
+    
+    // Запускаем particles.js в футере (из index.html)
+    if (window.particlesJS) {
+        particlesJS('particles-js', {
+            "particles":{"number":{"value":60,"density":{"enable":true,"value_area":800}},"color":{"value":"#0099ff"},"shape":{"type":"circle","stroke":{"width":0,"color":"#000000"},"polygon":{"nb_sides":5},"image":{"src":"img/github.svg","width":100,"height":100}},"opacity":{"value":0.5,"random":false,"anim":{"enable":false,"speed":1,"opacity_min":0.1,"sync":false}},"size":{"value":3,"random":true,"anim":{"enable":false,"speed":40,"size_min":0.1,"sync":false}},"line_linked":{"enable":true,"distance":150,"color":"#0099ff","opacity":0.4,"width":1},"move":{"enable":true,"speed":3,"direction":"none","random":false,"straight":false,"out_mode":"out","bounce":false,"attract":{"enable":false,"rotateX":600,"rotateY":1200}}},
+            "interactivity":{"detect_on":"canvas","events":{"onhover":{"enable":true,"mode":"repulse"},"onclick":{"enable":true,"mode":"push"},"resize":true},"modes":{"grab":{"distance":400,"line_linked":{"opacity":1}},"bubble":{"distance":400,"size":40,"duration":2,"opacity":8,"speed":3},"repulse":{"distance":100,"duration":0.4},"push":{"particles_nb":4},"remove":{"particles_nb":2}}},
+            "retina_detect":true
+        });
+    }
+
+    updateAuthButton();
+    data = await loadDataFromSupabase();  
+
+    if (data) {
+        renderAll();
+    } else {
+        document.body.innerHTML = '<h2>Не удалось загрузить данные.</h2>';
+    }
+    
+    // Настройка мобильного профиля
+    const mobileProfileBtn = document.getElementById('mobileNavProfile');
+    if (mobileProfileBtn) mobileProfileBtn.onclick = handleAccountControlClick;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+
+</body>
+</html>
