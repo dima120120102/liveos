@@ -6,39 +6,1303 @@
 <title>База Знаний - Time Owner</title>
 <link rel="icon" type="image/png" href="pictures/favicon.png">
 <style>
-/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ (такие же, как на главной) --- */
-:root{--bg-main:#121212;--bg-secondary:#1e1e1e;--bg-tertiary:#2a2a2a;--bg-hover:#333333;--border-color:#383838;--text-primary:#e0e0e0;--text-secondary:#a0a0a0;--accent-color:#007bff;--accent-hover:#0056b3;--danger-color:#e53935;--success-color:#4CAF50;--warning-color:#FFC107;}
-*{box-sizing:border-box;}
-::-webkit-scrollbar{width:10px;height:10px;}
-::-webkit-scrollbar-track{background:var(--bg-secondary);}
-::-webkit-scrollbar-thumb{background:var(--accent-color);border-radius:5px;}
-::-webkit-scrollbar-thumb:hover{background:var(--accent-hover);}
-*{scrollbar-color:var(--accent-color) var(--bg-secondary);scrollbar-width:thin;}
-@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
-body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";background:var(--bg-main);color:var(--text-primary);display:flex;flex-direction:column;min-height:100vh;overflow-x:hidden;animation:fadeIn 0.5s ease-in-out;}
-.btn{background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight:600;transition:background-color 0.2s ease,transform 0.2s ease,box-shadow 0.2s ease;display:flex;align-items:center;justify-content:center;gap:8px;}
-.btn:hover{background-color:var(--bg-hover);transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.2);}
-.btn:active{transform:scale(0.98) translateY(0);}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:1000;display:none;align-items:center;justify-content:center;opacity:0;transition:opacity 0.3s ease;}
-.modal.visible{opacity:1;}
-.modal-content{background:var(--bg-secondary);padding:25px;width:90%;max-width:500px;border-radius:12px;border:1px solid var(--border-color);transform:scale(0.95);transition:transform 0.3s cubic-bezier(0.175,0.885,0.32,1.275);display:flex;flex-direction:column;gap:20px;}
-.modal.visible .modal-content{transform:scale(1);}
-.modal-content h2{margin-top:0;color:var(--accent-color);}
-.modal-content input[type="text"]{width:100%;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px;}
-.modal-content .actions{display:flex;justify-content:flex-end;gap:10px;}
-#loadingOverlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;flex-direction:column;justify-content:center;align-items:center;color:var(--text-primary);font-size:1.2em;z-index:10001;opacity:0;transition:opacity 0.3s ease;}
-.spinner{border:4px solid rgba(255,255,255,0.3);border-radius:50%;border-top:4px solid var(--accent-color);width:40px;height:40px;animation:spin 1s linear infinite;margin-bottom:15px;}
-@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+/* =================================================================
+--- 1. ОБЩИЕ СТИЛИ (ПОЛНАЯ КОПИЯ ИЗ INDEX (5).HTML) ---
+=================================================================
+*/
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+}
+* {
+    box-sizing: border-box;
+}
+
+/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
+::-webkit-scrollbar {
+    width: 10px; 
+    height: 10px; 
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color); 
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+* {
+  scrollbar-color: var(--accent-color) var(--bg-secondary); 
+  scrollbar-width: thin;
+}
+
+/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    animation: fadeIn 0.5s ease-in-out;
+}
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
+
+/* --- ОСНОВНАЯ СТРУКТУРА --- */
+.main-container{
+    display:flex;
+    padding: 0 10px;
+    overflow-x: hidden; 
+    transition: padding 0.3s ease; 
+}
+.goals{
+    width:240px;
+    background:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px; 
+    overflow-y: auto; 
+    position:relative; 
+    flex-shrink: 0;
+    
+    position: sticky;
+    top: 20px; /* Отступ при прилипании */
+    max-height: calc(100vh - 40px); /* Макс. высота = высота экрана минус отступы */
+}
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    gap:15px;
+    overflow: hidden; 
+}
+
+/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
+.btn{
+    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Для выравнивания иконки и текста */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn:hover{
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.btn:active { transform: scale(0.98) translateY(0); } 
+.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+
+/* --- КНОПКИ УПРАВЛЕНИЯ (НОВЫЙ БЛОК) --- */
+.top-controls {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 10px; 
+    z-index: 10000;
+}
+.save-all-btn, .account-control-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.save-all-btn:hover {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn:hover{
+    background: var(--accent-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn img, .save-all-btn img {
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img, .save-all-btn:hover img {
+    filter: invert(10%);
+}
+.save-all-btn.unsaved {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+}
+
+/* --- ЦЕЛИ (Goal Styles) --- */
+.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+.goal{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:10px;
+    position:relative;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
+    min-height: 40px;
+    border-left: 6px solid var(--success-color); 
+    font-size: 16px; 
+}
+.goal:hover{
+    background:var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
+}
+.goal .goal-remove{
+    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
+    transition: opacity 0.2s, transform 0.2s; 
+}
+.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
+.goal:hover .goal-remove{opacity:1;}
+.goal[contenteditable]:focus{
+    outline:2px solid var(--accent-color);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.add-goal-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:15px;
+    background:#555;
+    color:var(--text-primary);
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    cursor:pointer;
+    display:none; 
+    transition: background-color 0.2s, transform 0.2s ease-out; 
+}
+.goals:hover .add-goal-btn{display:flex}
+.add-goal-btn:hover { 
+    background-color: var(--accent-color); 
+    transform: translateX(-50%) translateY(-5px) scale(1.05); 
+}
+
+/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+/* НОВЫЙ СТИЛЬ: подсветка при перетаскивании из архива */
+.unassigned-container.dragover-from-archive {
+    border-color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.08);
+}
+.unassigned-list{
+    max-height: 250px; 
+    overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-right: 5px;
+}
+.week-item,.week-card{
+    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
+    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
+    font-weight: 500;
+}
+.week-item:hover { 
+    border-color: var(--accent-color);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
+.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
+.month{
+    min-width:280px; 
+    background-color: var(--bg-secondary);
+    border-radius:12px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px;
+    flex-shrink:0; 
+    border-top: 4px solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease; 
+}
+.month:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
+.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
+.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
+.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
+
+/* --- НОВЫЕ СТИЛИ: БЛОК АРХИВА --- */
+.archive-container-wrapper {
+    margin-top: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+.archive-container-wrapper h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.archive-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+.archive-container {
+    min-height: 100px;
+    max-height: 400px; 
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 5px;
+}
+.archive-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+.drop-zone-archive {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: 0.2s ease-in-out;
+    margin-top: 10px;
+}
+.drop-zone-archive.dragover {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: rgba(76, 175, 80, 0.08);
+}
+/* --- КОНЕЦ СТИЛЕЙ АРХИВА --- */
+
+
+/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } 
+.modal-content {
+    background: var(--bg-main);
+    width: 95%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transform: scale(0.95); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal.visible .modal-content { transform: scale(1); } 
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
+.modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
+.modal-header span:hover { color: var(--accent-color); }
+.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
+
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
+.modal-content.week-editor {
+    max-width: 1200px; 
+    height: 90vh;
+}
+.week-header-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; 
+}
+.week-header-inputs input[type="text"] {
+    flex-grow: 1;
+    min-width: 200px;
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.week-header-inputs input[type="date"] {
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-header input:focus { 
+    border-color: var(--warning-color); 
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.menu{
+    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
+    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    opacity: 0; visibility: hidden; transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
+.menu div:hover{background:var(--accent-color); color: #fff;}
+.menu div img { transition: filter 0.2s; }
+.modal-body{display:flex;flex:1;overflow:hidden;}
+.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
+.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
+.modal-description textarea{
+    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-description textarea:focus { 
+    border-color: var(--warning-color); 
+    outline: none; 
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.modal-days{
+    display: flex; 
+    flex-direction: row; 
+    overflow-x: auto; 
+    gap: 12px;
+    flex: 1; 
+    align-items: stretch; 
+    padding-bottom: 10px;
+}
+.day{
+    background: var(--bg-secondary); border-radius:10px;padding:12px;
+    min-width: 250px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 3px solid var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; 
+}
+.day:hover {
+    transform: none; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
+.day h4 .day-label { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+.day h4 .day-label .day-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: normal;
+    margin-top: 2px;
+}
+.tasks{
+    display:flex;flex-direction:column;gap:8px;overflow-y:auto; 
+    flex: 1; 
+    min-height: 50px;
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
+.task-item{
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:flex-start; 
+    transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
+    cursor: grab;
+}
+.task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
+.task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.task-done {
+    opacity: 0.7;
+    text-decoration: none; 
+    border-left-color: var(--success-color);
+}
+.task-done .task-time-input {
+    color: var(--text-secondary);
+}
+.task-done .task-text[contenteditable] {
+    text-decoration: line-through;
+}
+.task-item.dragging {
+    opacity: 0.4;
+    transform: rotate(2deg);
+}
+.task-time-input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 13px;
+    margin-right: 10px;
+    padding: 0;
+    text-align: right;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.task-time-input:focus {
+    outline: none;
+    border-bottom: 1px dashed var(--warning-color);
+}
+.task-check {
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1.2em;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0; 
+    margin-top: 2px; 
+}
+.task-done .task-check {
+    text-decoration: none; 
+    color: var(--success-color);
+    transform: scale(1.1);
+}
+.task-check:hover {
+    color: var(--accent-color);
+    transform: scale(1.2);
+}
+.task-text-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; 
+}
+.task-text[contenteditable] {
+    flex-grow: 1;
+    padding-right: 10px;
+    min-height: 18px; 
+    word-break: break-word; 
+}
+.add-task-btn{
+    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
+    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; 
+}
+.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
+.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
+    gap: 10px; 
+}
+.modal-goals ul li{
+    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
+    border-left: 6px solid var(--success-color); 
+    font-size: 15px;
+}
+.modal-goals ul li:hover{background:var(--bg-hover);}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s; flex-shrink: 0;}
+.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
+
+/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
+.small-modal-content {
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 20px;
+    gap: 15px;
+}
+/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
+.top-plan-controls {
+    display: flex;
+    gap: 15px; 
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+}
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+.trash-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px dashed var(--danger-color); 
+    flex: 0 0 200px; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease;
+    height: 100%; 
+    max-height: 250px;
+    opacity: 0;
+    pointer-events: none;
+}
+.trash-container.visible { 
+    opacity: 1;
+    pointer-events: auto; 
+}
+.trash-container .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
+    transition: transform 0.2s;
+}
+.trash-container.dragover {
+    background-color: rgba(229, 57, 53, 0.15); 
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-container.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+.trash-hint {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.open-trash-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.open-trash-btn:hover {
+    background: #c32727;
+    border-color: #c32727;
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px) {
+    .top-plan-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .trash-container {
+        max-height: 100px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 20px;
+        width: 100%;
+        min-height: auto;
+        flex: 1 1 100%; 
+    }
+    .trash-hint { display: none; } 
+    .top-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
+#aiButtonContainer {
+    position: fixed;
+    bottom: 20px; 
+    left: 20px; 
+    z-index: 9999; 
+}
+#aiButtonContainer .btn {
+    background: #39556d; 
+    border-color: #39556d; 
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+#aiButtonContainer .btn:hover {
+    background: #476a8a;
+    border-color: #476a8a;
+}
+@media (max-width: 768px) {
+    #aiButtonContainer {
+        bottom: 15px;
+        left: 15px;
+    }
+    #aiButtonContainer .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
+.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
+.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
+.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
+.habit-table-wrapper { overflow-x: auto; }
+.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
+.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
+.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
+.habit-table tr:hover td { background-color: var(--bg-hover); }
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
+.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
+.progress-col { width: 150px; }
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+.habit-table th { position: relative; }
+.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
+.remove-habit {
+    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
+    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
+}
+.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
+.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
+.habit-table-container.collapsed { max-height: 250px; }
+.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
+.toggle-history-btn:hover { background: var(--bg-hover); }
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; }
+.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
+.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
+.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
+.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
+.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
+.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
+.mood-calendar-cell:hover { transform: scale(1.05); }
+.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
+.day-number { font-size: 12px; color: var(--text-secondary); }
+.day-mood { font-size: 18px; margin-top: 2px; }
+.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+
+/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
+.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
+.profile-input-group { display: flex; gap: 10px; align-items: center; }
+.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
+.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
+.btn-save-nick:hover { background: #3e8e41; }
+.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
+.btn-logout:hover { background: var(--bg-hover); }
+.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
+.btn-delete:hover { background: #c32727; }
+
+/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
+#loadingOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
+    flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
+    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+}
+.spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
+.confirm-modal-content {
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+}
+.confirm-modal-content h2 {
+    color: var(--danger-color);
+    margin-top: 0;
+}
+.confirm-modal-content p {
+    margin-bottom: 25px;
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.confirm-actions .btn {
+    flex: 1;
+}
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--danger-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+.advice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: none;
+    z-index: 10000000000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.advice-modal-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+.advice-modal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 400px; 
+    max-width: 90%; 
+    height: 100%;
+    background-color: var(--bg-secondary);
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
+    z-index: 100100000000;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.advice-modal-overlay.visible .advice-modal-drawer {
+    transform: translateX(0);
+}
+.advice-drawer-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+.advice-drawer-header h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.3em;
+}
+.advice-drawer-close {
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+    transition: color 0.2s;
+}
+.advice-drawer-close:hover {
+    color: var(--danger-color);
+}
+.advice-drawer-content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; 
+}
+.advice-drawer-content p {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-primary);
+    padding-right: 5px; 
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
+.advice-drawer-content h3 {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--accent-color); 
+    margin-top: 25px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--border-color);
+}
+.advice-drawer-content ul {
+    list-style: none; 
+    padding-left: 0;
+    margin-top: 0;
+}
+.advice-drawer-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    padding-left: 18px; 
+    position: relative;
+}
+.advice-drawer-content li::before {
+    content: '•';
+    color: var(--warning-color); 
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: 0;
+}
+.advice-drawer-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
+.knowledge-base-btn {
+    color: #fff;
+    border: none;
+    text-decoration: none; 
+    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
+    background-size: 200% 200%;
+    animation: gradient-animation 5s ease infinite;
+}
+.knowledge-base-btn:hover {
+    color: #fff;
+    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
+}
+@keyframes gradient-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+    /* Основные стили футера */
+#main-footer {
+    position: relative; 
+    width: 100%;
+    min-height: 200px; 
+    background-color: #333; 
+    color: #fff;
+    padding: 20px 0;
+    overflow: hidden; 
+}
+#particles-js {
+    position: absolute; 
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1; 
+}
+.footer-content {
+    position: relative;
+    text-align: center;
+    padding-top: 50px; 
+    z-index: 2; 
+}
+.footer-content p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ --- */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    display: none; /* Скрыто по умолчанию */
+    justify-content: space-around;
+    align-items: flex-start; 
+    padding: 6px 0 8px 0;
+    z-index: 10003; 
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+.mobile-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 4px;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
+}
+.mobile-nav-btn .icon {
+    font-size: 20px;
+    margin-bottom: 3px;
+    line-height: 1;
+}
+.mobile-nav-btn .label {
+    line-height: 1.2;
+}
+.mobile-nav-btn:hover {
+    color: var(--text-primary);
+}
+/* НОВЫЙ СТИЛЬ: Активная кнопка-вкладка */
+.mobile-nav-btn.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.mobile-nav-btn#mobileNavSave.unsaved {
+    color: var(--warning-color);
+    animation: pulse-mobile 1.5s infinite;
+}
+.mobile-nav-btn#mobileNavSave.unsaved .icon {
+    animation: pulse-icon 1.5s infinite;
+}
+@keyframes pulse-mobile {
+    0% { color: var(--warning-color); }
+    50% { color: var(--text-primary); }
+    100% { color: var(--warning-color); }
+}
+@keyframes pulse-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
+@media (max-width: 768px) {
+    body { 
+        font-size: 14px; 
+        padding-bottom: 80px; 
+    }
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
+    
+    .mobile-section {
+        display: none; 
+    }
+    .mobile-section.active {
+        display: block; 
+    }
+    .mobile-section.goals.active {
+        display: flex;
+    }
+
+    .goals { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border-color); 
+        padding: 15px; 
+        height: auto; 
+        max-height: none; 
+        overflow-y: visible; 
+        position: static; 
+    }
+    .right { padding: 15px; overflow-y: visible; }
+    .months-wrapper { overflow-x: auto; } 
+
+    .mobile-bottom-nav {
+        display: flex;
+    }
+    .top-controls { 
+        display: none; 
+    }
+    #aiButtonContainer {
+        display: none; 
+    }
+    .knowledge-base-btn {
+        display: none; 
+    }
+
+    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
+    .habit-controls { flex-direction: column; align-items: stretch; }
+    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
+    .modal-body { flex-direction: column; }
+    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
+    .modal-right { overflow-y: auto; }
+    .modal-days { grid-template-columns: 1fr; }
+    .modal-header input { width: 50%; }
+    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
+    .mood-option { font-size: 30px; }
+    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    .advice-modal-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ В ПРОФИЛЕ --- */
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+}
+.profile-stats div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.profile-stats span {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.profile-stats strong {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (РЕДИЗАЙН) --- */
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end; /* Выравниваем по низу */
+        height: 75px; /* Увеличиваем высоту для выступающей кнопки */
+        padding: 0 10px;
+        padding-bottom: 8px; /* Отступ снизу для лейблов */
+    }
+    .mobile-bottom-nav .mobile-nav-btn {
+        flex: 1;
+        max-width: 60px; /* Ограничиваем ширину кнопок */
+        align-items: center;
+        justify-content: center;
+        padding-top: 6px; /* Возвращаем отступ */
+        height: 60px; /* Фиксируем высоту */
+        align-self: center; /* Центрируем обычные кнопки по вертикали */
+    }
+
+    .mobile-nav-center-btn-container {
+        flex: 0 0 70px; /* Фиксированная ширина для центральной кнопки */
+        position: relative;
+        display: flex;
+        justify-content: center;
+        height: 100%;
+        align-items: flex-start; /* Выравниваем по верху, чтобы кнопка "выступала" */
+    }
+
+    .mobile-nav-center-btn {
+        position: absolute;
+        top: -20px; /* Выступ кнопки вверх */
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        border: 4px solid var(--bg-main);
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, background-color 0.2s;
+    }
+    .mobile-nav-center-btn:hover {
+        transform: scale(1.1);
+        background-color: var(--accent-hover);
+    }
+    .mobile-nav-center-btn:active {
+        transform: scale(0.95);
+    }
+
+    .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 22px;
+    }
+    .hamburger-icon span {
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        border-radius: 2px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* Анимация гамбургера в крестик (при открытии меню) */
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(2) {
+        opacity: 0;
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ (РЕДИЗАЙН) --- */
+.mobile-menu-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Align to bottom */
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding-bottom: 95px; 
+}
+.mobile-menu-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    padding: 15px;
+    width: 90%;
+    max-width: 320px; 
+    
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
+}
+.mobile-menu-overlay.visible .mobile-menu-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.mobile-menu-btn {
+    background: var(--bg-hover); 
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 10px; 
+    padding: 12px 15px;
+    
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    justify-content: flex-start; 
+    gap: 15px; 
+    
+    font-size: 16px; 
+    font-weight: 500; 
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.mobile-menu-btn .icon {
+    font-size: 24px; 
+    flex-shrink: 0;
+    width: 30px; 
+    text-align: center;
+}
+.mobile-menu-btn .label {
+    font-size: 15px; 
+    font-weight: 500;
+}
+.mobile-menu-btn:hover {
+    background-color: var(--accent-color); 
+    transform: translateY(-2px);
+    color: #fff;
+}
+.mobile-menu-btn:active {
+    transform: scale(0.98);
+}
+
+.mobile-menu-close-btn {
+    display: none; 
+}
+
+/*
+=================================================================
+--- 2. СПЕЦИФИЧНЫЕ СТИЛИ ДЛЯ KNOWLEDGE_BASE.HTML ---
+=================================================================
+*/
 
 /* --- СТИЛИ СТРАНИЦЫ БАЗЫ ЗНАНИЙ --- */
-.kb-container{display:flex;flex-grow:1;height:100vh;}
-.kb-sidebar{width:280px;flex-shrink:0;background-color:var(--bg-secondary);border-right:1px solid var(--border-color);padding:20px;display:flex;flex-direction:column;gap:20px;}
+.kb-container{
+    display:flex;
+    flex-grow:1;
+    /* ИЗМЕНЕНО: body теперь flex, так что vh не нужен */
+    /* height:100vh; */ 
+}
+.kb-sidebar{
+    width:280px;
+    flex-shrink:0;
+    background-color:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    /* Добавляем sticky-позиционирование, как на главной */
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
 .kb-sidebar h2{margin:0;color:var(--accent-color);border-bottom:2px solid var(--border-color);padding-bottom:10px;text-align:center;}
 .kb-nav{display:flex;gap:10px;}
 .kb-nav button{flex:1;}
 .kb-nav button.active{background:var(--accent-color);border-color:var(--accent-color);color:#fff;}
 .project-list{flex-grow:1;overflow-y:auto;padding-right:5px;}
-.project-item{background:var(--bg-tertiary);padding:12px 15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:all 0.2s ease;display:flex;justify-content:space-between;align-items:center;}
+.project-item{
+    background:var(--bg-tertiary);
+    padding:12px 15px;
+    border-radius:8px;
+    margin-bottom:10px;
+    cursor:pointer;
+    border-left:4px solid var(--accent-color);
+    transition:all 0.2s ease;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
 .project-item:hover{background:var(--bg-hover);transform:translateX(5px);}
 .project-item.active{background:var(--accent-color);color:#fff;border-left-color:var(--warning-color);}
 .project-item-delete{color:var(--danger-color);font-weight:bold;opacity:0;transition:opacity 0.2s;}
@@ -48,19 +1312,62 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
 
 /* --- СТИЛИ ДЛЯ ШАБЛОНОВ ПРОЕКТОВ --- */
 .project-view-container{animation:fadeIn 0.4s;display:flex;flex-direction:column;gap:25px;}
-.project-header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);padding-bottom:15px;margin-bottom:10px;}
-.project-header input[type="text"]{font-size:2em;font-weight:bold;background:transparent;border:none;padding:0;color:var(--text-primary);width:80%;}
-.project-header input[type="text"]:focus{outline:none;box-shadow:none;border-bottom:2px solid var(--accent-color);border-radius:0;}
+.project-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid var(--border-color);
+    padding-bottom:15px;
+    margin-bottom:10px;
+    /* Адаптивность для хедера */
+    flex-wrap: wrap; 
+    gap: 15px;
+}
+.project-header input[type="text"]{
+    font-size:2em;
+    font-weight:bold;
+    background:transparent;
+    border:none;
+    padding:0;
+    color:var(--text-primary);
+    /* Адаптивность */
+    width: 100%;
+    min-width: 200px; 
+    flex-grow: 1;
+}
+/* Используем стили из index.html для фокуса */
+.project-header input[type="text"]:focus{
+    outline:none;
+    box-shadow:none;
+    border-bottom:2px solid var(--accent-color);
+    border-radius:0;
+}
 .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;}
 .form-group{display:flex;flex-direction:column;gap:8px;}
 .form-group label{font-weight:bold;color:var(--text-secondary);font-size:0.9em;text-transform:uppercase;}
-.form-group input,.form-group textarea,.form-group select{width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:12px;border-radius:8px;font-size:1em;transition:border-color 0.2s,box-shadow 0.2s;}
-.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 8px rgba(0,123,255,0.5);}
+/* Стилизуем инпуты как на главной */
+.form-group input,.form-group textarea,.form-group select{
+    width:100%;
+    background:var(--bg-tertiary);
+    color:var(--text-primary);
+    border:1px solid var(--border-color);
+    padding:12px;
+    border-radius:8px;
+    font-size:1em;
+    transition:border-color 0.2s,box-shadow 0.2s;
+}
+.form-group input:focus,.form-group textarea:focus,.form-group select:focus{
+    outline:none;
+    border-color:var(--accent-color);
+    box-shadow:0 0 8px rgba(0,123,255,0.5);
+}
 .form-group textarea{min-height:120px;resize:vertical;}
 .full-width{grid-column:1 / -1;}
 .upload-placeholder{background:var(--bg-tertiary);border:2px dashed var(--border-color);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;color:var(--text-secondary);cursor:pointer;transition:background-color .2s, border-color .2s;}
 .upload-placeholder:hover{background-color:var(--bg-hover);border-color:var(--accent-color);}
 .upload-placeholder span{font-size:2em;}
+/* Стили для color-scheme (календарь) */
+input[type="date"] { color-scheme: dark; }
 
 /* --- СТИЛИ ДЛЯ РЕЙТИНГА (ЗВЕЗДЫ) --- */
 .star-rating{display:flex;gap:5px;align-items:center;}
@@ -76,37 +1383,164 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
 .kanban-column:nth-child(1) h3{color:var(--danger-color);}
 .kanban-column:nth-child(2) h3{color:var(--warning-color);}
 .kanban-column:nth-child(3) h3{color:var(--success-color);}
-.task-list{min-height:150px;flex-grow:1;transition:background-color 0.2s;border-radius:8px;}
-.kanban-column.drag-over .task-list{background-color:rgba(0,123,255,0.1);}
-.task-card{background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:10px;cursor:pointer;border-left:4px solid var(--accent-color);transition:box-shadow 0.2s,transform 0.2s;}
+.task-list{min-height:150px;flex-grow:1;transition:background-color 0.2s;border-radius:8px; display: flex; flex-direction: column; gap: 15px;}
+.kanban-column.drag-over{background-color:rgba(0,123,255,0.1);} /* Изменено: подсвечиваем всю колонку */
+
+/* Стили для групп дедлайнов */
+.deadline-group { border: 1px solid var(--border-color); border-radius: 8px; }
+.deadline-group summary { font-weight: bold; padding: 10px; cursor: pointer; background-color: var(--bg-tertiary); border-radius: 8px 8px 0 0; }
+.deadline-group[open] summary { border-bottom: 1px solid var(--border-color); }
+.task-group-container { padding: 10px; display: flex; flex-direction: column; gap: 10px; min-height: 50px; }
+
+/* Используем стиль .task-item с главной */
+.task-card{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:15px;
+    cursor:pointer;
+    border-left:4px solid var(--accent-color);
+    transition:box-shadow 0.2s,transform 0.2s;
+}
 .task-card:hover{transform:translateY(-2px);box-shadow:0 4px 10px rgba(0,0,0,0.3);}
 .task-card.dragging{opacity:0.5;}
-.task-title{font-weight:600;margin-bottom:5px;}
-.task-client{font-size:0.8em;color:var(--text-secondary);background:var(--bg-main);padding:2px 6px;border-radius:4px;display:inline-block;}
-.add-task-btn{background:transparent;border:1px dashed var(--border-color);color:var(--text-secondary);margin-top:10px;}
-.add-task-btn:hover{background:var(--accent-color);border-style:solid;color:#fff;}
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН --- */
-.large-modal-content{max-width:800px;height:80vh;}
+/* Стили для приоритетов */
+.task-card.priority-low { border-left-color: var(--success-color); }
+.task-card.priority-medium { border-left-color: var(--warning-color); }
+.task-card.priority-high { border-left-color: var(--danger-color); }
+
+.task-title{font-weight:600;margin-bottom:8px;} /* Увеличен отступ */
+.task-assignee{font-size:0.85em;color:var(--text-secondary);background:var(--bg-main);padding:3px 8px;border-radius:4px;display:inline-block; cursor: pointer; text-decoration: underline; text-decoration-color: transparent; transition: text-decoration-color .2s;}
+.task-assignee:hover { text-decoration-color: var(--text-secondary); }
+.task-client{font-size:0.8em;color:var(--text-secondary);background:var(--bg-main);padding:2px 6px;border-radius:4px;display:inline-block;} /* Оставлено для совместимости */
+/* Используем стиль .add-task-btn с главной */
+.kanban-column .add-task-btn{ 
+    margin-top: 10px;
+    background:transparent;
+    color:var(--text-secondary);
+    border: 1px dashed var(--border-color);
+    padding:8px;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+    transition: all 0.2s;
+    width: 100%;
+}
+.kanban-column .add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНЫХ ОКОН (изменены, чтобы не конфликтовать) --- */
+.modal-content.large-modal-content{max-width:800px;height:80vh;}
+/*
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding-bottom:15px;border-bottom:1px solid var(--border-color);margin-bottom:15px;}
 .modal-header h2{margin:0;}
 .modal-header .actions{display:flex;align-items:center;gap:15px;position:relative;}
-.modal-header .close-btn{font-size:24px;cursor:pointer;color:var(--text-secondary);transition:color .2s;}
-.modal-header .close-btn:hover{color:var(--danger-color);}
+*/
+/* Стили для .close-btn (уже есть в .modal-header span) */
+.close-btn {
+    font-size:24px;
+    cursor:pointer;
+    color:var(--text-secondary);
+    transition:color .2s;
+}
+.close-btn:hover { color: var(--danger-color); }
 .kebab-menu-btn{font-size:24px;cursor:pointer;font-weight:bold;}
-.dropdown-menu{position:absolute;top:100%;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;min-width:180px;z-index:10;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.3);overflow:hidden;}
+/* Стили для .dropdown-menu (используем .menu с главной) */
+.dropdown-menu{
+    position:absolute;top:100%;right:0;background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:8px;min-width:180px;z-index:10;display:none;box-shadow:0 5px 15px rgba(0,0,0,0.3);overflow:hidden;
+}
 .dropdown-menu.show{display:block;}
 .dropdown-item{padding:10px 15px;cursor:pointer;transition:background-color .2s;display:flex;align-items:center;gap:10px;}
 .dropdown-item:hover{background-color:var(--accent-hover);}
-#taskDetailBody{flex-grow:1;display:flex;flex-direction:column;gap:15px;}
-#taskDetailDescription{flex-grow:1;resize:none;}
-.study-type-selection{display:grid;grid-template-columns:1fr 1fr;gap:15px;}
+
+/* .modal-body уже стилизован, добавляем специфику */
+#taskDetailBody{flex-grow:1;display:flex;flex-direction:column;gap:15px; overflow-y: auto; padding-right: 5px; padding: 20px;}
+#taskDetailDescription{flex-grow:1;resize:none; min-height: 150px;}
+.study-type-selection{display:grid;grid-template-columns:1fr 1fr;gap:15px; padding: 10px 20px 20px 20px;} /* Добавлены отступы */
 .study-type-option{background:var(--bg-tertiary);border:1px solid var(--border-color);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s ease;}
 .study-type-option:hover{transform:translateY(-5px);box-shadow:0 6px 12px rgba(0,0,0,0.3);border-color:var(--accent-color);}
 .study-type-option span{font-size:3em;display:block;margin-bottom:10px;}
 
-/* Адаптивность */
-@media (max-width: 768px){.kb-container{flex-direction:column;height:auto;}.kb-sidebar{width:100%;border-right:none;border-bottom:1px solid var(--border-color);height:auto;}.kanban-board{grid-template-columns:1fr;}}
+/* Стили для модального окна управления командой */
+#teamManagementModal .modal-content { max-width: 900px; height: 85vh; }
+/* .modal-body уже стилизован */
+#teamManagementModal .modal-body { 
+    display: grid; 
+    grid-template-columns: 1fr 2fr; 
+    gap: 20px; 
+    overflow-y: auto; 
+    flex-grow: 1; 
+    padding: 20px;
+}
+.team-column { background: var(--bg-tertiary); padding: 15px; border-radius: 8px; }
+.team-column h3 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+.team-list { max-height: 300px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
+.team-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 6px; }
+.team-list-item:hover { background: var(--bg-hover); }
+.team-list-item-actions button { background: none; border: none; color: var(--danger-color); cursor: pointer; font-size: 1.2em; }
+.team-list-item-actions button.edit-btn { color: var(--warning-color); margin-right: 5px; }
+.team-form { display: flex; flex-direction: column; gap: 10px; }
+.team-form .actions { margin-top: 10px; }
+
+/* Стили для модального окна работника */
+#employeeDetailModal .modal-content { max-width: 450px; }
+#employeeDetailBody { padding: 20px; } /* Добавляем отступы */
+.employee-card { display: flex; gap: 20px; align-items: center; }
+.employee-card img { width: 120px; height: 120px; border-radius: 50%; object-fit: cover; background: var(--bg-tertiary); border: 2px solid var(--border-color); }
+.employee-info h3 { margin: 0 0 10px 0; color: var(--text-primary); }
+.employee-info p { margin: 5px 0; color: var(--text-secondary); }
+.employee-info p strong { color: var(--text-primary); }
+
+
+/* Адаптивность (дополнительно к общей) */
+@media (max-width: 768px){
+    .kb-container{flex-direction:column;height:auto;}
+    .kb-sidebar{
+        width:100%;
+        border-right:none;
+        border-bottom:1px solid var(--border-color);
+        /* Убираем sticky на мобильных */
+        position: static;
+        height: auto;
+        overflow-y: visible;
+    }
+    .kb-main-content {
+        padding: 15px; /* Уменьшаем отступы на мобильных */
+    }
+    .project-header {
+        flex-direction: column;
+        align-items: stretch; /* Кнопки во всю ширину */
+    }
+    .project-header input[type="text"] {
+        font-size: 1.5em; /* Уменьшаем заголовок */
+        text-align: center;
+        border-bottom: 2px solid var(--border-color);
+    }
+
+    .kanban-board{grid-template-columns:1fr;}
+    #teamManagementModal .modal-body { grid-template-columns: 1fr; }
+    .employee-card { flex-direction: column; text-align: center; }
+    .study-type-selection{ grid-template-columns: 1fr; } /* Все опции в один столбец */
+}
+
+/* Стили для модалки "Поделиться" (уже покрыты общими стилями .modal-content) */
+#shareModal .modal-content {
+    max-width: 500px;
+    padding: 25px;
+    gap: 20px;
+}
+#shareModal .actions {
+    display: flex;
+    justify-content: flex-end;
+}
+#shareLinkInput {
+    width:100%;
+    background:var(--bg-tertiary);
+    border:1px solid var(--border-color);
+    color:var(--text-primary);
+    padding:10px 12px;
+    border-radius:8px;
+}
 </style>
 </head>
 <body>
@@ -129,10 +1563,13 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
     </main>
 </div>
 
-<!-- Модальное окно: Выбор типа учебного проекта -->
 <div class="modal" id="studyTypeModal">
     <div class="modal-content">
-        <h2>Выберите тип учебного проекта</h2>
+        <div class="modal-header">
+            <h2>Выберите тип учебного проекта</h2>
+            <span class="close-btn" onclick="closeModal('studyTypeModal')">×</span>
+        </div>
+        
         <div class="study-type-selection">
             <div class="study-type-option" data-type="study-book"><span>📖</span><strong>Книга</strong></div>
             <div class="study-type-option" data-type="study-course"><span>💻</span><strong>Курс</strong></div>
@@ -141,32 +1578,65 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
     </div>
 </div>
 
-<!-- Модальное окно: Создание проекта (общее) -->
 <div class="modal" id="createProjectModal">
-    <div class="modal-content">
-        <h2 id="createModalTitle">Создать новый проект</h2>
-        <input type="text" id="newProjectName" placeholder="Название проекта">
-        <div class="actions">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header">
+            <h2 id="createModalTitle">Создать новый проект</h2>
+            <span class="close-btn" onclick="closeModal('createProjectModal')">×</span>
+        </div>
+        
+        <div class="form-group" style="padding: 0 10px;">
+            <label for="newProjectName">Название проекта</label>
+            <input type="text" id="newProjectName" placeholder="Название проекта">
+        </div>
+        
+        <div class="actions" style="padding: 10px 10px 0 10px; border-top: 1px solid var(--border-color); margin-top: 10px;">
             <button class="btn" onclick="closeModal('createProjectModal')">Отмена</button>
             <button id="saveNewProjectBtn" class="btn" style="background:var(--success-color);">Создать</button>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно: Создание задачи (Бизнес) -->
 <div class="modal" id="createTaskModal">
-    <div class="modal-content">
-        <h2>Новая задача</h2>
-        <input type="text" id="newTaskTitle" placeholder="Название задачи">
-        <input type="text" id="newTaskClient" placeholder="Ответственный за задачу">
-        <div class="actions">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header">
+            <h2>Новая задача</h2>
+            <span class="close-btn" onclick="closeModal('createTaskModal')">×</span>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 15px; padding: 0 10px;">
+            <div class="form-group">
+                <label for="newTaskTitle">Название задачи</label>
+                <input type="text" id="newTaskTitle" placeholder="Название задачи">
+            </div>
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="form-group">
+                    <label for="newTaskEmployee">Ответственный</label>
+                    <select id="newTaskEmployee"></select>
+                </div>
+                <div class="form-group">
+                    <label for="newTaskPriority">Приоритет</label>
+                    <select id="newTaskPriority">
+                        <option value="low">Низкий</option>
+                        <option value="medium" selected>Средний</option>
+                        <option value="high">Высокий</option>
+                        <option value="none">Не указан</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="newTaskDeadline">Срок выполнения</label>
+                <input type="date" id="newTaskDeadline" style="color-scheme: dark;">
+            </div>
+        </div>
+        
+        <div class="actions" style="padding: 10px 10px 0 10px; border-top: 1px solid var(--border-color); margin-top: 10px;">
             <button class="btn" onclick="closeModal('createTaskModal')">Отмена</button>
             <button id="saveNewTaskBtn" class="btn" style="background:var(--success-color);">Добавить</button>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно: Детали задачи (Бизнес) -->
 <div class="modal" id="taskDetailModal">
     <div class="modal-content large-modal-content">
         <div class="modal-header">
@@ -181,28 +1651,76 @@ body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Hel
             </div>
         </div>
         <div id="taskDetailBody">
-            <div class="form-group">
+            <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                <div class="form-group">
+                    <label for="taskDetailEmployee">Ответственный</label>
+                    <select id="taskDetailEmployee"></select>
+                </div>
+                 <div class="form-group">
+                    <label for="taskDetailPriority">Приоритет</label>
+                    <select id="taskDetailPriority">
+                        <option value="low">Низкий</option>
+                        <option value="medium">Средний</option>
+                        <option value="high">Высокий</option>
+                        <option value="none">Не указан</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label for="taskDetailDeadline">Срок выполнения</label>
+                    <input type="date" id="taskDetailDeadline" style="color-scheme: dark;">
+                </div>
+            </div>
+            
+            <div class="form-group" style="flex-grow: 1; display: flex; flex-direction: column;">
                 <label for="taskDetailDescription">Подробное описание</label>
-                <textarea id="taskDetailDescription" placeholder="Опишите задачу подробнее..."></textarea>
+                <textarea id="taskDetailDescription" placeholder="Опишите задачу подробнее..." style="flex-grow: 1;"></textarea>
             </div>
-            <div class="actions">
-                <button class="btn" style="background:var(--success-color);" onclick="closeModal('taskDetailModal')">Сохранить и закрыть</button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" style="background:var(--success-color);" onclick="closeModal('taskDetailModal')">Сохранить и закрыть</button>
         </div>
     </div>
 </div>
 
-<!-- Модальное окно: Ссылка -->
-<div class="modal" id="shareModal">
+<div class="modal" id="teamManagementModal">
     <div class="modal-content">
-        <h2>Поделиться проектом</h2>
-        <p>Любой, у кого есть эта ссылка, сможет просматривать и редактировать проект.</p>
-        <input type="text" id="shareLinkInput" readonly>
-        <div class="actions"><button id="copyLinkBtn" class="btn">Копировать</button></div>
+        <div class="modal-header">
+            <h2>Управление командой</h2>
+            <span class="close-btn" onclick="closeModal('teamManagementModal')">×</span>
+        </div>
+        <div class="modal-body" id="teamManagementBody">
+            </div>
     </div>
 </div>
 
-<!-- Оверлей загрузки -->
+<div class="modal" id="employeeDetailModal">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header" style="border: none; padding-bottom: 0;">
+            <h2>Карточка работника</h2>
+            <span class="close-btn" onclick="closeModal('employeeDetailModal')">×</span>
+        </div>
+        <div id="employeeDetailBody" class="employee-card">
+            </div>
+    </div>
+</div>
+
+
+<div class="modal" id="shareModal">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header">
+            <h2>Поделиться проектом</h2>
+            <span class="close-btn" onclick="closeModal('shareModal')">×</span>
+        </div>
+        <p style="padding: 0 10px;">Любой, у кого есть эта ссылка, сможет просматривать и редактировать проект.</p>
+        <div style="padding: 0 10px;">
+            <input type="text" id="shareLinkInput" readonly>
+        </div>
+        <div class="actions" style="padding: 10px 10px 0 10px; border-top: 1px solid var(--border-color); margin-top: 10px;">
+            <button id="copyLinkBtn" class="btn">Копировать</button>
+        </div>
+    </div>
+</div>
+
 <div id="loadingOverlay"><div class="spinner"></div><div>Загрузка...</div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -221,17 +1739,37 @@ let state = { currentView: 'study', projects: [], activeProjectId: null, isShare
 
 const mainContent = document.getElementById('mainContent'), projectList = document.getElementById('projectList'), projectView = document.getElementById('projectView'), placeholder = document.getElementById('placeholder'), loadingOverlay = document.getElementById('loadingOverlay');
 let currentOpenTask = { projectId: null, taskId: null };
+// Переменная для хранения ID редактируемого сотрудника
+let editingEmployeeId = null;
 
 // =================================================================
 // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
 // =================================================================
 function showLoading() { loadingOverlay.style.display = 'flex'; setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10); }
 function hideLoading() { loadingOverlay.style.opacity = '0'; setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300); }
-function openModal(id) { document.getElementById(id).style.display = 'flex'; setTimeout(() => document.getElementById(id).classList.add('visible'), 10); }
-function closeModal(id) { const modal = document.getElementById(id); modal.classList.remove('visible'); setTimeout(() => { modal.style.display = 'none'; }, 300); }
+function openModal(id) { 
+    const modal = document.getElementById(id);
+    if(modal) {
+        modal.style.display = 'flex'; 
+        setTimeout(() => modal.classList.add('visible'), 10); 
+    }
+}
+function closeModal(id) { 
+    const modal = document.getElementById(id); 
+    if(modal) {
+        modal.classList.remove('visible'); 
+        setTimeout(() => { modal.style.display = 'none'; }, 300); 
+    }
+}
 
 // Улучшенная функция сохранения (возвращает Promise)
 async function saveProjectToSupabase(project) {
+    if (state.isSharedView) {
+        // Если это shared view, мы должны иметь права на запись.
+        // Supabase RLS должен быть настроен так, чтобы разрешать 'update'
+        // либо анонимным ключам, либо на основе какого-то другого фактора (например, если RLS отключен для этой таблицы).
+        // В данном коде мы предполагаем, что RLS разрешает запись.
+    }
     // В Supabase при сохранении через анонимный ключ, должен быть включен RLS, разрешающий 
     // запись для пользователей с определенным userKey или, возможно, для анонимов.
     const { error } = await supabase.from('kb_projects').update({ project_data: project.project_data }).eq('id', project.id);
@@ -245,6 +1783,29 @@ async function saveProjectToSupabase(project) {
 // Дебаунс сохранен
 let saveTimeout;
 const debouncedSave = (project) => { clearTimeout(saveTimeout); saveTimeout = setTimeout(() => { saveProjectToSupabase(project); }, 800); };
+
+// НОВАЯ ВСПОМОГАТЕЛЬНАЯ ФУНКЦИЯ: Определение категории дедлайна
+function getDeadlineCategory(dateString) {
+    if (!dateString) return 'noDeadline';
+    
+    const today = new Date();
+    const deadline = new Date(dateString);
+    today.setHours(0, 0, 0, 0);
+
+    // Конец этой недели (Воскресенье)
+    const endOfWeek = new Date(today);
+    endOfWeek.setDate(today.getDate() + (6 - today.getDay()) + 1); // +1 чтобы включить воскресенье
+    endOfWeek.setHours(0,0,0,0);
+    
+    // Конец этого месяца
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+    endOfMonth.setHours(23, 59, 59, 999); // Конец дня
+
+    if (deadline < endOfWeek) return 'thisWeek';
+    if (deadline <= endOfMonth) return 'thisMonth';
+    
+    return 'later';
+}
 
 
 // =================================================================
@@ -274,7 +1835,8 @@ async function createProjectInSupabase(name, type) {
         case 'study-book': defaultData = { title: name, author: '', genre: '', readDate: '', rating: 0, link: '', comment: '', page: '' }; break;
         case 'study-course': defaultData = { title: name, platform: '', link: '', status: 'not-started', notes: '' }; break;
         case 'study-school': defaultData = { title: name, goals: '', definitions: '', content: '' }; break;
-        case 'business': defaultData = { title: name, tasks: [] }; break;
+        // ОБНОВЛЕНО: Добавлены поля для команды
+        case 'business': defaultData = { title: name, tasks: [], employees: [], departments: [] }; break;
     }
     const { data, error } = await supabase.from('kb_projects').insert([{ user_key: userKey, project_type: type, project_data: defaultData }]).select().single();
     hideLoading();
@@ -309,9 +1871,14 @@ function renderSidebar() {
             'study-book': { title: '📚 Книги', projects: [] },
             'study-course': { title: '💻 Курсы', projects: [] },
             'study-school': { title: '🏫 Школа/Университет', projects: [] },
-            'study-other': { title: '📂 Прочее', projects: [] },
+            'study-other': { title: '📂 Прочее', projects: [] }, // Категория по умолчанию
         };
-        filteredProjects.forEach(p => categories[p.project_type].projects.push(p));
+        
+        filteredProjects.forEach(p => {
+             // Если тип неизвестен, он попадет в 'other'
+            (categories[p.project_type] || categories['study-other']).projects.push(p);
+        });
+
 
         for (const type in categories) {
             const cat = categories[type];
@@ -372,6 +1939,14 @@ function renderActiveProject() {
     placeholder.style.display = 'none';
     const project = state.projects.find(p => p.id === state.activeProjectId);
     if (!project) return;
+    
+    // Инициализация недостающих полей для старых бизнес-проектов
+    if (project.project_type === 'business') {
+        if (!project.project_data.employees) project.project_data.employees = [];
+        if (!project.project_data.departments) project.project_data.departments = [];
+        if (!project.project_data.tasks) project.project_data.tasks = [];
+    }
+
     switch (project.project_type) {
         case 'study-book': renderBookProject(project); break;
         case 'study-course': renderCourseProject(project); break;
@@ -385,11 +1960,16 @@ function createProjectHeader(project) {
 
     // В sharedView заголовок тоже должен быть редактируемым (иначе не сохранить изменения)
     const isReadonly = getReadonlyAttr(); // Должно быть ''
+    
+    // НОВОЕ: Кнопка "Управлять командой" для бизнес-проектов
+    const teamButton = project.project_type === 'business' ? 
+        `<button class="btn js-team-manage-btn" data-project-id="${project.id}">👥 Управлять командой</button>` : '';
 
     return `
         <div class="project-header">
             <input type="text" class="project-title-input" value="${project.project_data.title}" placeholder="Название проекта" ${isReadonly}>
-            <div style="display: flex; gap: 10px;">
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end;">
+                ${teamButton}
                 ${saveButton}
                 <button class="btn js-share-project-btn" data-project-id="${project.id}">🔗 Поделиться</button>
             </div>
@@ -408,14 +1988,14 @@ function renderBookProject(project) {
         <div class="project-view-container">
             ${createProjectHeader(project)}
             <div class="form-grid">
-                <div class="form-group"><label>Автор</label><input type="text" class="data-field" data-key="author" value="${d.author}" ${readonly}></div>
-                <div class="form-group"><label>Жанр</label><input type="text" class="data-field" data-key="genre" value="${d.genre}" ${readonly}></div>
-                <div class="form-group"><label>Дата прочтения</label><input type="date" class="data-field" data-key="readDate" value="${d.readDate}" style="color-scheme: dark;" ${readonly}></div>
-                <div class="form-group"><label>Оценка</label><div class="star-rating" data-rating="${d.rating}" data-readonly="${!!readonly}" data-project-id="${project.id}">${[...Array(10)].map((_,i)=>`<svg class="star" data-value="${i+1}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`).join('')}</div></div>
+                <div class="form-group"><label>Автор</label><input type="text" class="data-field" data-key="author" value="${d.author || ''}" ${readonly}></div>
+                <div class="form-group"><label>Жанр</label><input type="text" class="data-field" data-key="genre" value="${d.genre || ''}" ${readonly}></div>
+                <div class="form-group"><label>Дата прочтения</label><input type="date" class="data-field" data-key="readDate" value="${d.readDate || ''}" style="color-scheme: dark;" ${readonly}></div>
+                <div class="form-group"><label>Оценка</label><div class="star-rating" data-rating="${d.rating || 0}" data-readonly="${!!readonly}" data-project-id="${project.id}">${[...Array(10)].map((_,i)=>`<svg class="star" data-value="${i+1}" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`).join('')}</div></div>
                 <div class="form-group full-width"><label>Обложка</label><div class="upload-placeholder" style="${readonly ? 'cursor: default; opacity: 0.5;' : ''}"><span>🖼️</span>Нажмите для загрузки (неактивно)</div></div>
-                <div class="form-group full-width"><label>Ссылка на книгу</label><input type="text" class="data-field" data-key="link" value="${d.link}" ${readonly}></div>
-                <div class="form-group full-width"><label>Комментарий</label><textarea class="data-field" data-key="comment" ${readonly}>${d.comment}</textarea></div>
-                <div class="form-group full-width"><label>На какой странице остановился?</label><input type="text" class="data-field" data-key="page" value="${d.page}" ${readonly}></div>
+                <div class="form-group full-width"><label>Ссылка на книгу</label><input type="text" class="data-field" data-key="link" value="${d.link || ''}" ${readonly}></div>
+                <div class="form-group full-width"><label>Комментарий</label><textarea class="data-field" data-key="comment" ${readonly}>${d.comment || ''}</textarea></div>
+                <div class="form-group full-width"><label>На какой странице остановился?</label><input type="text" class="data-field" data-key="page" value="${d.page || ''}" ${readonly}></div>
             </div>
         </div>`;
     setupStarRating(project);
@@ -428,14 +2008,14 @@ function renderCourseProject(project) {
         <div class="project-view-container">
             ${createProjectHeader(project)}
             <div class="form-grid">
-                <div class="form-group"><label>Платформа / Автор</label><input type="text" class="data-field" data-key="platform" value="${d.platform}" ${readonly}></div>
+                <div class="form-group"><label>Платформа / Автор</label><input type="text" class="data-field" data-key="platform" value="${d.platform || ''}" ${readonly}></div>
                 <div class="form-group"><label>Статус</label><select class="data-field" data-key="status" ${readonly}>
                     <option value="not-started" ${d.status==='not-started'?'selected':''} ${readonly?'disabled':''}>Не начат</option>
                     <option value="in-progress" ${d.status==='in-progress'?'selected':''} ${readonly?'disabled':''}>В процессе</option>
                     <option value="completed" ${d.status==='completed'?'selected':''} ${readonly?'disabled':''}>Завершен</option>
                 </select></div>
-                <div class="form-group full-width"><label>Ссылка на курс</label><input type="text" class="data-field" data-key="link" value="${d.link}" ${readonly}></div>
-                <div class="form-group full-width"><label>Ключевые тезисы и заметки</label><textarea class="data-field" data-key="notes" style="min-height:250px;" ${readonly}>${d.notes}</textarea></div>
+                <div class="form-group full-width"><label>Ссылка на курс</label><input type="text" class="data-field" data-key="link" value="${d.link || ''}" ${readonly}></div>
+                <div class="form-group full-width"><label>Ключевые тезисы и заметки</label><textarea class="data-field" data-key="notes" style="min-height:250px;" ${readonly}>${d.notes || ''}</textarea></div>
             </div>
         </div>`;
     attachGenericDataListeners(project);
@@ -447,49 +2027,116 @@ function renderSchoolProject(project) {
         <div class="project-view-container">
              ${createProjectHeader(project)}
             <div class="form-grid">
-                <div class="form-group full-width"><label>Цели</label><textarea class="data-field" data-key="goals" ${readonly}>${d.goals}</textarea></div>
-                <div class="form-group full-width"><label>Определения</label><textarea class="data-field" data-key="definitions" ${readonly}>${d.definitions}</textarea></div>
-                <div class="form-group full-width"><label>Конспект</label><textarea class="data-field" data-key="content" style="min-height:250px;" ${readonly}>${d.content}</textarea></div>
+                <div class="form-group full-width"><label>Цели</label><textarea class="data-field" data-key="goals" ${readonly}>${d.goals || ''}</textarea></div>
+                <div class="form-group full-width"><label>Определения</label><textarea class="data-field" data-key="definitions" ${readonly}>${d.definitions || ''}</textarea></div>
+                <div class="form-group full-width"><label>Конспект</label><textarea class="data-field" data-key="content" style="min-height:250px;" ${readonly}>${d.content || ''}</textarea></div>
             </div>
         </div>`;
     attachGenericDataListeners(project);
 }
+
+// =================================================================
+// 5. ЛОГИКА БИЗНЕС-ПРОЕКТОВ (КАНБАН)
+// =================================================================
+
 function renderBusinessProject(project) {
     const readonly = getReadonlyAttr();
-    // В режиме "только чтение" скрываем кнопки и отключаем перетаскивание
     const disableKanban = !!readonly; 
 
     projectView.innerHTML = `
         <div class="project-view-container">
             ${createProjectHeader(project)}
             <div class="kanban-board">
-                <div class="kanban-column" data-status="todo"><h3>Не начато</h3><div class="task-list"></div>${disableKanban ? '' : '<button class="btn add-task-btn">+ Добавить задачу</button>'}</div>
-                <div class="kanban-column" data-status="inprogress"><h3>В процессе</h3><div class="task-list"></div></div>
-                <div class="kanban-column" data-status="done"><h3>Готово</h3><div class="task-list"></div></div>
+                <div class="kanban-column" data-status="todo"><h3>Не начато</h3><div class="task-list"></div>${disableKanban ? '' : '<button class="btn add-task-btn" data-status="todo">+ Добавить задачу</button>'}</div>
+                <div class="kanban-column" data-status="inprogress"><h3>В процессе</h3><div class="task-list"></div>${disableKanban ? '' : '<button class="btn add-task-btn" data-status="inprogress">+ Добавить задачу</button>'}</div>
+                <div class="kanban-column" data-status="done"><h3>Готово</h3><div class="task-list"></div>${disableKanban ? '' : '<button class="btn add-task-btn" data-status="done">+ Добавить задачу</button>'}</div>
             </div>
         </div>`;
-    project.project_data.tasks.forEach(task => {
-        const list = projectView.querySelector(`.kanban-column[data-status="${task.status}"] .task-list`);
-        if (list) {
-            const card = document.createElement('div');
-            card.className = 'task-card'; 
-            card.draggable = !disableKanban; // Отключаем перетаскивание
-            card.dataset.taskId = task.id;
-            card.innerHTML = `<div class="task-title">${task.title}</div>${task.client ? `<div class="task-client">Ответственный: ${task.client}</div>` : ''}`;
-            list.appendChild(card);
+
+    // Группировка задач
+    const tasksByStatus = {
+        todo: { thisWeek: [], thisMonth: [], later: [], noDeadline: [] },
+        inprogress: { thisWeek: [], thisMonth: [], later: [], noDeadline: [] },
+        done: { thisWeek: [], thisMonth: [], later: [], noDeadline: [] }
+    };
+    
+    // Инициализация полей для старых задач
+    (project.project_data.tasks || []).forEach(task => {
+        if (!task.priority) task.priority = 'none';
+        if (!task.deadline) task.deadline = '';
+        if (!task.employeeId) task.employeeId = '';
+        
+        const category = getDeadlineCategory(task.deadline);
+        if (tasksByStatus[task.status]) {
+            tasksByStatus[task.status][category].push(task);
         }
     });
+
+    const groupTitles = {
+        thisWeek: 'На этой неделе',
+        thisMonth: 'В этом месяце',
+        later: 'Позже',
+        noDeadline: 'Без срока'
+    };
+
+    // Рендеринг колонок
+    Object.keys(tasksByStatus).forEach(status => {
+        const columnTaskList = projectView.querySelector(`.kanban-column[data-status="${status}"] .task-list`);
+        columnTaskList.innerHTML = ''; // Очистка
+        
+        Object.keys(groupTitles).forEach(groupKey => {
+            const tasksInGroup = tasksByStatus[status][groupKey];
+            if (tasksInGroup.length > 0) {
+                const details = document.createElement('details');
+                details.className = 'deadline-group';
+                details.open = (groupKey === 'thisWeek' || groupKey === 'noDeadline'); // Открываем по умолчанию
+                
+                const summary = document.createElement('summary');
+                summary.textContent = `${groupTitles[groupKey]} (${tasksInGroup.length})`;
+                
+                const taskGroupContainer = document.createElement('div');
+                taskGroupContainer.className = 'task-group-container';
+                
+                tasksInGroup.forEach(task => {
+                    const card = renderTaskCard(task, project.project_data.employees, disableKanban);
+                    taskGroupContainer.appendChild(card);
+                });
+                
+                details.appendChild(summary);
+                details.appendChild(taskGroupContainer);
+                columnTaskList.appendChild(details);
+            }
+        });
+    });
+
     if (!disableKanban) {
         attachKanbanListeners(project);
-        attachGenericDataListeners(project);
     }
-    // Для бизнес-проекта нам не нужны genericDataListeners, так как данные меняются через модалки и канбан-логику.
-    // Оставляем только для заголовка.
     attachProjectTitleListener(project);
 }
 
+// Новая функция: Рендеринг одной карточки задачи
+function renderTaskCard(task, employees, disableKanban) {
+    const employee = (employees || []).find(e => e.id === task.employeeId);
+    const employeeName = employee ? employee.name : 'Не назначен';
+    
+    const card = document.createElement('div');
+    // Добавляем класс приоритета
+    card.className = `task-card priority-${task.priority || 'none'}`; 
+    card.draggable = !disableKanban;
+    card.dataset.taskId = task.id;
+    
+    // Добавляем data-employee-id для клика
+    card.innerHTML = `
+        <div class="task-title">${task.title}</div>
+        <div class="task-assignee" data-employee-id="${task.employeeId || ''}">${employeeName}</div>
+    `;
+    return card;
+}
+
+
 // =================================================================
-// 5. ЛОГИКА ПРИЛОЖЕНИЯ И СОБЫТИЯ
+// 6. ЛОГИКА ПРИЛОЖЕНИЯ И СОБЫТИЯ
 // =================================================================
 function setupEventListeners() {
     document.getElementById('viewStudyBtn').addEventListener('click', () => switchView('study'));
@@ -506,7 +2153,6 @@ function setupEventListeners() {
     document.querySelectorAll('.study-type-option').forEach(opt => {
         opt.addEventListener('click', () => {
             closeModal('studyTypeModal');
-            // const type = opt.dataset.type.split('-')[1]; // Убрано: 'book', 'course' и т.д.
             document.getElementById('createModalTitle').innerText = `Создать: ${opt.querySelector('strong').innerText}`;
             document.getElementById('saveNewProjectBtn').dataset.projectType = opt.dataset.type;
             document.getElementById('newProjectName').value = '';
@@ -526,8 +2172,12 @@ function setupEventListeners() {
         }
         closeModal('createProjectModal');
     });
-    // Добавлено: Обработчик кнопки "Сохранить"
+
+    // ==================================================
+    // ИСПРАВЛЕННЫЙ ОБРАБОТЧИК КЛИКОВ
+    // ==================================================
     projectView.addEventListener('click', async (e) => {
+        // Кнопка "Сохранить"
         const saveButton = e.target.closest('.js-save-project-btn');
         if (saveButton) { 
             const project = state.projects.find(p => p.id === state.activeProjectId);
@@ -539,17 +2189,45 @@ function setupEventListeners() {
                 saveButton.innerText = saved ? '✅ Сохранено' : '❌ Ошибка';
                 setTimeout(() => { saveButton.innerText = '💾 Сохранить'; }, 1500);
             }
+            return;
         }
 
+        // Кнопка "Поделиться"
         const shareButton = e.target.closest('.js-share-project-btn');
-        if (shareButton) { showShareModal(shareButton.dataset.projectId); }
+        if (shareButton) { 
+            showShareModal(shareButton.dataset.projectId); 
+            return;
+        }
+        
+        // Кнопка "Управлять командой"
+        const teamButton = e.target.closest('.js-team-manage-btn');
+        if (teamButton) {
+            openTeamManagementModal();
+            return;
+        }
+        
+        // ===== ИСПРАВЛЕНИЕ: ПРОВЕРКА КЛИКА ПО РАБОТНИКУ (ПЕРЕМЕЩЕНО ВВЕРХ) =====
+        // Должен проверяться ПЕРЕД кликом по карточке
+        const assignee = e.target.closest('.task-assignee');
+        if (assignee && assignee.dataset.employeeId) {
+            openEmployeeDetailModal(assignee.dataset.employeeId);
+            return;
+        }
+        // ===================================================================
+
+        // Клик по карточке задачи
         const taskCard = e.target.closest('.task-card');
-        if(taskCard && !taskCard.classList.contains('dragging')){ // Открываем модалку только при клике, не при начале перетаскивания
+        if(taskCard && !taskCard.classList.contains('dragging')){
+            // Условие 'if (e.target.closest('.task-assignee')) return;' БОЛЬШЕ НЕ НУЖНО,
+            // так как этот случай был обработан выше.
+            
             const projectId = state.activeProjectId;
             const taskId = taskCard.dataset.taskId;
             openTaskDetailModal(projectId, taskId);
+            return;
         }
     });
+    
     document.getElementById('copyLinkBtn').addEventListener('click', (e) => {
         document.getElementById('shareLinkInput').select();
         document.execCommand('copy');
@@ -587,14 +2265,12 @@ function attachGenericDataListeners(project) {
     // Поскольку getReadonlyAttr() возвращает '', мы не проверяем права здесь,
     // просто прикрепляем слушателей
     projectView.querySelectorAll('.data-field').forEach(field => {
-        field.addEventListener('input', () => {
+        const handler = () => {
             project.project_data[field.dataset.key] = field.value;
             debouncedSave(project);
-        });
-        field.addEventListener('change', () => { // Для <select>
-            project.project_data[field.dataset.key] = field.value;
-            debouncedSave(project);
-        });
+        };
+        field.addEventListener('input', handler);
+        field.addEventListener('change', handler); // Для <select> и <input type="date">
     });
     attachProjectTitleListener(project); // Прикрепляем слушатель заголовка
 }
@@ -651,37 +2327,80 @@ function setupStarRating(project) {
         stars.forEach(s => s.classList.remove('hovered'));
     });
 }
+
 function attachKanbanListeners(project) {
     // Отключаем слушатели, если нет прав на запись
     if (getReadonlyAttr()) return; 
 
     let draggedItem = null;
-    // ... (остальная логика канбана не менялась, но включена в общий блок)
-    projectView.querySelector('.add-task-btn').addEventListener('click', () => {
-        document.getElementById('newTaskTitle').value = '';
-        document.getElementById('newTaskClient').value = '';
-        openModal('createTaskModal');
+    
+    // Обработчик кнопки "Добавить задачу"
+    projectView.querySelectorAll('.add-task-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const status = btn.dataset.status;
+            // Заполняем селект работников
+            const employeeSelect = document.getElementById('newTaskEmployee');
+            employeeSelect.innerHTML = '<option value="">Не назначен</option>';
+            (project.project_data.employees || []).forEach(emp => {
+                employeeSelect.innerHTML += `<option value="${emp.id}">${emp.name}</option>`;
+            });
+            
+            document.getElementById('newTaskTitle').value = '';
+            document.getElementById('newTaskPriority').value = 'medium';
+            document.getElementById('newTaskDeadline').value = '';
+            
+            // Устанавливаем статус для кнопки сохранения
+            document.getElementById('saveNewTaskBtn').dataset.status = status;
+            openModal('createTaskModal');
+        });
     });
+
     document.getElementById('saveNewTaskBtn').onclick = () => {
         const title = document.getElementById('newTaskTitle').value.trim(); if (!title) return;
-        const client = document.getElementById('newTaskClient').value.trim();
-        const newTask = { id: 'task_' + Date.now(), title, client, status: 'todo', description: '' };
+        
+        const newTask = { 
+            id: 'task_' + Date.now(), 
+            title, 
+            status: document.getElementById('saveNewTaskBtn').dataset.status || 'todo', 
+            description: '',
+            employeeId: document.getElementById('newTaskEmployee').value,
+            priority: document.getElementById('newTaskPriority').value,
+            deadline: document.getElementById('newTaskDeadline').value
+        };
+        
         project.project_data.tasks.push(newTask);
-        saveProjectToSupabase(project); renderBusinessProject(project); closeModal('createTaskModal');
+        saveProjectToSupabase(project); 
+        renderBusinessProject(project); // Перерисовываем доску
+        closeModal('createTaskModal');
     };
+    
+    // Drag-and-Drop
     projectView.querySelectorAll('.task-card').forEach(item => {
         item.addEventListener('dragstart', () => { draggedItem = item; setTimeout(() => item.classList.add('dragging'), 0); });
-        item.addEventListener('dragend', () => { draggedItem.classList.remove('dragging'); draggedItem = null; });
+        item.addEventListener('dragend', () => { if(draggedItem) draggedItem.classList.remove('dragging'); draggedItem = null; });
     });
+    
     projectView.querySelectorAll('.kanban-column').forEach(column => {
-        column.addEventListener('dragover', e => { e.preventDefault(); column.classList.add('drag-over'); });
+        column.addEventListener('dragover', e => { 
+            e.preventDefault(); 
+            // Подсвечиваем всю колонку
+            column.classList.add('drag-over'); 
+        });
         column.addEventListener('dragleave', () => column.classList.remove('drag-over'));
         column.addEventListener('drop', e => {
-            e.preventDefault(); column.classList.remove('drag-over'); if (!draggedItem) return;
-            column.querySelector('.task-list').appendChild(draggedItem);
+            e.preventDefault(); 
+            column.classList.remove('drag-over'); 
+            if (!draggedItem) return;
+            
             const task = project.project_data.tasks.find(t => t.id === draggedItem.dataset.taskId);
-            task.status = column.dataset.status;
-            saveProjectToSupabase(project);
+            if (task) {
+                task.status = column.dataset.status;
+                // Сохраняем и ПЕРЕРИСОВЫВАЕМ
+                saveProjectToSupabase(project).then(() => {
+                    renderBusinessProject(project);
+                });
+            }
+            draggedItem = null; // Очищаем, чтобы избежать двойного drop
         });
     });
 }
@@ -691,24 +2410,212 @@ function openTaskDetailModal(projectId, taskId){
     const task = project.project_data.tasks.find(t => t.id === taskId);
     if(!task) return;
 
-    // Включение/отключение редактирования в модалке задачи
     const isTaskReadonly = getReadonlyAttr(); // Будет ''
-    const descriptionField = document.getElementById('taskDetailDescription');
-    const saveButton = document.querySelector('#taskDetailModal .modal-content .actions .btn');
-    const menuBtn = document.getElementById('kebabMenuBtn');
     
     // Включаем редактирование и кнопки
-    descriptionField.readOnly = false;
-    saveButton.style.display = 'block';
-    menuBtn.style.display = 'block';
+    document.getElementById('taskDetailDescription').readOnly = false;
+    document.querySelector('#taskDetailModal .modal-footer .btn').style.display = 'block';
+    document.getElementById('kebabMenuBtn').style.display = 'block';
     
     document.getElementById('taskDetailTitle').innerText = task.title;
-    descriptionField.value = task.description || '';
+    document.getElementById('taskDetailDescription').value = task.description || '';
     
-    descriptionField.oninput = () => { task.description = descriptionField.value; debouncedSave(project); };
+    // Заполняем новые поля
+    const employeeSelect = document.getElementById('taskDetailEmployee');
+    employeeSelect.innerHTML = '<option value="">Не назначен</option>';
+    (project.project_data.employees || []).forEach(emp => {
+        employeeSelect.innerHTML += `<option value="${emp.id}">${emp.name}</option>`;
+    });
+    employeeSelect.value = task.employeeId || '';
+    
+    document.getElementById('taskDetailPriority').value = task.priority || 'none';
+    document.getElementById('taskDetailDeadline').value = task.deadline || '';
+    
+    // Вешаем обработчики
+    document.getElementById('taskDetailDescription').oninput = () => { task.description = document.getElementById('taskDetailDescription').value; debouncedSave(project); };
+    
+    const reRenderOnChange = () => {
+        task.employeeId = document.getElementById('taskDetailEmployee').value;
+        task.priority = document.getElementById('taskDetailPriority').value;
+        task.deadline = document.getElementById('taskDetailDeadline').value;
+        debouncedSave(project);
+        renderBusinessProject(project); // Перерисовываем доску
+    };
+    
+    document.getElementById('taskDetailEmployee').onchange = reRenderOnChange;
+    document.getElementById('taskDetailPriority').onchange = reRenderOnChange;
+    document.getElementById('taskDetailDeadline').oninput = reRenderOnChange;
     
     openModal('taskDetailModal');
 }
+
+// НОВЫЕ ФУНКЦИИ УПРАВЛЕНИЯ КОМАНДОЙ
+function openTeamManagementModal() {
+    renderTeamManagementModal();
+    openModal('teamManagementModal');
+}
+
+function renderTeamManagementModal(editEmpId = null) {
+    editingEmployeeId = editEmpId;
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+
+    const { departments = [], employees = [] } = project.project_data;
+    
+    const editingEmployee = editEmpId ? employees.find(e => e.id === editEmpId) : null;
+
+    const deptOptions = departments.map(d => `<option value="${d.id}" ${editingEmployee && editingEmployee.departmentId === d.id ? 'selected' : ''}>${d.name}</option>`).join('');
+
+    const body = document.getElementById('teamManagementBody');
+    body.innerHTML = `
+        <div class="team-column">
+            <h3>Отделы</h3>
+            <div class="team-list" id="departmentList">
+                ${departments.length === 0 ? '<p>Нет отделов</p>' : departments.map(d => `
+                    <div class="team-list-item">
+                        <span>${d.name}</span>
+                        <div class="team-list-item-actions">
+                            <button onclick="deleteDepartment('${d.id}')">×</button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+            <form class="team-form" onsubmit="saveDepartment(event)">
+                <input type="text" id="newDepartmentName" placeholder="Название нового отдела" required>
+                <button type="submit" class="btn" style="background:var(--accent-color);">Добавить отдел</button>
+            </form>
+        </div>
+        
+        <div class="team-column">
+            <h3>Работники</h3>
+            <div class="team-list" id="employeeList">
+                 ${employees.length === 0 ? '<p>Нет работников</p>' : employees.map(e => {
+                    const dept = departments.find(d => d.id === e.departmentId);
+                    return `
+                    <div class="team-list-item">
+                        <span><strong>${e.name}</strong> <small>(${dept ? dept.name : 'Без отдела'})</small></span>
+                        <div class="team-list-item-actions">
+                            <button class="edit-btn" onclick="renderTeamManagementModal('${e.id}')">✎</button>
+                            <button onclick="deleteEmployee('${e.id}')">×</button>
+                        </div>
+                    </div>
+                 `}).join('')}
+            </div>
+            <form class="team-form" id="employeeForm" onsubmit="saveEmployee(event)">
+                <h4>${editingEmployee ? 'Редактировать работника' : 'Добавить работника'}</h4>
+                <div class="form-group"><label>ФИО</label><input type="text" id="employeeName" value="${editingEmployee ? editingEmployee.name : ''}" required></div>
+                <div class="form-group"><label>Отдел</label><select id="employeeDepartment">${deptOptions}</select></div>
+                <div class="form-group"><label>Телефон</label><input type="tel" id="employeePhone" value="${editingEmployee ? editingEmployee.phone : ''}"></div>
+                <div class="form-group"><label>URL Фото</label><input type="url" id="employeePhotoUrl" value="${editingEmployee ? editingEmployee.photoUrl : ''}" placeholder="https://..."></div>
+                <div class="actions" style="display: flex; justify-content: space-between;">
+                    ${editingEmployee ? `<button type="button" class="btn" onclick="renderTeamManagementModal(null)">Отмена</button>` : '<div></div>'}
+                    <button type="submit" class="btn" style="background:var(--success-color);">${editingEmployee ? 'Сохранить' : 'Добавить'}</button>
+                </div>
+            </form>
+        </div>
+    `;
+}
+
+async function saveDepartment(event) {
+    event.preventDefault();
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    const name = document.getElementById('newDepartmentName').value.trim();
+    if (!name || !project) return;
+    
+    project.project_data.departments.push({ id: 'dept_' + Date.now(), name });
+    await saveProjectToSupabase(project);
+    renderTeamManagementModal();
+}
+
+async function deleteDepartment(deptId) {
+    if (!confirm('Удалить отдел? Работники этого отдела останутся без отдела.')) return;
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    
+    project.project_data.departments = project.project_data.departments.filter(d => d.id !== deptId);
+    // Опционально: сбросить отдел у работников
+    project.project_data.employees.forEach(e => { if (e.departmentId === deptId) e.departmentId = ''; });
+    
+    await saveProjectToSupabase(project);
+    renderTeamManagementModal();
+    renderBusinessProject(project); // Обновить карточки, если там был отдел
+}
+
+async function saveEmployee(event) {
+    event.preventDefault();
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    
+    const employeeData = {
+        id: editingEmployeeId || 'emp_' + Date.now(),
+        name: document.getElementById('employeeName').value.trim(),
+        departmentId: document.getElementById('employeeDepartment').value,
+        phone: document.getElementById('employeePhone').value.trim(),
+        photoUrl: document.getElementById('employeePhotoUrl').value.trim(),
+    };
+    
+    if (!employeeData.name) return;
+    
+    if (editingEmployeeId) {
+        // Редактирование
+        const index = project.project_data.employees.findIndex(e => e.id === editingEmployeeId);
+        if (index > -1) project.project_data.employees[index] = employeeData;
+    } else {
+        // Создание
+        project.project_data.employees.push(employeeData);
+    }
+    
+    await saveProjectToSupabase(project);
+    renderTeamManagementModal(null); // Сбросить форму
+    renderBusinessProject(project); // Обновить карточки задач
+}
+
+async function deleteEmployee(empId) {
+    if (!confirm('Удалить работника? Задачи останутся, но будут "не назначены".')) return;
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    if (!project) return;
+    
+    project.project_data.employees = project.project_data.employees.filter(e => e.id !== empId);
+    // Сбросить назначение у задач
+    project.project_data.tasks.forEach(t => { if (t.employeeId === empId) t.employeeId = ''; });
+    
+    await saveProjectToSupabase(project);
+    renderTeamManagementModal();
+    renderBusinessProject(project); // Обновить карточки задач
+}
+
+// ==================================================
+// ИСПРАВЛЕННАЯ ФУНКЦИЯ
+// ==================================================
+function openEmployeeDetailModal(employeeId) {
+    const project = state.projects.find(p => p.id === state.activeProjectId);
+    // ===== ИСПРАВЛЕНИЕ: Добавлена проверка на существование проекта =====
+    if (!project) {
+        console.error("Проект не найден, не могу открыть карточку работника.");
+        return; 
+    }
+    
+    const employee = (project.project_data.employees || []).find(e => e.id === employeeId);
+    if (!employee) {
+         console.error("Работник не найден.");
+        return;
+    }
+    
+    const department = (project.project_data.departments || []).find(d => d.id === employee.departmentId);
+    
+    const body = document.getElementById('employeeDetailBody');
+    body.innerHTML = `
+        <img src="${employee.photoUrl || 'pictures/favicon.png'}" alt="Фото" onerror="this.src='pictures/favicon.png'">
+        <div class="employee-info">
+            <h3>${employee.name}</h3>
+            <p><strong>Отдел:</strong> ${department ? department.name : 'Не указан'}</p>
+            <p><strong>Телефон:</strong> ${employee.phone || 'Не указан'}</p>
+        </div>
+    `;
+    openModal('employeeDetailModal');
+}
+// -----
+
 function setupTaskDetailListeners() {
     const menuBtn = document.getElementById('kebabMenuBtn');
     const dropdown = document.getElementById('taskDropdownMenu');
@@ -739,7 +2646,7 @@ function setupTaskDetailListeners() {
 }
 
 // =================================================================
-// 6. ИНИЦИАЛИЗАЦИЯ
+// 7. ИНИЦИАЛИЗАЦИЯ
 // =================================================================
 async function init() {
     // Устанавливаем ключ пользователя сразу
@@ -758,7 +2665,14 @@ async function init() {
     if (sharedProjectId) {
         state.isSharedView = true; // Устанавливаем режим общего доступа
         document.querySelector('.kb-sidebar').style.display = 'none';
-        mainContent.style.paddingLeft = '30px'; // Уменьшаем отступ
+        // Убираем padding у body и даем его main-content
+        document.body.style.padding = '0';
+        mainContent.style.padding = '30px'; 
+        // Адаптивность для мобильных
+        if (window.innerWidth <= 768) {
+            mainContent.style.padding = '15px';
+        }
+
         // Устанавливаем вид по умолчанию (учеба), чтобы не было ошибки при рендере
         document.getElementById('viewStudyBtn').classList.add('active'); 
         document.getElementById('viewBusinessBtn').classList.remove('active');
@@ -769,7 +2683,7 @@ async function init() {
             state.projects = [project]; 
             state.activeProjectId = project.id; 
             // Определяем текущий вид по типу проекта
-            state.currentView = project.project_type.split('-')[0]; 
+            state.currentView = project.project_type.startsWith('study') ? 'study' : 'business'; 
             renderActiveProject(); 
         }
     } else {
