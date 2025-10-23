@@ -1,0 +1,2630 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-R">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time Owner</title>
+<link rel="icon" type="image/png" href="pictures/favicon.png">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0099ff">
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<style>
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+}
+* {
+    box-sizing: border-box;
+}
+
+/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
+::-webkit-scrollbar {
+    width: 10px; 
+    height: 10px; 
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--accent-color); 
+    border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-hover);
+}
+* {
+  scrollbar-color: var(--accent-color) var(--bg-secondary); 
+  scrollbar-width: thin;
+}
+
+/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    background: var(--bg-main);
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden; 
+    animation: fadeIn 0.5s ease-in-out;
+}
+.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
+.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
+
+/* --- ОСНОВНАЯ СТРУКТУРА (МОБИЛЬНАЯ) --- */
+.main-container{
+    display:flex;
+    padding: 0 10px;
+    overflow-x: hidden; 
+    transition: padding 0.3s ease; 
+}
+.goals{
+    width:240px;
+    background:var(--bg-secondary);
+    border-right:1px solid var(--border-color);
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px; 
+    overflow-y: auto; 
+    position:relative; 
+    flex-shrink: 0;
+
+    /* === ИЗМЕНЕНИЯ (Для мобильных) === */
+    position: sticky;
+    top: 20px; 
+    max-height: calc(100vh - 40px);
+}
+.right{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:20px;
+    gap:15px;
+    overflow: hidden; 
+}
+
+/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
+.btn{
+    background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex; /* Для выравнивания иконки и текста */
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none; /* Для ссылок-кнопок */
+    white-space: nowrap; /* Запрет переноса текста в кнопках */
+}
+.btn:hover{
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.btn:active { transform: scale(0.98) translateY(0); } 
+.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+
+/* --- КНОПКИ УПРАВЛЕНИЯ (СТАРЫЙ БЛОК) --- */
+.top-controls {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    display: flex;
+    gap: 10px; 
+    z-index: 10000;
+}
+.save-all-btn, .account-control-btn {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.save-all-btn:hover {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn:hover{
+    background: var(--accent-color);
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+.account-control-btn img, .save-all-btn img {
+    transition: filter 0.2s;
+}
+.account-control-btn:hover img, .save-all-btn:hover img {
+    filter: invert(10%);
+}
+.save-all-btn.unsaved {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+    animation: pulse 1.5s infinite;
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
+    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
+}
+
+/* --- ЦЕЛИ (Goal Styles) --- */
+.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+.goal{
+    background:var(--bg-tertiary);
+    border-radius:8px;
+    padding:10px;
+    position:relative;
+    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
+    min-height: 40px;
+    border-left: 6px solid var(--success-color); 
+    font-size: 16px; 
+}
+.goal:hover{
+    background:var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
+}
+.goal .goal-remove{
+    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
+    transition: opacity 0.2s, transform 0.2s; 
+}
+.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
+.goal:hover .goal-remove{opacity:1;}
+.goal[contenteditable]:focus{
+    outline:2px solid var(--accent-color);
+    background: var(--bg-secondary);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+.add-goal-btn{
+    position:absolute;
+    left:50%;
+    transform:translateX(-50%);
+    bottom:15px;
+    background:#555;
+    color:var(--text-primary);
+    width:40px;height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    cursor:pointer;
+    display:none; 
+    transition: background-color 0.2s, transform 0.2s ease-out; 
+}
+.goals:hover .add-goal-btn{display:flex}
+.add-goal-btn:hover { 
+    background-color: var(--accent-color); 
+    transform: translateX(-50%) translateY(-5px) scale(1.05); 
+}
+
+/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
+.unassigned-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
+}
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
+}
+/* НОВЫЙ СТИЛЬ: подсветка при перетаскивании из архива */
+.unassigned-container.dragover-from-archive {
+    border-color: var(--warning-color);
+    background: rgba(255, 193, 7, 0.08);
+}
+.unassigned-list{
+    max-height: 250px; 
+    overflow-y: auto;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    margin-top:10px;
+    padding-right: 5px;
+}
+.week-item,.week-card{
+    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
+    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
+    font-weight: 500;
+}
+.week-item:hover { 
+    border-color: var(--accent-color);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
+.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
+.month{
+    min-width:280px; 
+    background-color: var(--bg-secondary);
+    border-radius:12px;
+    padding: 20px;
+    display:flex;
+    flex-direction:column;
+    gap: 15px;
+    flex-shrink:0; 
+    border-top: 4px solid;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease; 
+}
+.month:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+}
+/* НОВЫЙ СТИЛЬ: Подсветка текущего месяца */
+.month.current-month {
+    border: 2px solid var(--warning-color);
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
+}
+.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
+.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
+.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
+.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
+
+/* --- НОВЫЕ СТИЛИ: БЛОК АРХИВА --- */
+.archive-container-wrapper {
+    margin-top: 20px;
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+}
+.archive-container-wrapper h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+.archive-hint {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+}
+.archive-container {
+    min-height: 100px;
+    /* max-height: 400px; */ /* Убрано, т.к. списка больше нет */
+    /* overflow-y: auto; */ /* Убрано */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 5px;
+}
+.archive-list {
+    /* Стили для списка в модальном окне */
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+.archived-week-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-tertiary);
+    padding: 10px 15px;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-color);
+}
+.archived-week-item span {
+    font-weight: 500;
+}
+.btn-unarchive {
+    background: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+    font-size: 12px;
+    padding: 5px 10px;
+}
+.btn-unarchive:hover {
+    background: #3e8e41;
+}
+
+
+.drop-zone-archive {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 13px;
+    transition: 0.2s ease-in-out;
+    margin-top: 10px;
+}
+.drop-zone-archive.dragover {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background: rgba(76, 175, 80, 0.08);
+}
+/* --- КОНЕЦ СТИЛЕЙ АРХИВА --- */
+
+
+/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    opacity: 0; 
+    transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } 
+.modal-content {
+    background: var(--bg-main);
+    width: 95%;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    transform: scale(0.95); 
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.modal.visible .modal-content { transform: scale(1); } 
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
+.modal-header .modal-close-btn {cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
+.modal-header .modal-close-btn:hover { color: var(--accent-color); }
+.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
+.modal-body{display:flex;flex:1;overflow:hidden;}
+
+
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
+.modal-content.week-editor {
+    max-width: 1200px; 
+    height: 90vh;
+}
+.week-header-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: wrap; 
+}
+.week-header-inputs input[type="text"] {
+    flex-grow: 1;
+    min-width: 200px;
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.week-header-inputs input[type="date"] {
+    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-header input:focus { 
+    border-color: var(--warning-color); 
+    outline: none;
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.menu{
+    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
+    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    opacity: 0; visibility: hidden; transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
+.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
+.menu div:hover{background:var(--accent-color); color: #fff;}
+.menu div img { transition: filter 0.2s; }
+.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
+.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
+.modal-description textarea{
+    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.modal-description textarea:focus { 
+    border-color: var(--warning-color); 
+    outline: none; 
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
+} 
+.modal-days{
+    display: flex; 
+    flex-direction: row; 
+    overflow-x: auto; 
+    gap: 12px;
+    flex: 1; 
+    align-items: stretch; 
+    padding-bottom: 10px;
+}
+.day{
+    background: var(--bg-secondary); border-radius:10px;padding:12px;
+    min-width: 250px; 
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border-top: 3px solid var(--accent-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%; 
+}
+.day:hover {
+    transform: none; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
+.day h4 .day-label { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+.day h4 .day-label .day-date {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: normal;
+    margin-top: 2px;
+}
+.tasks{
+    display:flex;flex-direction:column;gap:8px;overflow-y:auto; 
+    flex: 1; 
+    min-height: 50px;
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
+.task-item{
+    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:flex-start; 
+    transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
+    cursor: grab;
+}
+.task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
+.task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
+.task-done {
+    opacity: 0.7;
+    text-decoration: none; 
+    border-left-color: var(--success-color);
+}
+.task-done .task-time-input {
+    color: var(--text-secondary);
+}
+.task-done .task-text[contenteditable] {
+    text-decoration: line-through;
+}
+.task-item.dragging {
+    opacity: 0.4;
+    transform: rotate(2deg);
+}
+.task-time-input {
+    width: 50px;
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 13px;
+    margin-right: 10px;
+    padding: 0;
+    text-align: right;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+.task-time-input:focus {
+    outline: none;
+    border-bottom: 1px dashed var(--warning-color);
+}
+.task-check {
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 1.2em;
+    line-height: 1;
+    color: var(--text-secondary);
+    transition: color 0.2s, transform 0.2s;
+    flex-shrink: 0; 
+    margin-top: 2px; 
+}
+.task-done .task-check {
+    text-decoration: none; 
+    color: var(--success-color);
+    transform: scale(1.1);
+}
+.task-check:hover {
+    color: var(--accent-color);
+    transform: scale(1.2);
+}
+.task-text-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; 
+}
+.task-text[contenteditable] {
+    flex-grow: 1;
+    padding-right: 10px;
+    min-height: 18px; 
+    word-break: break-word; 
+}
+.add-task-btn{
+    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
+    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; 
+}
+.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
+.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
+.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
+    gap: 10px; 
+}
+.modal-goals ul li{
+    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
+    border-left: 6px solid var(--success-color); 
+    font-size: 15px;
+}
+.modal-goals ul li:hover{background:var(--bg-hover);}
+.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s; flex-shrink: 0;}
+.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
+
+/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
+.small-modal-content {
+    max-width: 450px;
+    height: auto;
+    max-height: 90vh;
+    padding: 20px;
+    gap: 15px;
+}
+/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
+.top-plan-controls {
+    display: flex;
+    gap: 15px; 
+    align-items: flex-start; 
+    flex-wrap: wrap; 
+    justify-content: flex-start; 
+}
+.trash-container {
+    background-color: var(--bg-secondary);
+    border-radius: 8px;
+    padding: 15px;
+    border: 1px dashed var(--danger-color); 
+    flex: 0 0 200px; 
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
+    height: 100%; 
+    max-height: 250px;
+    /* --- ИЗМЕНЕНИЯ ДЛЯ ДЕСКТОПА (УБРАНЫ) --- */
+    /* opacity: 0; */ /* Будет видна по умолчанию */
+    /* pointer-events: none; */
+    /* position: absolute; */
+    /* top: 65px; */
+    /* left: 20px; */
+    /* z-index: 1001; */
+    /* width: 280px; */
+    /* border: 1px solid var(--border-color); */
+    /* box-shadow: 0 5px 15px rgba(0,0,0,0.3); */
+    /* transform: translateY(-10px); */
+}
+/* .trash-container.visible {  */
+    /* opacity: 1; */
+    /* pointer-events: auto;  */
+    /* transform: translateY(0); */
+/* } */
+.trash-container .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
+    transition: transform 0.2s;
+}
+.trash-container.dragover {
+    background-color: rgba(229, 57, 53, 0.15); 
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-container.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+}
+.trash-hint {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.open-trash-btn {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+    color: #fff;
+}
+.open-trash-btn:hover {
+    background: #c32727;
+    border-color: #c32727;
+}
+
+/* Адаптивность для мобильных (Корзина) */
+@media (max-width: 768px) {
+    .top-plan-controls {
+        flex-direction: column;
+        gap: 10px;
+    }
+    .trash-container {
+        max-height: 100px;
+        flex-direction: row;
+        justify-content: space-around;
+        padding: 10px 20px;
+        width: 100%;
+        min-height: auto;
+        flex: 1 1 100%; 
+        /* Сброс стилей десктопа */
+        position: relative; 
+        top: auto;
+        left: auto;
+        z-index: 1;
+        width: 100%;
+        transform: none;
+    }
+    .trash-hint { display: none; } 
+    .top-buttons {
+        flex-wrap: wrap;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
+#aiButtonContainer {
+    position: fixed;
+    bottom: 20px; 
+    left: 20px; 
+    z-index: 9999; 
+}
+#aiButtonContainer .btn {
+    background: #39556d; 
+    border-color: #39556d; 
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+#aiButtonContainer .btn:hover {
+    background: #476a8a;
+    border-color: #476a8a;
+}
+@media (max-width: 768px) {
+    #aiButtonContainer {
+        bottom: 15px;
+        left: 15px;
+    }
+    #aiButtonContainer .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
+.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px; border-radius: 8px;}
+.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
+.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
+.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
+.habit-table-wrapper { overflow-x: auto; }
+.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
+.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
+.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
+.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
+.habit-table tr:hover td { background-color: var(--bg-hover); }
+.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
+.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
+.progress-col { width: 150px; }
+.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
+.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
+.habit-table th { position: relative; }
+.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
+.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
+.remove-habit {
+    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
+    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
+}
+.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
+.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
+.habit-table-container.collapsed { max-height: 250px; }
+.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
+.toggle-history-btn:hover { background: var(--bg-hover); }
+
+/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
+.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; border-radius: 8px;}
+.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
+.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
+.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
+.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
+.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
+.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
+.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
+.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
+.mood-calendar-cell:hover { transform: scale(1.05); }
+.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
+.day-number { font-size: 12px; color: var(--text-secondary); }
+.day-mood { font-size: 18px; margin-top: 2px; }
+.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
+
+/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
+.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
+.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
+.profile-input-group { display: flex; gap: 10px; align-items: center; }
+.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
+.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
+.btn-save-nick:hover { background: #3e8e41; }
+.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
+.btn-logout:hover { background: var(--bg-hover); }
+.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
+.btn-delete:hover { background: #c32727; }
+
+/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
+#loadingOverlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
+    flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
+    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+}
+.spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
+.confirm-modal-content {
+    max-width: 400px;
+    padding: 20px;
+    text-align: center;
+    gap: 20px;
+}
+.confirm-modal-content h2 {
+    color: var(--danger-color);
+    margin-top: 0;
+}
+.confirm-modal-content p {
+    margin-bottom: 25px;
+}
+.confirm-actions {
+    display: flex;
+    justify-content: space-around;
+    gap: 10px;
+}
+.confirm-actions .btn {
+    flex: 1;
+}
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.checkbox-group input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 8px;
+    cursor: pointer;
+    accent-color: var(--danger-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+.advice-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); 
+    display: none;
+    z-index: 10000000000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+.advice-modal-overlay.visible {
+    display: block;
+    opacity: 1;
+}
+.advice-modal-drawer {
+    position: fixed;
+    top: 0;
+    right: 0; 
+    width: 400px; 
+    max-width: 90%; 
+    height: 100%;
+    background-color: var(--bg-secondary);
+    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
+    z-index: 100100000000;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%); 
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.advice-modal-overlay.visible .advice-modal-drawer {
+    transform: translateX(0);
+}
+.advice-drawer-header {
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+}
+.advice-drawer-header h2 {
+    margin: 0;
+    color: var(--accent-color);
+    font-size: 1.3em;
+}
+.advice-drawer-close {
+    background: none;
+    border: none;
+    font-size: 30px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    line-height: 1;
+    transition: color 0.2s;
+}
+.advice-drawer-close:hover {
+    color: var(--danger-color);
+}
+.advice-drawer-content {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto; 
+}
+.advice-drawer-content p {
+    white-space: pre-wrap;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-primary);
+    padding-right: 5px; 
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
+.advice-drawer-content h3 {
+    font-size: 1.4em;
+    font-weight: 700;
+    color: var(--accent-color); 
+    margin-top: 25px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--border-color);
+}
+.advice-drawer-content ul {
+    list-style: none; 
+    padding-left: 0;
+    margin-top: 0;
+}
+.advice-drawer-content li {
+    margin-bottom: 8px;
+    line-height: 1.5;
+    padding-left: 18px; 
+    position: relative;
+}
+.advice-drawer-content li::before {
+    content: '•';
+    color: var(--warning-color); 
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+    position: absolute;
+    left: 0;
+}
+.advice-drawer-content strong {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
+.knowledge-base-btn {
+    color: #fff;
+    border: none;
+    text-decoration: none; 
+    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
+    background-size: 200% 200%;
+    animation: gradient-animation 5s ease infinite;
+}
+.knowledge-base-btn:hover {
+    color: #fff;
+    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
+}
+@keyframes gradient-animation {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+    /* Основные стили футера */
+#main-footer {
+    position: relative; 
+    width: 100%;
+    min-height: 200px; 
+    background-color: #333; 
+    color: #fff;
+    padding: 20px 0;
+    overflow: hidden; 
+}
+#particles-js {
+    position: absolute; 
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1; 
+}
+.footer-content {
+    position: relative;
+    text-align: center;
+    padding-top: 50px; 
+    z-index: 2; 
+}
+.footer-content p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ --- */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    display: none; /* Скрыто по умолчанию */
+    justify-content: space-around;
+    align-items: flex-start; 
+    padding: 6px 0 8px 0;
+    z-index: 10003; 
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
+}
+.mobile-nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 10px;
+    font-family: inherit;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    padding: 4px;
+    cursor: pointer;
+    transition: color 0.2s;
+    text-align: center;
+}
+.mobile-nav-btn .icon {
+    font-size: 20px;
+    margin-bottom: 3px;
+    line-height: 1;
+}
+.mobile-nav-btn .label {
+    line-height: 1.2;
+}
+.mobile-nav-btn:hover {
+    color: var(--text-primary);
+}
+.mobile-nav-btn.active {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+.mobile-nav-btn#mobileNavSave.unsaved {
+    color: var(--warning-color);
+    animation: pulse-mobile 1.5s infinite;
+}
+.mobile-nav-btn#mobileNavSave.unsaved .icon {
+    animation: pulse-icon 1.5s infinite;
+}
+@keyframes pulse-mobile {
+    0% { color: var(--warning-color); }
+    50% { color: var(--text-primary); }
+    100% { color: var(--warning-color); }
+}
+@keyframes pulse-icon {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ (ОСНОВНАЯ) --- */
+@media (max-width: 768px) {
+    body { 
+        font-size: 14px; 
+        padding-bottom: 80px; 
+    }
+    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
+
+    .mobile-section {
+        display: none; 
+    }
+    .mobile-section.active {
+        display: block; 
+    }
+    .mobile-section.goals.active {
+        display: flex;
+    }
+
+    .goals { 
+        width: 100%; 
+        border-right: none; 
+        border-bottom: 1px solid var(--border-color); 
+        padding: 15px; 
+        height: auto; 
+        max-height: none; 
+        overflow-y: visible; 
+        position: static; 
+    }
+    .right { padding: 15px; overflow-y: visible; }
+    .months-wrapper { overflow-x: auto; } 
+
+    .mobile-bottom-nav {
+        display: flex;
+    }
+    .top-controls { 
+        display: none; 
+    }
+    #aiButtonContainer {
+        display: none; 
+    }
+    .knowledge-base-btn {
+        display: none; 
+    }
+
+    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
+    .habit-controls { flex-direction: column; align-items: stretch; }
+    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
+    .modal-body { flex-direction: column; }
+    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
+    .modal-right { overflow-y: auto; }
+    .modal-days { grid-template-columns: 1fr; }
+    .modal-header input { width: 50%; }
+    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
+    .mood-option { font-size: 30px; }
+    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    .advice-modal-drawer {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ В ПРОФИЛЕ --- */
+.profile-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 15px;
+    padding: 10px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+}
+.profile-stats div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.profile-stats span {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+.profile-stats strong {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--accent-color);
+}
+
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (РЕДИЗАЙН) --- */
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end; 
+        height: 75px; 
+        padding: 0 10px;
+        padding-bottom: 8px; 
+    }
+    .mobile-bottom-nav .mobile-nav-btn {
+        flex: 1;
+        max-width: 60px; 
+        align-items: center;
+        justify-content: center;
+        padding-top: 6px; 
+        height: 60px; 
+        align-self: center; 
+    }
+
+    .mobile-nav-center-btn-container {
+        flex: 0 0 70px; 
+        position: relative;
+        display: flex;
+        justify-content: center;
+        height: 100%;
+        align-items: flex-start; 
+    }
+
+    .mobile-nav-center-btn {
+        position: absolute;
+        top: -20px; 
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: var(--accent-color);
+        border: 4px solid var(--bg-main);
+        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease, background-color 0.2s;
+    }
+    .mobile-nav-center-btn:hover {
+        transform: scale(1.1);
+        background-color: var(--accent-hover);
+    }
+    .mobile-nav-center-btn:active {
+        transform: scale(0.95);
+    }
+
+    .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        width: 22px;
+    }
+    .hamburger-icon span {
+        width: 100%;
+        height: 3px;
+        background-color: #fff;
+        border-radius: 2px;
+        transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    /* Анимация гамбургера в крестик (при открытии меню) */
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(2) {
+        opacity: 0;
+    }
+    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+    }
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ (РЕДИЗАЙН) --- */
+.mobile-menu-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    z-index: 10002;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; 
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    padding-bottom: 95px; 
+}
+.mobile-menu-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-menu-content {
+    display: flex;
+    flex-direction: column;
+    gap: 10px; 
+    padding: 15px;
+    width: 90%;
+    max-width: 320px; 
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+    transform-origin: bottom center;
+    transform: translateY(10px) scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
+}
+.mobile-menu-overlay.visible .mobile-menu-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+}
+
+.mobile-menu-btn {
+    background: var(--bg-hover); 
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 10px; 
+    padding: 12px 15px;
+    display: flex;
+    flex-direction: row; 
+    align-items: center;
+    justify-content: flex-start; 
+    gap: 15px; 
+    font-size: 16px; 
+    font-weight: 500; 
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+.mobile-menu-btn .icon {
+    font-size: 24px; 
+    flex-shrink: 0;
+    width: 30px; 
+    text-align: center;
+}
+.mobile-menu-btn .label {
+    font-size: 15px; 
+    font-weight: 500;
+}
+.mobile-menu-btn:hover {
+    background-color: var(--accent-color); 
+    transform: translateY(-2px);
+    color: #fff;
+}
+.mobile-menu-btn:active {
+    transform: scale(0.98);
+}
+.mobile-menu-close-btn {
+    display: none; 
+}
+
+/* ================================================================== */
+/* === НОВЫЕ СТИЛИ ДЛЯ ДЕСКТОПНОГО РЕДИЗАЙНА (ПО ЗАПРОСУ) === */
+/* ================================================================== */
+
+/* По умолчанию скрываем новые десктопные элементы */
+.desktop-layout-container { display: none; }
+.desktop-col-left { display: none; }
+.desktop-col-center { display: none; }
+.desktop-col-right { display: none; }
+
+@media (min-width: 769px) {
+    /* --- 1. СКРЫВАЕМ СТАРЫЕ И МОБИЛЬНЫЕ ЭЛЕМЕНТЫ --- */
+    .top-controls { display: none; }
+    .banner { display: none; }
+    .mobile-bottom-nav { display: none; }
+    .mobile-menu-overlay { display: none; }
+    #aiButtonContainer { display: none; }
+    /* Скрываем старые обертки */
+    .main-container { display: none; }
+    .right .top-buttons { display: none; }
+    .right .top-plan-controls { display: none; }
+    /* Скрываем старый десктопный хедер */
+    .desktop-header { display: none; }
+    .desktop-body-container { display: none; }
+
+    /* Сбрасываем отступ для мобильной навигации */
+    body { padding-bottom: 0; }
+    
+    /* --- 2. НОВАЯ 3-КОЛОНОЧНАЯ СТРУКТУРА (ПО ВАШЕМУ ЗАПРОСУ) --- */
+    .desktop-layout-container {
+        display: flex;
+        flex-direction: row;
+        height: 100vh; /* На всю высоту экрана */
+        overflow: hidden; /* Запрещаем прокрутку body */
+    }
+
+    /* --- 2a. ЛЕВАЯ КОЛОНКА (Кнопки) --- */
+    .desktop-col-left {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 220px; /* Фикс. ширина */
+        flex-shrink: 0;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border-color);
+        padding: 20px;
+        gap: 12px;
+    }
+    /* Стилизуем кнопки в левой колонке */
+    .desktop-col-left .account-control-btn,
+    .desktop-col-left .save-all-btn,
+    .desktop-col-left .btn {
+        width: 100%;
+        justify-content: flex-start; /* Текст и иконка слева */
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+    .desktop-col-left #getAISuggestionBtn {
+        background: #39556d;
+        border-color: #39556d;
+        color: #fff;
+    }
+    .desktop-col-left #getAISuggestionBtn:hover {
+        background: #476a8a;
+    }
+
+
+    /* --- 2b. ЦЕНТРАЛЬНАЯ КОЛОНКА (Корзина, Лого, Цели, Недели, Архив) --- */
+    .desktop-col-center {
+        display: flex;
+        flex-direction: column;
+        flex-basis: 450px; /* Фикс. ширина */
+        flex-shrink: 0;
+        background: var(--bg-main);
+        border-right: 1px solid var(--border-color);
+        padding: 20px;
+        gap: 20px;
+        overflow-y: auto; /* Скролл для этой колонки */
+    }
+    
+    .desktop-center-top {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        align-items: flex-start; /* Выравнивание по верху */
+    }
+    
+    /* Корзина в центре */
+    .desktop-col-center .trash-container {
+        display: flex;
+        position: static; /* Сброс */
+        opacity: 1;
+        pointer-events: auto;
+        transform: none;
+        width: auto;
+        flex: 1; /* Растягиваем */
+        min-height: 150px;
+    }
+
+    .desktop-center-logo {
+        font-size: 1.8em;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: 1px;
+        text-align: center;
+        padding: 10px 0;
+        flex-shrink: 0;
+    }
+    .desktop-center-logo span {
+        color: var(--accent-color);
+    }
+    
+    /* Годовые цели (в центре) */
+    .desktop-center-top .goals {
+        display: flex;
+        flex: 2; /* Больше места */
+        width: auto;
+        position: static;
+        height: auto;
+        max-height: 250px; /* Ограничим высоту */
+        overflow-y: auto;
+        border-left: 1px solid var(--border-color);
+        border-right: none;
+    }
+    .desktop-center-top .goals .add-goal-btn {
+        position: static;
+        transform: none;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin-top: 15px;
+        display: flex;
+        font-size: 16px;
+        padding: 10px;
+    }
+    .desktop-center-top .goals .add-goal-btn:hover {
+        transform: none;
+    }
+
+    /* Нераспределенные недели (в центре) */
+    .desktop-col-center .unassigned-container {
+        flex-shrink: 0; /* Не сжимать */
+    }
+    .desktop-col-center .unassigned-list {
+        max-height: 300px; 
+    }
+    
+    /* Архив (в центре) */
+    .desktop-col-center .archive-container-wrapper {
+        margin-top: 0;
+        flex-shrink: 0;
+    }
+    .desktop-col-center #archiveList {
+        display: none; /* Скрываем список на главной */
+    }
+    .desktop-col-center #archiveAllMonthsBtn {
+        display: none; /* Скрываем кнопку архивации */
+    }
+    .desktop-col-center #openArchiveModalBtn {
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+
+    /* --- 2c. ПРАВАЯ КОЛОНКА (Месяцы, Привычки, Настроение) --- */
+    .desktop-col-right {
+        display: flex;
+        flex-direction: column;
+        flex: 1; /* Занимает все оставшееся место */
+        padding: 20px;
+        gap: 20px;
+        overflow-y: auto; /* Главный скролл-бар */
+    }
+    .desktop-col-right .months-wrapper {
+        max-height: none; /* Убираем ограничение высоты */
+        flex-shrink: 0;
+    }
+    .desktop-col-right .habit-tracker,
+    .desktop-col-right .mood-tracker {
+        margin-bottom: 0; /* Убираем отступы */
+        flex-shrink: 0;
+    }
+
+
+    /* --- 3. ПЕРЕМЕЩЕННЫЕ ЭЛЕМЕНТЫ (Показываем их) --- */
+    .desktop-col-left .account-control-btn,
+    .desktop-col-left .save-all-btn,
+    .desktop-col-left .open-trash-btn,
+    .desktop-col-left .knowledge-base-btn,
+    .desktop-col-left #getAISuggestionBtn,
+    .desktop-col-left .meds-link, /* Ссылка на лекарства */
+    .desktop-col-center #createWeekBtn,
+    .desktop-col-center .unassigned-container,
+    .desktop-col-center .archive-container-wrapper,
+    .desktop-col-center .trash-container,
+    .desktop-center-top .goals,
+    .desktop-col-right .months-wrapper,
+    .desktop-col-right .habit-tracker,
+    .desktop-col-right .mood-tracker {
+        display: flex; /* или block/flex в зависимости от элемента */
+    }
+
+    /* Контейнеры, которые должны быть block */
+    .desktop-col-center .unassigned-container,
+    .desktop-col-center .archive-container-wrapper,
+    .desktop-col-right .habit-tracker,
+    .desktop-col-right .mood-tracker,
+    .desktop-col-right .months-wrapper {
+        display: block; 
+    }
+}
+
+
+/* --- СТИЛИ ДЛЯ НОВОГО МОДАЛЬНОГО ОКНА АРХИВА --- */
+#archiveModal .modal-content {
+    max-width: 600px;
+    height: 70vh;
+}
+.archive-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.archive-modal-body h3 {
+    text-align: center;
+    color: var(--text-secondary);
+    margin-top: 50px;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="desktop-layout-container">
+
+    <nav class="desktop-col-left">
+        <div id="accountControl" class="account-control-btn">
+            <img src="pictures/account.png" width="16" height="16" alt="Profile">
+            <span id="usernameDisplay">Профиль</span>
+        </div>
+        <button id="saveAllBtn" class="save-all-btn">
+            <img src="pictures/save.png" width="16" height="16" alt="Save">
+            <span id="saveAllBtnText">Сохранить все</span>
+        </button>
+        <a href="meds.html" class="btn meds-link">
+            💊 Лекарства
+        </a>
+        <a href="knowledge_base.html" class="btn knowledge-base-btn">
+            🧠 База Знаний
+        </a>
+        <button id="getAISuggestionBtn" class="btn">
+            🤖 AI совет
+        </button>
+        <button id="openTrashBtn" class="btn open-trash-btn">
+             🗑️ Корзина (Зона)
+        </button>
+    </nav>
+
+    <main class="desktop-col-center">
+        
+        <div class="desktop-center-top">
+            <div id="trashContainer" class="trash-container">
+                <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
+                <div class="trash-label">Корзина (удаление)</div>
+                <div class="trash-hint">Перетащи неделю сюда для удаления</div>
+            </div>
+
+            <div class="logo-and-goals-wrapper" style="flex: 2; display: flex; flex-direction: column; gap: 10px;">
+                <div class="desktop-center-logo">TIME <span>OWNER</span></div>
+                
+                <aside class="goals" id="desktopGoalsContainer">
+                    <h2>Годовые цели</h2>
+                    <div id="goalsList"></div>
+                    <div id="addGoalBtn" class="add-goal-btn">＋</div>
+                </aside>
+            </div>
+        </div>
+
+        <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+
+        <div class="unassigned-container">
+            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели</div>
+            <div id="unassignedList" class="unassigned-list"></div>
+        </div>
+
+        <div class="archive-container-wrapper">
+            <h2>🗄️ Архив недель</h2>
+            <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать.</p>
+            
+            <button id="openArchiveModalBtn" class="btn">
+                <img src="pictures/save.png" width="16" alt="Архив"> 
+                Открыть архив
+            </button>
+            
+            <div id="archiveContainer" class="archive-container">
+                <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
+            </div>
+        </div>
+    </main>
+    
+    <aside class="desktop-col-right">
+        <div class="months-wrapper">
+            <div class="months" id="months"></div>
+        </div>
+
+        <section class="habit-tracker" id="desktopHabitTracker">
+            <h2>✅ Трекер Привычек</h2>
+            <div class="habit-controls">
+                <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
+                <button id="addHabitBtn" class="btn">Добавить привычку</button>
+                <button id="newDayBtn" class="btn create-week">Новый день</button>
+            </div>
+            <div class="habit-table-container" id="habitTableContainer">
+                <div class="habit-table-wrapper">
+                    <table class="habit-table">
+                        <thead>
+                            <tr id="habitHeaderRow">
+                                <th>Дата</th>
+                                <th class="progress-col">Прогресс дня</th>
+                            </tr>
+                        </thead>
+                        <tbody id="habitBody">
+                        </tbody >
+                    </table>
+                </div>
+            </div>
+            <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
+                Показать всю историю
+            </button>
+        </section>
+
+        <section class="mood-tracker" id="desktopMoodTracker">
+            <h2>✨ Трекер Настроения</h2>
+            <p style="text-align:center;">Как твой день?</p>
+            <div class="mood-selection">
+                <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
+                <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
+                <span class="mood-option" data-mood="great" title="Отлично">😄</span>
+            </div>
+            <h3>История настроения</h3>
+            <div class="mood-history-controls">
+                <select id="moodMonthSelect" class="current-month-select"></select>
+            </div>
+            <div id="moodCalendar" class="mood-calendar"></div>
+        </section>
+    </aside>
+
+</div>
+
+
+<div class="top-controls">
+    </div>
+
+<div class="banner">
+  <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
+</div>
+
+<div class="main-container">
+    
+  <aside class="goals mobile-section" id="mobileSectionGoals">
+      <h2>Годовые цели</h2>
+      <div id="goalsListMobile"></div> <div id="addGoalBtnMobile" class="add-goal-btn">＋</div>
+  </aside>
+
+  <main class="right mobile-section" id="mobileSectionWeeks">
+    <div class="top-buttons">
+        </div>
+
+    <div class="top-plan-controls">
+        <button id="createWeekBtnMobile" class="btn create-week">Создать неделю</button>
+        
+        <div class="unassigned-container" id="mobileUnassignedContainer">
+            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели</div>
+            <div id="unassignedListMobile" class="unassigned-list"></div>
+        </div>
+        
+        <div id="trashContainerMobile" class="trash-container">
+            <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
+            <div class="trash-label">Корзина</div>
+        </div>
+        
+        <div class="months-wrapper" id="mobileMonthsWrapper">
+            <div class="months" id="monthsMobile"></div>
+        </div>
+        
+        <div class="archive-container-wrapper" id="mobileArchiveContainer">
+            <h2>🗄️ Архив недель</h2>
+            <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать.</p>
+            <button id="openArchiveModalBtnMobile" class="btn">Открыть архив</button>
+            <div id="archiveContainerMobileInner" class="archive-container">
+                <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
+            </div>
+        </div>
+        
+    </div>
+  </main>
+  
+  <section class="habit-tracker mobile-section" id="mobileSectionHabits">
+      </section>
+
+  <section class="mood-tracker mobile-section" id="mobileSectionMood">
+      </section>
+  
+</div>
+
+<div class="modal" id="weekModal">
+    <div class="modal-content week-editor">
+        <div class="modal-header">
+            <div class="week-header-inputs">
+                <input id="weekTitle" type="text" placeholder="Название недели">
+                <input id="weekStartDate" type="date" title="Начальная дата недели (Понедельник)">
+                <h6>- Начальная дата недели (Понедельник)</h6>
+            </div>
+            <div class="actions">
+                <div id="menuContainer" style="position: relative;">
+                    <span id="menuBtn">⋮</span>
+                    <div class="menu" id="weekMenu">
+                        <div id="deleteWeek"><img src="pictures/trash.png" width="16" alt="Удалить"> Удалить неделю</div>
+                        <div id="downloadWeek"><img src="pictures/download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
+                    </div>
+                </div>
+                <span id="closeModal" class="modal-close-btn">×</span>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div class="modal-left">
+                <div class="modal-description">
+                    <textarea id="weekDesc" placeholder="Описание недели..."></textarea>
+                </div>
+                <div class="modal-goals">
+                    <h4>Годовые цели</h4>
+                    <ul id="modalGoalsList"></ul>
+                </div>
+            </div>
+            <div class="modal-right">
+                <div class="modal-days" id="daysContainer"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="save-btn btn" id="saveBtn">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="profileModal">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header">
+             <h2>Личный кабинет</h2>
+             <span class="modal-close-btn" onclick="closeProfileModal()">×</span>
+        </div>
+       
+        <div class="profile-section">
+            <h3>Статистика задач</h3>
+            <div class="profile-stats">
+                <div>
+                    <span>Выполнено:</span>
+                    <strong id="completedTasksCount">0</strong>
+                </div>
+                <div>
+                    <span>Осталось:</span>
+                    <strong id="uncompletedTasksCount">0</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3>Имя пользователя (Ник)</h3>
+            <div class="profile-input-group">
+                <input type="text" id="nickInput" placeholder="Введите новый ник">
+                <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <h3>Управление аккаунтом</h3>
+            <button id="deleteProfileBtn" class="btn btn-delete">
+                <img src="pictures/trash.png" width="16" alt="Удалить">
+                Удалить профиль и все данные
+            </button>
+            <button id="logoutBtn" class="btn btn-logout">
+                <img src="pictures/logout.png" width="16" alt="Выход"> 
+                Выйти из аккаунта
+            </button>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn" onclick="closeProfileModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="confirmModal">
+    <div class="modal-content small-modal-content confirm-modal-content">
+        <h2>⚠️ Подтверждение удаления</h2>
+        <p id="confirmMessage"></p>
+
+        <div class="confirm-actions">
+            <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
+            <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="dontAskAgain">
+            <label for="dontAskAgain">Больше не спрашивать при удалении</label>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="archiveModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>🗄️ Архив Недель</h2>
+            <span class="modal-close-btn" onclick="closeArchiveModal()">×</span>
+        </div>
+        <div class="archive-modal-body" id="archiveModalBody">
+            </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeArchiveModal()">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div>Пожалуйста, подождите...</div>
+</div>
+
+<div id="aiAdviceModalOverlay" class="advice-modal-overlay">
+    <div id="aiAdviceModal" class="advice-modal-drawer">
+        <div class="advice-drawer-header">
+            <h2>🤖 AI Совет</h2>
+            <button class="advice-drawer-close" onclick="closeAiAdviceModal()">&times;</button>
+        </div>
+        <div class="advice-drawer-content">
+            <p id="aiAdviceText"></p>
+        </div>
+    </div>
+</div>
+
+<div id="aiButtonContainer">
+    </div>
+
+<footer id="main-footer">
+    <div id="particles-js"></div> 
+
+    <div class="footer-content">
+        <p>Time Owner: Станьте настоящим Владельцем своего времени, а не его заложником. <br>Платформа для организации, контроля и управления самым ценным ресурсом — вашей жизнью. <br>Достигайте целей, управляйте задачами и максимизируйте продуктивность с полным осознанием и контролем.</p>
+        <a href="meds.html">
+            <span class="icon">💊️</span>
+            <span class="label">Лекарства</span>
+        </a>
+    </div>
+</footer>
+
+<nav class="mobile-bottom-nav">
+    <button class="mobile-nav-btn" id="mobileNavWeeks">
+        <span class="icon">🗓️</span>
+        <span class="label">Недели</span>
+    </button>
+    <button class="mobile-nav-btn" id="mobileNavHabits">
+        <span class="icon">✅</span>
+        <span class="label">Привычки</span>
+    </button>
+
+    <div class="mobile-nav-center-btn-container">
+        <button class="mobile-nav-center-btn" id="mobileNavMenuBtn">
+            <div class="hamburger-icon">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </button>
+    </div>
+
+    <button class="mobile-nav-btn" id="mobileNavSave">
+        <span class="icon">💾</span>
+        <span class="label">Сохранить</span>
+    </button>
+    <button class="mobile-nav-btn" id="mobileNavProfile">
+        <span class="icon">👤</span>
+        <span class="label">Профиль</span>
+    </button>
+</nav>
+
+<div class="mobile-menu-overlay" id="mobileMenuOverlay">
+    <div class="mobile-menu-content">
+        <button class="mobile-menu-btn" id="mobileMenuGoals">
+            <span class="icon">🎯</span>
+            <span class="label">Цели</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuMood">
+            <span class="icon">✨</span>
+            <span class="label">Настроение</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuKB">
+            <span class="icon">🧠</span>
+            <span class="label">База</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuAI">
+            <span class="icon">🤖</span>
+            <span class="label">AI</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuMedics">
+            <span class="icon">💊</span>
+            <span class="label">Лекарства</span>
+        </button>
+    </div>
+    </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="https://unpkg.com/drag-drop-touch"></script>
+
+<script>
+// =================================================================
+// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ (Обновленные для Supabase)
+// =================================================================
+
+// --- КОНСТАНТЫ SUPABASE ---
+const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
+let supabase = null; 
+
+// --- ОБЩИЕ КОНСТАНТЫ ---
+const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
+const STORAGE_KEY_USERNAME = 'plannerUsername';
+const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
+const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
+const STORAGE_KEY_CONFIRM_DELETE = 'plannerConfirmDelete_v1';
+
+const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
+const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
+
+let notificationTimers = {}; 
+let data = null;
+let dragId = null;
+let dragTitle = null;
+let dragOrigin = null; // 'unassigned', 'month', 'archive'
+let currentDayDrag = null; 
+
+// --- ГЛОБАЛЬНЫЕ DOM ЭЛЕМЕНТЫ ---
+const saveAllBtn = document.getElementById('saveAllBtn');
+const saveAllBtnText = document.getElementById('saveAllBtnText');
+const accountControlBtn = document.getElementById('accountControl');
+accountControlBtn.onclick = handleAccountControlClick;
+
+const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
+const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay');
+const aiAdviceText = document.getElementById('aiAdviceText');
+
+// Корзина (используем ID, т.к. их может быть 2 - моб и десктоп)
+const trashContainer = document.getElementById('trashContainer');
+const trashContainerMobile = document.getElementById('trashContainerMobile');
+const openTrashBtn = document.getElementById('openTrashBtn'); // Кнопка в левой колонке
+
+const confirmModal = document.getElementById('confirmModal');
+const confirmMessage = document.getElementById('confirmMessage');
+const confirmCancelBtn = document.getElementById('confirmCancelBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+const dontAskAgainCheckbox = document.getElementById('dontAskAgain');
+let currentDeleteResolve = null; 
+
+// Модальное окно Архива (НОВОЕ)
+const archiveModal = document.getElementById('archiveModal');
+const openArchiveModalBtn = document.getElementById('openArchiveModalBtn');
+const openArchiveModalBtnMobile = document.getElementById('openArchiveModalBtnMobile');
+
+const loadingOverlay = document.getElementById('loadingOverlay');
+function showLoading() {
+    loadingOverlay.style.display = 'flex';
+    setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10);
+}
+function hideLoading() {
+    loadingOverlay.style.opacity = '0';
+    setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
+}
+
+/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ --- */
+function setUnsaved(isUnsaved) {
+    const mobileSaveBtn = document.getElementById('mobileNavSave'); 
+
+    if (isUnsaved) {
+        localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
+        saveAllBtn.classList.add('unsaved');
+        if(saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все (!)'; 
+        if (mobileSaveBtn) mobileSaveBtn.classList.add('unsaved');
+    } else {
+        localStorage.removeItem(STORAGE_KEY_UNSAVED);
+        saveAllBtn.classList.remove('unsaved');
+        if(saveAllBtnText) saveAllBtnText.textContent = 'Сохранить все';
+        if (mobileSaveBtn) mobileSaveBtn.classList.remove('unsaved');
+    }
+}
+function save() {
+    if (!data) return;
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
+    setUnsaved(true);
+}
+
+// =================================================================
+// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE 
+// =================================================================
+async function loadDataFromSupabase() {
+    if (!supabase) { console.error("Supabase client not initialized."); return null; }
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) { 
+        window.location.href = 'login.html'; 
+        return null; 
+    }
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
+            setUnsaved(true);
+            try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL)); } catch (e) { console.error("Ошибка парсинга локальных данных."); }
+        }
+    }
+    showLoading();
+    const { data: result, error } = await supabase
+        .from('user_data')
+        .select('data_json')
+        .eq('data_key', dataKey)
+        .single(); 
+    hideLoading();
+    if (error && error.code !== 'PGRST116') { 
+        console.error("Ошибка Supabase при загрузке:", error);
+        alert(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`);
+    }
+
+    const loadedData = (result && result.data_json) 
+        ? result.data_json 
+        : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}, archive: []}; 
+
+    if (!loadedData.goals) loadedData.goals = [];
+    if (!loadedData.weeks) loadedData.weeks = {};
+    if (!loadedData.unassigned) loadedData.unassigned = [];
+    if (!loadedData.habits) loadedData.habits = [];
+    if (!loadedData.habitRecords) loadedData.habitRecords = [];
+    if (!loadedData.moodRecords) loadedData.moodRecords = {};
+    if (!loadedData.months) loadedData.months = {};
+    if (!loadedData.archive) loadedData.archive = []; 
+
+    months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
+
+    const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat(), ...(loadedData.archive || [])];
+    allWeeks.forEach(week => {
+        if (!week.startDate) {
+            week.startDate = null; 
+        }
+        if (week.tasks) {
+            weekDays.forEach(day => {
+                if (Array.isArray(week.tasks[day])) {
+                    week.tasks[day] = week.tasks[day].map(task => {
+                        if (typeof task === 'string') {
+                            return { text: task, done: false, time: '' };
+                        }
+                        if (typeof task === 'object' && task !== null) {
+                            if (task.done === undefined) task.done = false;
+                            if (task.time === undefined) task.time = '';
+                        }
+                        return task;
+                    });
+                }
+            });
+        }
+    });
+
+    setUnsaved(false);
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
+    return loadedData;
+}
+
+async function saveDataToSupabase() {
+    if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
+    if (!supabase) { console.error("Supabase client not initialized."); return { status: "error", message: "Клиент не инициализирован." }; }
+    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!dataKey) {
+        alert("Ошибка авторизации. Пожалуйста, войдите в систему снова.");
+        window.location.href = 'login.html';
+        return { status: "error", message: "Нет ключа авторизации." };
+    }
+    showLoading();
+    const payload = {
+        data_key: dataKey, 
+        data_json: data, 
+        created_at: new Date().toISOString() 
+    };
+    const { error } = await supabase
+        .from('user_data')
+        .upsert(payload, { onConflict: 'data_key' }); 
+    hideLoading();
+    if (error) {
+        console.error("Ошибка Supabase при сохранении:", error);
+        alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
+        return { status: "error", message: error.message };
+    } else {
+        setUnsaved(false);
+        alert("Данные успешно сохранены на сервер!");
+        return { status: "success" };
+    }
+}
+saveAllBtn.onclick = saveDataToSupabase;
+
+async function changeUsername(newNick) {
+    localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
+    updateAuthButton();
+    alert(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`);
+    closeProfileModal();
+    return { status: "success", newUsername: newNick };
+}
+
+async function deleteProfileAndData() {
+    if (!supabase) { console.error("Supabase client not initialized."); return; }
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
+    if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
+    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
+    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
+    if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
+    showLoading();
+    const { error } = await supabase
+        .from('user_data')
+        .delete()
+        .eq('data_key', dataKey);
+    hideLoading();
+    if (error) {
+        console.error("Ошибка Supabase при удалении:", error);
+        alert(`Ошибка при удалении профиля: ${error.message}`);
+    } else {
+        alert("Ваш профиль и все данные успешно удалены.");
+        ['Auth', 'Username', 'Local', 'Unsaved', 'ConfirmDelete_v1'].forEach(key => localStorage.removeItem(`planner${key}`));
+        window.location.href = 'login.html';
+    }
+}
+
+
+// =================================================================
+// 3. ФУНКЦИИ ЛИЧНОГО КАБИНЕТА
+// =================================================================
+
+const usernameDisplay = document.getElementById('usernameDisplay');
+const profileModal = document.getElementById('profileModal');
+const nickInput = document.getElementById('nickInput');
+
+function calculateTaskStats() {
+    let completed = 0;
+    let uncompleted = 0;
+
+    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
+
+    allWeeks.forEach(week => {
+        if (week.tasks) {
+            weekDays.forEach(day => {
+                if (Array.isArray(week.tasks[day])) {
+                    week.tasks[day].forEach(task => {
+                        if (task.done) {
+                            completed++;
+                        } else {
+                            uncompleted++;
+                        }
+                    });
+                }
+            });
+        }
+    });
+
+    return { completed, uncompleted };
+}
+
+function updateAuthButton() {
+    const username = localStorage.getItem(STORAGE_KEY_USERNAME);
+    usernameDisplay.textContent = username || 'Профиль';
+}
+function handleAccountControlClick() { openProfileModal(); }
+
+function openProfileModal() {
+    nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
+
+    const stats = calculateTaskStats();
+    const completedEl = document.getElementById('completedTasksCount');
+    const uncompletedEl = document.getElementById('uncompletedTasksCount');
+
+    if (completedEl) completedEl.textContent = stats.completed;
+    if (uncompletedEl) uncompletedEl.textContent = stats.uncompleted;
+
+    profileModal.style.display='flex';
+    setTimeout(()=>profileModal.classList.add('visible'), 10);
+}
+
+function closeProfileModal() {
+    profileModal.classList.remove('visible');
+    setTimeout(() => { profileModal.style.display='none'; }, 300);
+}
+
+document.getElementById('saveNickBtn').onclick = async () => {
+    const newNick = nickInput.value.trim();
+    if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
+    if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
+    await changeUsername(newNick); 
+};
+document.getElementById('logoutBtn').onclick = () => {
+    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
+        if (!confirm("У вас есть несохраненные изменения, которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
+            return; 
+        }
+    }
+    showLoading(); 
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    localStorage.removeItem(STORAGE_KEY_USERNAME);
+    localStorage.removeItem(STORAGE_KEY_LOCAL);
+    localStorage.removeItem(STORAGE_KEY_UNSAVED);
+    localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
+    setTimeout(() => {
+        window.location.href = 'login.html';
+    }, 500); 
+};
+document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
+
+
+/* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ --- */
+// Кнопка в левой колонке теперь не переключает, а просто существует
+// openTrashBtn.onclick = ...; (Логика не нужна)
+
+function setupTrashDropZone(element) {
+    if (!element) return;
+    element.ondragover = e => { e.preventDefault(); element.classList.add('dragover'); };
+    element.ondragleave = () => { element.classList.remove('dragover'); };
+    element.ondrop = async e => {
+        e.preventDefault(); element.classList.remove('dragover');
+        if (!dragId || !dragTitle) return;
+        const confirmed = await showConfirmDeleteModal(dragTitle);
+
+        if (confirmed) {
+            let deleted = false;
+            // 1. Проверяем нераспределенные
+            const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
+            if (unassignedIndex !== -1) {
+                data.unassigned.splice(unassignedIndex, 1);
+                deleted = true;
+            }
+            // 2. Проверяем месяцы
+            if (!deleted) {
+                for (const monthName of months) {
+                    if (data.months[monthName]) {
+                        const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+                        if (weekIndex !== -1) {
+                            data.months[monthName].splice(weekIndex, 1);
+                            deleted = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            // 3. Проверяем архив
+            if (!deleted && data.archive) {
+                 const archiveIndex = data.archive.findIndex(w => w.id === dragId);
+                if (archiveIndex !== -1) {
+                    data.archive.splice(archiveIndex, 1);
+                    deleted = true;
+                }
+            }
+            if (deleted) {
+                clearWeekNotifications(dragId);
+                save(); 
+                renderAll();
+            }
+        }
+        dragId = null;
+        dragTitle = null;
+        dragOrigin = null; 
+    };
+}
+function showConfirmDeleteModal(title) {
+    return new Promise(resolve => {
+        if (localStorage.getItem(STORAGE_KEY_CONFIRM_DELETE) === 'skip') {
+            resolve(true);
+            return;
+        }
+        currentDeleteResolve = resolve;
+        confirmMessage.textContent = `Вы уверены, что хотите безвозвратно удалить элемент "${title}"?`;
+        dontAskAgainCheckbox.checked = false; 
+        confirmModal.style.display = 'flex';
+        setTimeout(() => confirmModal.classList.add('visible'), 10);
+    });
+}
+function closeConfirmDeleteModal() {
+    confirmModal.classList.remove('visible');
+    setTimeout(() => { confirmModal.style.display = 'none'; }, 300);
+}
+confirmDeleteBtn.onclick = () => {
+    if (dontAskAgainCheckbox.checked) {
+        localStorage.setItem(STORAGE_KEY_CONFIRM_DELETE, 'skip');
+    }
+    closeConfirmDeleteModal();
+    if (currentDeleteResolve) {
+        currentDeleteResolve(true);
+    }
+    currentDeleteResolve = null;
+};
+confirmCancelBtn.onclick = () => {
+    closeConfirmDeleteModal();
+    if (currentDeleteResolve) {
+        currentDeleteResolve(false);
+    }
+    currentDeleteResolve = null;
+};
+
+
+/* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
+const goalsList=document.getElementById('goalsList');
+const goalsListMobile = document.getElementById('goalsListMobile'); // Мобильный
+const addGoalBtn = document.getElementById('addGoalBtn');
+const addGoalBtnMobile = document.getElementById('addGoalBtnMobile');
+
+function renderGoals(){
+    const lists = [goalsList, goalsListMobile]; // Рендерим в оба
+    lists.forEach(list => {
+        if (!list) return;
+        list.innerHTML='';
+        data.goals.forEach((t,i)=>{
+            const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
+            div.addEventListener('input',()=> { data.goals[i] = div.innerText.replace(/×/g, '').trim(); save(); });
+            const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
+            rm.onclick=()=>{data.goals.splice(i,1); save(); renderGoals(); };
+            div.appendChild(rm);
+            list.appendChild(div);
+        });
+    });
+}
+const addGoalHandler = ()=>{data.goals.push('Новая цель');save();renderGoals();};
+if(addGoalBtn) addGoalBtn.onclick = addGoalHandler;
+if(addGoalBtnMobile) addGoalBtnMobile.onclick = addGoalHandler;
+
+
+const unassignedList=document.getElementById('unassignedList');
+const unassignedListMobile = document.getElementById('unassignedListMobile');
+const createWeekBtn=document.getElementById('createWeekBtn');
+const createWeekBtnMobile=document.getElementById('createWeekBtnMobile');
+const unassignedContainer = document.querySelector('.unassigned-container'); // Desktop
+const unassignedContainerMobile = document.getElementById('mobileUnassignedContainer'); // Mobile
+
+function setupUnassignedDropZone(container) {
+    if (!container) return;
+    container.ondragover = e => { 
+        e.preventDefault(); 
+        if (dragOrigin === 'month') {
+            container.classList.add('dragover'); 
+        } else if (dragOrigin === 'archive') {
+            container.classList.add('dragover-from-archive'); 
+        }
+    };
+    container.ondragleave = () => { 
+        container.classList.remove('dragover'); 
+        container.classList.remove('dragover-from-archive'); 
+    };
+    container.ondrop = e => {
+        e.preventDefault(); 
+        container.classList.remove('dragover'); 
+        container.classList.remove('dragover-from-archive'); 
+
+        if (!dragId || (dragOrigin !== 'month' && dragOrigin !== 'archive')) { 
+            dragId = null; dragTitle = null; dragOrigin = null;
+            return;
+        }
+
+        let weekToMove = null;
+        if (dragOrigin === 'month') {
+            for (const monthName of months) {
+                if (data.months[monthName]) {
+                    const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
+                    if (weekIndex !== -1) {
+                        [weekToMove] = data.months[monthName].splice(weekIndex, 1);
+                        break;
+                    }
+                }
+            }
+        } else if (dragOrigin === 'archive') { 
+            if (data.archive) {
+                 const weekIndex = data.archive.findIndex(w => w.id === dragId);
+                if (weekIndex !== -1) {
+                    [weekToMove] = data.archive.splice(weekIndex, 1);
+                }
+            }
+        }
+        if (weekToMove) {
+            data.unassigned.push(weekToMove);
+            save(); 
+            renderAll();
+        }
+        dragId = null;
+        dragTitle = null;
+        dragOrigin = null;
+    };
+}
+
+function getWeekById(id) {
+    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat(), ...(data.archive || [])];
+    return allWeeks.find(w => w.id === id);
+}
+
+function createWeekEl(week, origin){
+    const div=document.createElement('div'); div.className='week-item';
+    div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
+    div.dataset.origin = origin; 
+
+    div.ondragstart=()=>{
+        dragId=week.id;
+        dragTitle=week.title;
+        dragOrigin = origin; 
+    };
+    div.onclick=()=>openWeekModal(week.id);
+    return div;
+}
+
+function renderUnassigned(){
+    const lists = [unassignedList, unassignedListMobile];
+    lists.forEach(list => {
+        if (!list) return;
+        list.innerHTML='';
+        data.unassigned.forEach(w=>{ list.appendChild(createWeekEl(w, 'unassigned')); });
+    });
+}
+
+const monthsContainer=document.getElementById('months');
+const monthsContainerMobile=document.getElementById('monthsMobile');
+
+function renderMonths(){
+    const containers = [monthsContainer, monthsContainerMobile];
+    const currentMonthIndex = new Date().getMonth(); // НОВОЕ: для подсветки
+
+    containers.forEach(container => {
+        if (!container) return;
+        container.innerHTML='';
+        months.forEach((m,i)=>{
+            const div=document.createElement('div'); div.className='month';
+            div.style.borderColor=monthColors[i%monthColors.length];
+            
+            // НОВОЕ: Подсветка текущего месяца
+            if (i === currentMonthIndex) {
+                div.classList.add('current-month');
+            }
+
+            div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
+            container.appendChild(div);
+            
+            const dropZone=div.querySelector('.drop-zone');
+            dropZone.ondragover=e=>{
+                e.preventDefault(); 
+                if (dragOrigin === 'unassigned') {
+                    dropZone.classList.add('dragover');
+                }
+            };
+            dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
+            dropZone.ondrop=e=>{
+                e.preventDefault(); dropZone.classList.remove('dragover');
+                if (!dragId || dragOrigin !== 'unassigned') {
+                    dragId = null; dragTitle = null; dragOrigin = null;
+                    return;
+                }
+                const idx=data.unassigned.findIndex(w=>w.id===dragId);
+                if(idx>=0){
+                    const [w] = data.unassigned.splice(idx,1);
+                    if(!data.months[m]) data.months[m] = [];
+                    data.months[m].push(w);
+                    save(); renderAll();
+                }
+                dragId = null;
+                dragTitle = null;
+                dragOrigin = null;
+            };
+            const monthWeeksDiv=div.querySelector('.month-weeks');
+            (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w, 'month')); });
+        });
+    });
+}
+
+// === НОВЫЙ ФУНКЦИОНАЛ АРХИВА (МОДАЛЬНОЕ ОКНО) ===
+function openArchiveModal() {
+    const body = document.getElementById('archiveModalBody');
+    if (!body) return;
+    body.innerHTML = ''; 
+
+    if (!data.archive || data.archive.length === 0) {
+        body.innerHTML = '<h3>Архив пуст</h3>';
+    } else {
+        data.archive.forEach((week, index) => {
+            const div = document.createElement('div');
+            div.className = 'archived-week-item';
+            
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = week.title;
+            
+            const unarchiveBtn = document.createElement('button');
+            unarchiveBtn.className = 'btn btn-unarchive';
+            unarchiveBtn.textContent = 'Разархивировать';
+            
+            unarchiveBtn.onclick = () => {
+                // Найти неделю в data.archive (используем week.id на случай сдвига индекса)
+                const weekIndex = data.archive.findIndex(w => w.id === week.id);
+                if (weekIndex === -1) return; 
+
+                // Переместить из archive в unassigned
+                const [weekToMove] = data.archive.splice(weekIndex, 1);
+                data.unassigned.push(weekToMove);
+                
+                save();
+                renderAll(); // Обновить главный список unassigned
+                openArchiveModal(); // Перерисовать модальное окно
+            };
+            
+            div.appendChild(titleSpan);
+            div.appendChild(unarchiveBtn);
+            body.appendChild(div);
+        });
+    }
+
+    archiveModal.style.display='flex';
+    setTimeout(()=>archiveModal.classList.add('visible'), 10);
+}
+function closeArchiveModal() {
+    archiveModal.classList.remove('visible');
+    setTimeout(() => { archiveModal.style.display='none'; }, 300);
+}
+// Привязка кнопок открытия
+if(openArchiveModalBtn) openArchiveModalBtn.onclick = openArchiveModal;
+if(openArchiveModalBtnMobile) openArchiveModalBtnMobile.onclick = openArchiveModal;
+
+
+// === ОБНОВЛЕННЫЙ РЕНДЕРИНГ АРХИВА (Только Drop Zone) ===
+function setupArchiveDropZone() {
+    const dropZones = document.querySelectorAll('.drop-zone-archive');
+    
+    dropZones.forEach(archiveDropZone => {
+        if (!archiveDropZone) return;
+
+        archiveDropZone.ondragover = e => { 
+            e.preventDefault(); 
+            if (dragOrigin === 'unassigned' || dragOrigin === 'month') {
+                archiveDropZone.classList.add('dragover'); 
+            }
+        };
+        archiveDropZone.ondragleave = () => archiveDropZone.classList.remove('dragover');
+        archiveDropZone.ondrop = e => {
+            e.preventDefault();
+            archiveDropZone.classList.remove('dragover');
+
+            if (!dragId || (dragOrigin !== 'unassigned' && dragOrigin !== 'month')) {
+                dragId = null; dragTitle = null; dragOrigin = null;
+                return;
+            }
+
+            let weekToMove = null;
+            // 1. Ищем в unassigned
+            let idx = data.unassigned.findIndex(w => w.id === dragId);
+            if (idx !== -1) {
+                [weekToMove] = data.unassigned.splice(idx, 1);
+            } else {
+                // 2. Ищем в months
+                for (const monthName of months) {
+                    if (data.months[monthName]) {
+                        idx = data.months[monthName].findIndex(w => w.id === dragId);
+                        if (idx !== -1) {
+                            [weekToMove] = data.months[monthName].splice(idx, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (weekToMove) {
+                if (!data.archive) data.archive = [];
+                data.archive.push(weekToMove);
+                save();
+                renderAll();
+            }
+            dragId = null; dragTitle = null; dragOrigin = null;
+        };
+    });
+}
+// === КОНЕЦ ФУНКЦИЙ АРХИВА ===
+
+const createWeekHandler = ()=>{
+    const now = new Date();
+    const day = now.getDay();
+    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
+    const closestMonday = new Date(now.setDate(diff));
+    const formattedDate = closestMonday.toISOString().split('T')[0];
+    const week={
+        id:'w'+Date.now(),
+        title:'Новая неделя',
+        desc:'',
+        startDate: formattedDate, 
+        tasks:{}
+    };
+    data.unassigned.push(week); save(); renderAll();
+};
+if(createWeekBtn) createWeekBtn.onclick = createWeekHandler;
+if(createWeekBtnMobile) createWeekBtnMobile.onclick = createWeekHandler;
+
+
+function scrollToCurrentMonth() {
+    const monthsContainer = document.getElementById('months'); // Целимся в десктопный
+    if (!monthsContainer) return;
+    
+    const monthsWrapper = monthsContainer.parentElement; 
+    const now = new Date();
+    const currentMonthIndex = now.getMonth(); 
+    const currentMonthEl = monthsContainer.children[currentMonthIndex];
+    
+    if (currentMonthEl && monthsWrapper) {
+        const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
+        monthsWrapper.scrollTo({
+            left: scrollPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (ОБНОВЛЕНО) --- */
+const weekModal=document.getElementById('weekModal');
+const weekTitle=document.getElementById('weekTitle');
+const weekDesc=document.getElementById('weekDesc');
+const weekStartDateInput = document.getElementById('weekStartDate'); 
+const daysContainer=document.getElementById('daysContainer');
+const modalGoalsList=document.getElementById('modalGoalsList');
+let currentWeek=null;
+
+function getDateForDay(dateString, dayIndex) {
+    if (!dateString) return 'Не выбрана';
+    const date = new Date(dateString + 'T00:00:00'); 
+    if (isNaN(date.getTime())) return 'Ошибка даты';
+    const dayOffset = dayIndex;
+    date.setDate(date.getDate() + dayOffset);
+    const day = String(date.getDate()).padStart(2
