@@ -1516,6 +1516,10 @@ body {
 
     <div class="footer-content">
         <p>Time Owner: Станьте настоящим Владельцем своего времени, а не его заложником. <br>Платформа для организации, контроля и управления самым ценным ресурсом — вашей жизнью. <br>Достигайте целей, управляйте задачами и максимизируйте продуктивность с полным осознанием и контролем.</p>
+        <a href="meds.html">
+            <span class="icon">💊️</span>
+            <span class="label">Лекарства</span>
+        </a>
     </div>
 </footer>
 
@@ -1566,6 +1570,10 @@ body {
         <button class="mobile-menu-btn" id="mobileMenuAI">
             <span class="icon">🤖</span>
             <span class="label">AI</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuMedics">
+            <span class="icon">💊</span>
+            <span class="label">Лекарства</span>
         </button>
     </div>
     </div>
@@ -2936,6 +2944,10 @@ function setupMobileNav() {
     };
     if (mobileMenuAI && getAISuggestionBtn) mobileMenuAI.onclick = () => {
         getAISuggestionBtn.click();
+        closeMobileMenuOverlay();
+    };
+    if (mobileMenuMedics) mobileMenuMedics.onclick = () => {
+        window.location.href = 'meds.html';
         closeMobileMenuOverlay();
     };
 
