@@ -23,6 +23,8 @@
     --danger-color: #e53935;
     --success-color: #4CAF50;
     --warning-color: #FFC107;
+    /* --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ РЕДИЗАЙНА --- */
+    --header-height: 60px;
 }
 * {
     box-sizing: border-box;
@@ -68,7 +70,7 @@ body {
 .banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
 .banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
 
-/* --- ОСНОВНАЯ СТРУКТУРА (МОБИЛЬНАЯ) --- */
+/* --- ОСНОВНАЯ СТРУКТУРА --- */
 .main-container{
     display:flex;
     padding: 0 10px;
@@ -78,7 +80,7 @@ body {
 .goals{
     width:240px;
     background:var(--bg-secondary);
-    border-right:1px solid var(--border-color);
+    /* border-right:1px solid var(--border-color); -- ИЗМЕНЕНО В media-query */
     padding:20px;
     display:flex;
     flex-direction:column;
@@ -86,11 +88,9 @@ body {
     overflow-y: auto; 
     position:relative; 
     flex-shrink: 0;
-    
-    /* === ИЗМЕНЕНИЯ (Для мобильных) === */
     position: sticky;
-    top: 20px; 
-    max-height: calc(100vh - 40px);
+    top: 20px; /* Отступ при прилипании */
+    max-height: calc(100vh - 40px); /* Макс. высота = высота экрана минус отступы */
 }
 .right{
     flex:1;
@@ -109,8 +109,6 @@ body {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    text-decoration: none; /* Для ссылок-кнопок */
-    white-space: nowrap; /* Запрет переноса текста в кнопках */
 }
 .btn:hover{
     background-color: var(--bg-hover);
@@ -121,16 +119,66 @@ body {
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
-/* --- КНОПКИ УПРАВЛЕНИЯ (СТАРЫЙ БЛОК) --- */
+/* --- ИЗМЕНЕНИЕ: Стили для кнопки "Создать неделю" --- */
+#createWeekBtn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
+
+/* --- КНОПКИ УПРАВЛЕНИЯ (БЛОК РЕДИЗАЙНА) --- */
 .top-controls {
-    position: fixed;
-    top: 15px;
-    right: 20px;
-    display: flex;
+    /* (Было: position: fixed) */
+    position: relative; 
+    display: grid; /* --- ИЗМЕНЕНО: grid --- */
+    grid-template-columns: 240px 1fr auto; /* --- ИЗМЕНЕНО: 3 колонки (auto для целей) --- */
+    align-items: center;
     gap: 10px; 
     z-index: 10000;
+    /* --- НОВЫЕ СТИЛИ ДЛЯ ШАПКИ --- */
+    width: 100%;
+    padding: 10px 20px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    height: auto; /* --- ИЗМЕНЕНО: auto для колонки --- */
+    min-height: var(--header-height);
 }
-.save-all-btn, .account-control-btn {
+.top-controls-left {
+    display: flex;
+    align-items: stretch; /* --- ИЗМЕНЕНО: stretch --- */
+    gap: 8px; /* --- ИЗМЕНЕНО: 8px --- */
+    flex-direction: column; /* --- ИЗМЕНЕНО: column --- */
+}
+/* --- НОВЫЙ СТИЛЬ: Растягиваем кнопки в левой колонке --- */
+.top-controls-left .btn,
+.top-controls-left .header-btn,
+.top-controls-left .account-control-btn,
+.top-controls-left .trash-popover-container {
+    width: 100%;
+}
+.top-controls-right {
+    display: flex; /* --- ИЗМЕНЕНО: Показываем правый блок --- */
+    padding-right: 10px;
+    align-items: center;
+}
+
+.top-controls-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.6em; /* --- ИЗМЕНЕНО: побольше --- */
+    font-weight: bold;
+    color: var(--accent-color);
+    justify-self: center; /* --- ИЗМЕНЕНО: grid centering --- */
+}
+.top-controls-center img {
+    height: 40px; /* --- ИЗМЕНЕНО: побольше --- */
+    width: 40px; /* --- ИЗМЕНЕНО: побольше --- */
+}
+
+/* Стили для кнопок в шапке */
+.header-btn, .save-all-btn, .account-control-btn {
     background: var(--bg-tertiary);
     color: var(--text-primary);
     padding: 8px 15px;
@@ -143,6 +191,7 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    text-decoration: none; /* Для ссылки-кнопки */
 }
 .save-all-btn:hover {
     background: var(--success-color);
@@ -151,16 +200,20 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-.account-control-btn:hover{
+.account-control-btn:hover, .header-btn:hover {
     background: var(--accent-color);
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-.account-control-btn img, .save-all-btn img {
+.header-btn.trash-btn:hover {
+    background: var(--danger-color);
+    border-color: var(--danger-color);
+}
+.account-control-btn img, .save-all-btn img, .header-btn img {
     transition: filter 0.2s;
 }
-.account-control-btn:hover img, .save-all-btn:hover img {
+.account-control-btn:hover img, .save-all-btn:hover img, .header-btn:hover img {
     filter: invert(10%);
 }
 .save-all-btn.unsaved {
@@ -173,9 +226,63 @@ body {
     50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
     100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
 }
+/* --- НОВАЯ ВЫПАДАЮЩАЯ КОРЗИНА --- */
+.trash-popover-container {
+    position: relative;
+}
+.trash-popover {
+    display: none; /* Скрыта по умолчанию */
+    position: absolute;
+    top: 110%; /* Прямо под кнопкой */
+    left: 0;
+    width: 300px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    z-index: 10001;
+    padding: 15px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.trash-popover.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+.trash-popover .trash-icon {
+    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
+    transition: transform 0.2s;
+    margin-bottom: 10px;
+}
+.trash-popover.dragover {
+    background-color: rgba(229, 57, 53, 0.15); 
+    border-color: var(--danger-color);
+    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
+}
+.trash-popover.dragover .trash-icon {
+    transform: scale(1.2) rotate(-5deg);
+}
+.trash-label {
+    margin-top: 5px;
+    font-weight: bold;
+    color: var(--danger-color);
+    text-align: center;
+}
+.trash-hint {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    text-align: center;
+}
+
 
 /* --- ЦЕЛИ (Goal Styles) --- */
 .goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+#goalsList {
+    /* Стили для #goalsList будут в media-query */
+}
 .goal{
     background:var(--bg-tertiary);
     border-radius:8px;
@@ -263,7 +370,13 @@ body {
     transform: translateY(-2px); 
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-.months-wrapper { overflow-x: auto; padding-bottom: 20px; flex-shrink: 0; max-height: 500px; }
+.months-wrapper { 
+    overflow-x: auto; 
+    padding-bottom: 20px; 
+    flex-shrink: 0; 
+    /* max-height: 500px;  */ /* --- ИЗМЕНЕНО: убираем ограничение высоты для правой колонки */
+    height: 100%; /* Занимаем всю высоту */
+}
 .months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
 .month{
     min-width:280px; 
@@ -275,16 +388,18 @@ body {
     gap: 15px;
     flex-shrink:0; 
     border-top: 4px solid;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease; 
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease; /* --- ИЗМЕНЕНО: добавлена анимация рамки */
 }
+/* --- НОВЫЙ СТИЛЬ: ПОДСВЕТКА ТЕКУЩЕГО МЕСЯЦА --- */
+.month.current-month {
+    border: 2px solid var(--warning-color);
+    border-top: 4px solid var(--warning-color);
+    box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
+}
+
 .month:hover {
     transform: translateY(-5px);
     box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-}
-/* НОВЫЙ СТИЛЬ: Подсветка текущего месяца */
-.month.current-month {
-    border: 2px solid var(--warning-color);
-    box-shadow: 0 0 15px rgba(255, 193, 7, 0.5);
 }
 .month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
 .month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
@@ -313,14 +428,14 @@ body {
 .archive-container {
     min-height: 100px;
     max-height: 400px; 
-    overflow-y: auto;
+    /* overflow-y: auto; -- УБРАНО, т.к. список скрыт */
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding-right: 5px;
 }
 .archive-list {
-    display: flex;
+    display: none; /* --- ИЗМЕНЕНО: Список по умолчанию скрыт --- */
     flex-direction: column;
     gap: 8px;
     flex-grow: 1;
@@ -564,95 +679,42 @@ body {
     flex-wrap: wrap; 
     justify-content: flex-start; 
 }
-.trash-container {
+.unassigned-container {
     background-color: var(--bg-secondary);
     border-radius: 8px;
     padding: 15px;
-    border: 1px dashed var(--danger-color); 
-    flex: 0 0 200px; 
-    display: flex; 
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    transition: background-color 0.2s, border-color 0.2s, opacity 0.3s, max-height 0.3s, flex 0.3s ease, transform 0.3s ease, visibility 0.3s ease;
-    height: 100%; 
-    max-height: 250px;
-    opacity: 0;
-    pointer-events: none;
-    /* --- ИЗМЕНЕНИЯ ДЛЯ ДЕСКТОПА --- */
-    position: absolute;
-    top: 65px; /* Под шапкой */
-    left: 20px;
-    z-index: 1001;
-    width: 280px; /* Ширина левого сайдбара */
     border: 1px solid var(--border-color);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    transform: translateY(-10px);
+    max-width: none; 
+    flex: 1 1 300px; 
+    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
 }
-.trash-container.visible { 
-    opacity: 1;
-    pointer-events: auto; 
-    transform: translateY(0);
+.unassigned-container.dragover {
+    border-color: var(--accent-color);
+    background: rgba(0, 123, 255, 0.08);
 }
-.trash-container .trash-icon {
-    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
-    transition: transform 0.2s;
+.trash-container {
+    /* --- СТИЛИ УДАЛЕНЫ, ТАК КАК КОРЗИНА ТЕПЕРЬ В ШАПКЕ --- */
+    display: none; 
 }
-.trash-container.dragover {
-    background-color: rgba(229, 57, 53, 0.15); 
-    border-color: var(--danger-color);
-    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
-}
-.trash-container.dragover .trash-icon {
-    transform: scale(1.2) rotate(-5deg);
-}
-.trash-label {
-    margin-top: 5px;
-    font-weight: bold;
-    color: var(--danger-color);
-}
-.trash-hint {
-    font-size: 10px;
-    color: var(--text-secondary);
-    margin-top: 5px;
-}
+
 .top-buttons {
     display: flex;
     gap: 10px;
     margin-bottom: 10px;
 }
 .open-trash-btn {
-    background: var(--danger-color);
-    border-color: var(--danger-color);
-    color: #fff;
-}
-.open-trash-btn:hover {
-    background: #c32727;
-    border-color: #c32727;
+    /* --- СТИЛИ УДАЛЕНЫ, ТАК КАК КНОПКА УДАЛЕНА --- */
+    display: none;
 }
 
-/* Адаптивность для мобильных (Корзина) */
+/* Адаптивность для мобильных */
 @media (max-width: 768px) {
     .top-plan-controls {
         flex-direction: column;
         gap: 10px;
     }
     .trash-container {
-        max-height: 100px;
-        flex-direction: row;
-        justify-content: space-around;
-        padding: 10px 20px;
-        width: 100%;
-        min-height: auto;
-        flex: 1 1 100%; 
-        /* Сброс стилей десктопа */
-        position: relative; 
-        top: auto;
-        left: auto;
-        z-index: 1;
-        width: 100%;
-        transform: none;
+       display: none; /* Скрываем и на мобильных */
     }
     .trash-hint { display: none; } 
     .top-buttons {
@@ -793,6 +855,39 @@ body {
     margin-right: 8px;
     cursor: pointer;
     accent-color: var(--danger-color);
+}
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА АРХИВА --- */
+.archive-modal-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 10px;
+    background: var(--bg-main);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 15px;
+}
+.archive-modal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-tertiary);
+    padding: 10px 15px;
+    border-radius: 6px;
+}
+.archive-modal-item span { font-weight: 500; }
+.archive-modal-item .btn-unarchive { 
+    padding: 5px 10px; 
+    font-size: 12px;
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+    color: #fff;
+}
+.archive-modal-item .btn-unarchive:hover {
+    background-color: #3e8e41;
 }
 
 
@@ -992,6 +1087,7 @@ body {
 .mobile-nav-btn:hover {
     color: var(--text-primary);
 }
+/* НОВЫЙ СТИЛЬ: Активная кнопка-вкладка */
 .mobile-nav-btn.active {
     color: var(--accent-color);
     font-weight: 600;
@@ -1016,7 +1112,122 @@ body {
 }
 
 
-/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ (ОСНОВНАЯ) --- */
+/* --- 
+--- НОВЫЕ СТИЛИ РЕДИЗАЙНА ДЛЯ ДЕСКТОПА ---
+--- (Применяются ТОЛЬКО на экранах шире 768px) ---
+--- */
+
+@media (min-width: 769px) {
+    .banner {
+        display: none; /* Скрываем старый баннер */
+    }
+
+    .main-container {
+        padding: 0; /* Убираем отступы у главного контейнера */
+        /* flex-direction: row-reverse; -- УДАЛЕНО: Цели теперь в шапке */
+    }
+
+    /* --- ИЗМЕНЕНО: Стили для целей в шапке --- */
+    .goals {
+        position: static; /* Убираем sticky */
+        width: 100%;
+        height: auto;
+        max-height: none;
+        border: none; /* Убираем рамки */
+        padding: 0;
+        display: flex;
+        flex-direction: row; /* Горизонтально */
+        align-items: center;
+        gap: 10px; /* Отступ между элементами */
+        overflow: visible;
+        background: transparent; /* Фон наследуется от шапки */
+    }
+    .goals h2 {
+        display: none; /* Скрываем заголовок "Годовые цели" на десктопе */
+    }
+    #goalsList {
+        display: flex;
+        flex-direction: row;
+        gap: 8px;
+        flex-wrap: wrap; /* Разрешаем перенос целей */
+        align-items: center;
+        max-height: 50px; /* Ограничиваем высоту (ок. 2 рядов) */
+        overflow-y: auto; /* Прокрутка, если целей слишком много */
+        flex: 1; /* Занимает доступное место */
+    }
+    .goals .goal {
+        flex-shrink: 0; /* Не сжимаем цели */
+        font-size: 13px;
+        padding: 5px 10px;
+        margin: 0;
+    }
+    .add-goal-btn {
+        position: static; /* Убираем absolute */
+        transform: none;
+        width: 30px;
+        height: 30px;
+        font-size: 20px;
+        flex-shrink: 0;
+        display: flex; /* Показываем кнопку "добавить" всегда */
+    }
+    .goals:hover .add-goal-btn {
+        display: flex;
+        transform: none; /* Убираем hover-эффект */
+    }
+    .add-goal-btn:hover {
+        background-color: var(--accent-color); 
+        transform: scale(1.05); /* Оставляем hover на самой кнопке */
+    }
+    /* --- КОНЕЦ СТИЛЕЙ ДЛЯ ЦЕЛЕЙ --- */
+
+
+    /* .right - это контейнер для "Недель" (теперь левая колонка) */
+    .right {
+        padding: 10px;
+        gap: 10px;
+    }
+
+    /* --- НОВЫЙ КОНТЕЙНЕР ДЛЯ РАЗДЕЛЕНИЯ "НЕДЕЛЬ" --- */
+    .desktop-weeks-layout {
+        display: flex;
+        flex-direction: row;
+        gap: 15px;
+        flex: 1; /* Занимает все доступное место */
+    }
+
+    /* --- НОВАЯ ЛЕВАЯ КОЛОНКА (Нераспределенные, Архив) --- */
+    .desktop-weeks-left {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 420px; /* Фиксированная ширина */
+        flex-shrink: 0;
+    }
+
+    /* --- НОВАЯ ПРАВАЯ КОЛОНКА (Месяцы) --- */
+    .desktop-weeks-right {
+        display: flex;
+        flex-direction: column;
+        flex: 1; /* Занимает оставшееся место */
+        min-width: 0; /* Для корректной работы flex */
+    }
+    
+    .desktop-weeks-right .months-wrapper {
+        flex: 1; /* Растягиваем обертку месяцев */
+        max-height: none; /* Снимаем ограничение по высоте */
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-main);
+    }
+
+    .top-plan-controls {
+        flex-direction: column; /* "Нераспределенные" теперь в колонке */
+        align-items: stretch;
+    }
+}
+
+
+/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
 @media (max-width: 768px) {
     body { 
         font-size: 14px; 
@@ -1034,32 +1245,65 @@ body {
         display: flex;
     }
 
+    /* --- ИЗМЕНЕНИЕ: .goals на мобильных --- */
     .goals { 
         width: 100%; 
         border-right: none; 
+        border-left: none; 
         border-bottom: 1px solid var(--border-color); 
         padding: 15px; 
         height: auto; 
         max-height: none; 
         overflow-y: visible; 
-        position: static; 
+        position: static; /* Стили по умолчанию для мобильной секции */
     }
+    #goalsList {
+        /* Стили по умолчанию (колонка) */
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-height: none;
+        overflow-y: visible;
+    }
+    /* Кнопка "Добавить" на мобильных */
+    .add-goal-btn {
+        position:absolute;
+        left:50%;
+        transform:translateX(-50%);
+        bottom:15px;
+        width:40px;height:40px;
+        font-size:24px;
+        display:none; /* Скрыта, пока не наведешь */
+    }
+    .goals:hover .add-goal-btn{display:flex}
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ .goals --- */
+
+
     .right { padding: 15px; overflow-y: visible; }
     .months-wrapper { overflow-x: auto; } 
 
+    /* --- ИЗМЕНЕНИЯ ПО ЗАПРОСУ --- */
     .mobile-bottom-nav {
         display: flex;
     }
+    
+    /* --- ИЗМЕНЕНИЕ: Шапка на мобильных --- */
     .top-controls { 
-        display: none; 
+        display: block; /* WAS: none. Показываем, т.к. .goals теперь тут */
     }
+    .top-controls-left,
+    .top-controls-center {
+        display: none; /* Скрываем левую колонку и лого на мобильных */
+    }
+    .top-controls-right {
+        display: block; /* Показываем правую колонку (где .goals) */
+    }
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ ШАПКИ --- */
+
     #aiButtonContainer {
         display: none; 
     }
-    .knowledge-base-btn {
-        display: none; 
-    }
-
+    
     .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
@@ -1075,6 +1319,11 @@ body {
         width: 100%;
         max-width: 100%;
     }
+
+    /* --- ИЗМЕНЕНО: Новая структура .right на мобильных --- */
+    .desktop-weeks-layout { display: block; }
+    .desktop-weeks-left { display: block; }
+    .desktop-weeks-right { display: block; }
 }
 
 /* --- НОВЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ В ПРОФИЛЕ --- */
@@ -1209,13 +1458,16 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px; 
+    
     padding: 15px;
     width: 90%;
     max-width: 320px; 
+    
     background: var(--bg-tertiary);
     border: 1px solid var(--border-color);
     border-radius: 12px;
     box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
+
     transform-origin: bottom center;
     transform: translateY(10px) scale(0.9);
     opacity: 0;
@@ -1232,11 +1484,13 @@ body {
     color: var(--text-primary);
     border-radius: 10px; 
     padding: 12px 15px;
+    
     display: flex;
     flex-direction: row; 
     align-items: center;
     justify-content: flex-start; 
     gap: 15px; 
+    
     font-size: 16px; 
     font-weight: 500; 
     cursor: pointer;
@@ -1260,195 +1514,17 @@ body {
 .mobile-menu-btn:active {
     transform: scale(0.98);
 }
+
 .mobile-menu-close-btn {
     display: none; 
 }
-
-/* ================================================================== */
-/* === НОВЫЕ СТИЛИ ДЛЯ ДЕСКТОПНОГО РЕДИЗАЙНА (ПО ЗАПРОСУ) === */
-/* ================================================================== */
-
-/* По умолчанию скрываем новые десктопные элементы */
-.desktop-header { display: none; }
-.desktop-body-container { display: none; }
-.desktop-left-sidebar { display: none; }
-.desktop-main-content { display: none; }
-
-@media (min-width: 769px) {
-    /* --- 1. СКРЫВАЕМ СТАРЫЕ И МОБИЛЬНЫЕ ЭЛЕМЕНТЫ --- */
-    .top-controls { display: none; }
-    .banner { display: none; }
-    .mobile-bottom-nav { display: none; }
-    .mobile-menu-overlay { display: none; }
-    #aiButtonContainer { display: none; }
-    /* Скрываем старые обертки */
-    .main-container { display: none; }
-    .right .top-buttons { display: none; }
-    .right .top-plan-controls { display: none; }
-    
-    /* Сбрасываем отступ для мобильной навигации */
-    body { padding-bottom: 0; }
-
-    /* --- 2. НОВЫЙ ДЕСКТОПНЫЙ HEADER --- */
-    .desktop-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 20px;
-        height: 60px;
-        background: var(--bg-secondary);
-        border-bottom: 1px solid var(--border-color);
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-    }
-    .desktop-header .header-left,
-    .desktop-header .header-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    .desktop-header .logo {
-        font-size: 1.6em;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: 1px;
-    }
-    .desktop-header .logo span {
-        color: var(--accent-color);
-    }
-    /* Переопределяем кнопки в шапке */
-    .desktop-header .account-control-btn,
-    .desktop-header .save-all-btn,
-    .desktop-header .btn {
-        padding: 8px 12px; /* Уменьшаем паддинг */
-        font-size: 14px;
-    }
-    .desktop-header #getAISuggestionBtn {
-        background: #39556d;
-        border-color: #39556d;
-        color: #fff;
-    }
-    .desktop-header #getAISuggestionBtn:hover {
-        background: #476a8a;
-    }
-    
-    /* --- 3. НОВАЯ 3-КОЛОНОЧНАЯ СТРУКТУРА --- */
-    .desktop-body-container {
-        display: flex;
-        flex-direction: row;
-        flex: 1; /* Занимает оставшуюся высоту */
-        height: calc(100vh - 60px); /* Высота экрана минус шапка */
-        overflow: hidden; /* Запрещаем прокрутку body */
-    }
-
-    /* --- 3a. ЛЕВЫЙ САЙДБАР (Недели, Архив) --- */
-    .desktop-left-sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-        width: 300px;
-        flex-shrink: 0;
-        background: var(--bg-main);
-        border-right: 1px solid var(--border-color);
-        padding: 20px;
-        overflow-y: auto;
-    }
-    .desktop-left-sidebar .unassigned-container {
-        flex: 0 1 auto; /* Убираем flex-grow */
-    }
-    .desktop-left-sidebar .unassigned-list {
-        max-height: 300px; /* Увеличиваем высоту */
-    }
-    .desktop-left-sidebar .archive-container-wrapper {
-        margin-top: 0; /* Убираем отступ */
-    }
-    .desktop-left-sidebar #createWeekBtn {
-        width: 100%;
-    }
-
-    /* --- 3b. ЦЕНТРАЛЬНЫЙ КОНТЕНТ (Месяцы, Привычки, Настроение) --- */
-    .desktop-main-content {
-        display: flex;
-        flex-direction: column;
-        flex: 1; /* Занимает все оставшееся место */
-        padding: 20px;
-        gap: 20px;
-        overflow-y: auto; /* Главный скролл-бар */
-    }
-    .desktop-main-content .months-wrapper {
-        max-height: none; /* Убираем ограничение высоты */
-    }
-    .desktop-main-content .habit-tracker,
-    .desktop-main-content .mood-tracker {
-        margin-bottom: 0; /* Убираем отступы */
-        border-radius: 8px;
-        border: 1px solid var(--border-color);
-    }
-
-    /* --- 3c. ПРАВЫЙ САЙДБАР (Цели) --- */
-    .desktop-body-container .goals {
-        display: flex; /* Показываем .goals */
-        width: 280px;
-        flex-shrink: 0;
-        background: var(--bg-secondary);
-        border-left: 1px solid var(--border-color);
-        border-right: none; /* Убираем старую границу */
-        padding: 20px;
-        overflow-y: auto;
-        position: static; /* Сбрасываем sticky */
-        top: auto;
-        max-height: none; /* Сбрасываем max-height */
-        height: 100%; /* На всю высоту .desktop-body-container */
-    }
-    .desktop-body-container .goals .add-goal-btn {
-        position: static; /* Сбрасываем absolute */
-        transform: none;
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-        margin-top: 15px;
-        display: flex; /* Показываем всегда */
-        font-size: 16px;
-        padding: 10px;
-    }
-    .desktop-body-container .goals .add-goal-btn:hover {
-        transform: none;
-    }
-
-    /* --- 4. ПЕРЕМЕЩЕННЫЕ ЭЛЕМЕНТЫ --- */
-    /* Показываем элементы, которые теперь в десктопной верстке */
-    .desktop-header .account-control-btn,
-    .desktop-header .save-all-btn,
-    .desktop-header .open-trash-btn,
-    .desktop-header .knowledge-base-btn,
-    .desktop-header #getAISuggestionBtn,
-    .desktop-left-sidebar #createWeekBtn,
-    .desktop-left-sidebar .unassigned-container,
-    .desktop-left-sidebar .archive-container-wrapper,
-    .desktop-main-content .months-wrapper,
-    .desktop-main-content .habit-tracker,
-    .desktop-main-content .mood-tracker,
-    .desktop-body-container .goals {
-        display: flex; /* или block/flex в зависимости от элемента */
-    }
-    
-    .desktop-left-sidebar .unassigned-container,
-    .desktop-left-sidebar .archive-container-wrapper,
-    .desktop-main-content .habit-tracker,
-    .desktop-main-content .mood-tracker {
-        display: block; /* Эти контейнеры должны быть block */
-    }
-}
-
-
 </style>
 </head>
 
 <body>
 
-<header class="desktop-header">
-    <div class="header-left">
+<div class="top-controls">
+    <div class="top-controls-left">
         <div id="accountControl" class="account-control-btn">
             <img src="pictures/account.png" width="16" height="16" alt="Profile">
             <span id="usernameDisplay">Профиль</span>
@@ -1457,131 +1533,140 @@ body {
             <img src="pictures/save.png" width="16" height="16" alt="Save">
             <span id="saveAllBtnText">Сохранить все</span>
         </button>
-        <a href="meds.html" class="btn">
-            💊 Лекарства
+        <a href="meds.html" class="header-btn">
+            <span class="icon">💊️</span>
+            <span>Лекарства</span>
         </a>
-        <button id="openTrashBtn" class="btn open-trash-btn">Корзина</button>
-    </div>
-    
-    <div class="logo">TIME <span>OWNER</span></div>
-    
-    <div class="header-right">
+        
+        <div class="trash-popover-container">
+            <button id="headerTrashBtn" class="header-btn trash-btn">
+                <img src="pictures/trash-icon.png" width="16" height="16" alt="Trash">
+                <span>Корзина</span>
+            </button>
+            <div id="trashPopover" class="trash-popover">
+                <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
+                <div class="trash-label">Корзина (удаление)</div>
+                <div class="trash-hint">Перетащи неделю сюда для безвозвратного удаления</div>
+            </div>
+        </div>
         <a href="knowledge_base.html" class="btn knowledge-base-btn">
-            🧠 База Знаний
+            🧠 Перейти в Базу Знаний
         </a>
-        <button id="getAISuggestionBtn" class="btn">
-            🤖 AI совет
-        </button>
     </div>
-</header>
 
-<div id="trashContainer" class="trash-container">
-    <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
-    <div class="trash-label">Корзина (удаление)</div>
-    <div class="trash-hint">Перетащи неделю сюда для безвозвратного удаления</div>
-</div>
-
-
-<div class="desktop-body-container">
-
-    <nav class="desktop-left-sidebar">
-        <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
-        
-        <div class="unassigned-container">
-            <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели (перетащите в корзину для удаления)</div>
-            <div id="unassignedList" class="unassigned-list"></div>
-        </div>
-        
-        <div class="archive-container-wrapper">
-            <h2>🗄️ Архив недель</h2>
-            <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать. Недели из архива можно перетащить обратно в "Не распределённые".</p>
-            <button id="archiveAllMonthsBtn" class="btn" style="width: 100%; margin-bottom: 15px; background-color: var(--bg-tertiary);">
-                <img src="pictures/save.png" width="16" alt="Архив"> 
-                Архивировать все недели из "Месяцев"
-            </button>
-            <p class="archive-hint" style="font-size: 12px; margin-top: -5px; margin-bottom: 15px;">
-                Это действие перенесет все недели из разделов "Месяцы" в "Архив".
-            </p>
-            <div id="archiveContainer" class="archive-container">
-                <div id="archiveList" class="archive-list"></div>
-                <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
-            </div>
-        </div>
-    </nav>
-
-    <main class="desktop-main-content">
-        <div class="months-wrapper">
-            <div class="months" id="months"></div>
-        </div>
-        
-        <section class="habit-tracker mobile-section" id="mobileSectionHabits">
-            <h2>✅ Трекер Привычек</h2>
-            <div class="habit-controls">
-                <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
-                <button id="addHabitBtn" class="btn">Добавить привычку</button>
-                <button id="newDayBtn" class="btn create-week">Новый день</button>
-            </div>
-            <div class="habit-table-container" id="habitTableContainer">
-                <div class="habit-table-wrapper">
-                    <table class="habit-table">
-                        <thead>
-                            <tr id="habitHeaderRow">
-                                <th>Дата</th>
-                                <th class="progress-col">Прогресс дня</th>
-                            </tr>
-                        </thead>
-                        <tbody id="habitBody">
-                        </tbody >
-                    </table>
-                </div>
-            </div>
-            <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
-                Показать всю историю
-            </button>
-        </section>
-
-        <section class="mood-tracker mobile-section" id="mobileSectionMood">
-            <h2>✨ Трекер Настроения</h2>
-            <p style="text-align:center;">Как твой день?</p>
-            <div class="mood-selection">
-                <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
-                <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
-                <span class="mood-option" data-mood="great" title="Отлично">😄</span>
-            </div>
-            <h3>История настроения</h3>
-            <div class="mood-history-controls">
-                <select id="moodMonthSelect" class="current-month-select"></select>
-            </div>
-            <div id="moodCalendar" class="mood-calendar"></div>
-        </section>
-    </main>
-
-    <aside class="goals mobile-section" id="mobileSectionGoals">
-        <h2>Годовые цели</h2>
-        <div id="goalsList"></div>
-        <div id="addGoalBtn" class="add-goal-btn">＋</div>
-    </aside>
-
-</div>
-
-
-<div class="top-controls">
+    <div class="top-controls-center">
+        <img src="pictures/favicon.png" alt="Logo">
+        <span>Time Owner</span>
     </div>
+    
+    <div class="top-controls-right">
+        <aside class="goals mobile-section" id="mobileSectionGoals">
+            <h2>Годовые цели</h2>
+            <div id="goalsList"></div>
+            <div id="addGoalBtn" class="add-goal-btn">＋</div>
+        </aside>
+    </div>
+</div>
 
 <div class="banner">
   <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
 </div>
 
 <div class="main-container">
+  
   <main class="right mobile-section" id="mobileSectionWeeks">
-    <div class="top-buttons">
+    
+    <div class="desktop-weeks-layout">
+        
+        <div class="desktop-weeks-left">
+            <div class="top-buttons">
+                <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
+                </div>
+
+            <div class="top-plan-controls">
+                <div class="unassigned-container">
+                    <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели</div>
+                    <div id="unassignedList" class="unassigned-list"></div>
+                </div>
+                </div>
+            
+            <div class="archive-container-wrapper">
+                <h2>🗄️ Архив недель</h2>
+                <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать. Недели из архива можно перетащить обратно в "Не распределённые".</p>
+                
+                <button id="archiveAllMonthsBtn" class="btn" style="width: 100%; margin-bottom: 15px; background-color: var(--bg-tertiary);">
+                    <img src="pictures/save.png" width="16" alt="Архив"> 
+                    Архивировать все недели из "Месяцев"
+                </button>
+                <p class="archive-hint" style="font-size: 12px; margin-top: -5px; margin-bottom: 15px;">
+                    Это действие перенесет все недели из разделов "Месяцы" в "Архив".
+                </p>
+
+                <button id="openArchiveModalBtn" class="btn" style="width: 100%; margin-bottom: 15px;">
+                    <span class="icon">📂</span>
+                    Открыть Архив
+                </button>
+
+                <div id="archiveContainer" class="archive-container">
+                    <div id="archiveList" class="archive-list">
+                        </div>
+                    <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="desktop-weeks-right">
+            <div class="months-wrapper">
+                <div class="months" id="months"></div>
+            </div>
         </div>
 
-    <div class="top-plan-controls">
+    </div> 
+  </main>
+</div> 
+
+<section class="habit-tracker mobile-section" id="mobileSectionHabits">
+    <h2>✅ Трекер Привычек</h2>
+    <div class="habit-controls">
+        <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
+        <button id="addHabitBtn" class="btn">Добавить привычку</button>
+        <button id="newDayBtn" class="btn create-week">Новый день</button>
+    </div>
+    <div class="habit-table-container" id="habitTableContainer">
+        <div class="habit-table-wrapper">
+            <table class="habit-table">
+                <thead>
+                    <tr id="habitHeaderRow">
+                        <th>Дата</th>
+                        <th class="progress-col">Прогресс дня</th>
+                    </tr>
+                </thead>
+                <tbody id="habitBody">
+                </tbody >
+            </table>
         </div>
-    
-    </main>
-</div>
+    </div>
+    <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
+        Показать всю историю
+    </button>
+</section>
+
+<section class="mood-tracker mobile-section" id="mobileSectionMood">
+    <h2>✨ Трекер Настроения</h2>
+    <p style="text-align:center;">Как твой день?</p>
+    <div class="mood-selection">
+        <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
+        <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
+        <span class="mood-option" data-mood="great" title="Отлично">😄</span>
+    </div>
+
+    <h3>История настроения</h3>
+    <div class="mood-history-controls">
+        <select id="moodMonthSelect" class="current-month-select"></select>
+    </div>
+    <div id="moodCalendar" class="mood-calendar">
+        </div>
+</section>
 
 <div class="modal" id="weekModal">
     <div class="modal-content week-editor">
@@ -1681,6 +1766,15 @@ body {
     </div>
 </div>
 
+<div class="modal" id="archiveModal">
+    <div class="modal-content small-modal-content">
+        <h2>🗄️ Архив Недель</h2>
+        <div id="archiveModalList" class="archive-modal-list">
+            </div>
+        <button class="btn" onclick="closeArchiveModal()">Закрыть</button>
+    </div>
+</div>
+
 
 <div id="loadingOverlay">
     <div class="spinner"></div>
@@ -1700,7 +1794,10 @@ body {
 </div>
 
 <div id="aiButtonContainer">
-    </div>
+    <button id="getAISuggestionBtn" class="btn">
+        🤖 Получить AI совет
+    </button>
+</div>
 
 <footer id="main-footer">
     <div id="particles-js"></div> 
@@ -1810,8 +1907,11 @@ const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
 const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay');
 const aiAdviceText = document.getElementById('aiAdviceText');
 
-const openTrashBtn = document.getElementById('openTrashBtn');
-const trashContainer = document.getElementById('trashContainer');
+// --- ИЗМЕНЕНИЕ: Ссылки на новую корзину ---
+const headerTrashBtn = document.getElementById('headerTrashBtn');
+const trashPopover = document.getElementById('trashPopover');
+// const openTrashBtn = document.getElementById('openTrashBtn'); // УДАЛЕНО
+// const trashContainer = document.getElementById('trashContainer'); // УДАЛЕНО
 
 const confirmModal = document.getElementById('confirmModal');
 const confirmMessage = document.getElementById('confirmMessage');
@@ -1819,6 +1919,11 @@ const confirmCancelBtn = document.getElementById('confirmCancelBtn');
 const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 const dontAskAgainCheckbox = document.getElementById('dontAskAgain');
 let currentDeleteResolve = null; 
+
+// --- НОВЫЕ КОНСТАНТЫ: Модальное окно Архива ---
+const archiveModal = document.getElementById('archiveModal');
+const openArchiveModalBtn = document.getElementById('openArchiveModalBtn');
+
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() {
@@ -2082,10 +2187,7 @@ async function archiveAllMonths() {
         alert("Не найдено недель для архивации в 'Месяцах'.");
     }
     
-    // closeProfileModal(); // Кнопка больше не в модальном окне
 }
-// === КОНЕЦ НОВОЙ ФУНКЦИИ АРХИВАЦИИ ===
-
 
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
@@ -2111,25 +2213,25 @@ document.getElementById('logoutBtn').onclick = () => {
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
-// Привязываем НОВУЮ кнопку архива (теперь в init)
-// const archiveMonthsBtn = document.getElementById('archiveAllMonthsBtn');
-// if (archiveMonthsBtn) {
-//     archiveMonthsBtn.onclick = archiveAllMonths;
-// }
 
-
-/* --- ФУНКЦИИ КОРЗИНЫ И УДАЛЕНИЯ --- */
-function toggleTrashContainer() {
-    const isVisible = trashContainer.classList.contains('visible');
+/* --- ИЗМЕНЕНИЕ: ФУНКЦИИ НОВОЙ КОРЗИНЫ --- */
+function toggleTrashPopover() {
+    const isVisible = trashPopover.classList.contains('visible');
     if (isVisible) {
-        trashContainer.classList.remove('visible');
-        openTrashBtn.textContent = 'Открыть Корзину';
+        trashPopover.classList.remove('visible');
     } else {
-        trashContainer.classList.add('visible');
-        openTrashBtn.textContent = 'Скрыть Корзину';
+        trashPopover.classList.add('visible');
     }
 }
-openTrashBtn.onclick = toggleTrashContainer;
+// Закрытие поповера при клике вне его
+document.addEventListener('click', (e) => {
+    if (!trashPopover.contains(e.target) && !headerTrashBtn.contains(e.target)) {
+        trashPopover.classList.remove('visible');
+    }
+});
+
+headerTrashBtn.onclick = toggleTrashPopover;
+
 function showConfirmDeleteModal(title) {
     return new Promise(resolve => {
         if (localStorage.getItem(STORAGE_KEY_CONFIRM_DELETE) === 'skip') {
@@ -2164,12 +2266,16 @@ confirmCancelBtn.onclick = () => {
     }
     currentDeleteResolve = null;
 };
-trashContainer.ondragover = e => { e.preventDefault(); trashContainer.classList.add('dragover'); };
-trashContainer.ondragleave = () => { trashContainer.classList.remove('dragover'); };
-// ОБНОВЛЕНО: ondrop для корзины теперь проверяет и data.archive
-trashContainer.ondrop = async e => {
-    e.preventDefault(); trashContainer.classList.remove('dragover');
+
+// Drag-n-drop для новой корзины
+trashPopover.ondragover = e => { e.preventDefault(); trashPopover.classList.add('dragover'); };
+trashPopover.ondragleave = () => { trashPopover.classList.remove('dragover'); };
+trashPopover.ondrop = async e => {
+    e.preventDefault(); 
+    trashPopover.classList.remove('dragover');
+    trashPopover.classList.remove('visible'); // Скрываем поповер после дропа
     if (!dragId || !dragTitle) return;
+    
     const confirmed = await showConfirmDeleteModal(dragTitle);
 
     if (confirmed) {
@@ -2320,8 +2426,16 @@ function renderUnassigned(){
 const monthsContainer=document.getElementById('months');
 function renderMonths(){
     monthsContainer.innerHTML='';
+    const currentMonthIndex = new Date().getMonth(); // НОВЫЙ КОД: получаем текущий месяц (0-11)
+
     months.forEach((m,i)=>{
         const div=document.createElement('div'); div.className='month';
+        
+        // НОВЫЙ КОД: Подсветка текущего месяца
+        if (i === currentMonthIndex) {
+            div.classList.add('current-month');
+        }
+
         div.style.borderColor=monthColors[i%monthColors.length];
         div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
         monthsContainer.appendChild(div);
@@ -2366,11 +2480,14 @@ const archiveDropZone = document.querySelector('.drop-zone-archive');
 function renderArchive() {
     if (!archiveList || !archiveDropZone) return;
     
-    archiveList.innerHTML = '';
+    // archiveList.innerHTML = ''; // УБРАНО: Список теперь скрыт и рендерится в модалке
+    
     // ОБНОВЛЕНО: передаем origin
-    (data.archive || []).forEach(w => {
-        archiveList.appendChild(createWeekEl(w, 'archive'));
-    });
+    // (data.archive || []).forEach(w => {
+    //     archiveList.appendChild(createWeekEl(w, 'archive'));
+    // });
+    // --- Код выше закомментирован, т.к. список больше не рендерится здесь ---
+
 
     archiveDropZone.ondragover = e => { 
         e.preventDefault(); 
@@ -2419,6 +2536,67 @@ function renderArchive() {
 }
 // === КОНЕЦ НОВОЙ ФУНКЦИИ АРХИВА ===
 
+// === НОВЫЕ ФУНКЦИИ МОДАЛЬНОГО ОКНА АРХИВА ===
+function closeArchiveModal() {
+    archiveModal.classList.remove('visible');
+    setTimeout(() => { archiveModal.style.display='none'; }, 300);
+}
+
+function openArchiveModal() {
+    const modalList = document.getElementById('archiveModalList');
+    if (!modalList) return;
+    
+    modalList.innerHTML = '';
+    const archivedWeeks = data.archive || [];
+    
+    if (archivedWeeks.length === 0) {
+        modalList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Архив пуст.</p>';
+    } else {
+        // Сортируем недели (например, по названию), чтобы список был упорядочен
+        archivedWeeks.sort((a, b) => a.title.localeCompare(b.title));
+        
+        archivedWeeks.forEach(week => {
+            const item = document.createElement('div');
+            item.className = 'archive-modal-item';
+            
+            const title = document.createElement('span');
+            title.textContent = week.title || 'Безымянная неделя';
+            
+            const unarchiveBtn = document.createElement('button');
+            unarchiveBtn.className = 'btn btn-unarchive';
+            unarchiveBtn.textContent = 'Разархивировать';
+            unarchiveBtn.onclick = () => unarchiveWeek(week.id);
+            
+            item.appendChild(title);
+            item.appendChild(unarchiveBtn);
+            modalList.appendChild(item);
+        });
+    }
+    
+    archiveModal.style.display='flex';
+    setTimeout(() => archiveModal.classList.add('visible'), 10);
+}
+
+function unarchiveWeek(weekId) {
+    if (!data.archive) return;
+    
+    const weekIndex = data.archive.findIndex(w => w.id === weekId);
+    if (weekIndex === -1) {
+        console.warn('Неделя для разархивации не найдена:', weekId);
+        return;
+    }
+    
+    // Удаляем из архива и добавляем в нераспределенные
+    const [weekToUnarchive] = data.archive.splice(weekIndex, 1);
+    data.unassigned.push(weekToUnarchive);
+    
+    save();
+    renderAll(); // Обновляем основной UI (счетчики, и т.д.)
+    openArchiveModal(); // Обновляем список в модальном окне
+}
+// === КОНЕЦ ФУНКЦИЙ МОДАЛЬНОГО ОКНА АРХИВА ===
+
+
 createWeekBtn.onclick=()=>{
     const now = new Date();
     const day = now.getDay();
@@ -2442,11 +2620,14 @@ function scrollToCurrentMonth() {
     const currentMonthIndex = now.getMonth(); 
     const currentMonthEl = monthsContainer.children[currentMonthIndex];
     if (currentMonthEl && monthsWrapper) {
-        const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
-        monthsWrapper.scrollTo({
-            left: scrollPosition,
-            behavior: 'smooth'
-        });
+        // --- ИЗМЕНЕНИЕ: Убеждаемся, что элемент виден, перед прокруткой ---
+        setTimeout(() => {
+            const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
+            monthsWrapper.scrollTo({
+                left: scrollPosition,
+                behavior: 'smooth'
+            });
+        }, 100); // Небольшая задержка для рендеринга
     }
 }
 
@@ -3069,6 +3250,7 @@ function setupMobileNav() {
     const mobileMenuMood = document.getElementById('mobileMenuMood');
     const mobileMenuKB = document.getElementById('mobileMenuKB');
     const mobileMenuAI = document.getElementById('mobileMenuAI');
+    const mobileMenuMedics = document.getElementById('mobileMenuMedics'); // ДОБАВЛЕНО
 
     // --- Функция показа секции ---
     const showMobileSection = (sectionToShow, buttonToActivate) => {
@@ -3146,7 +3328,6 @@ function setupMobileNav() {
     // "Недели" (sectionWeeks) - самая главная
     showMobileSection(sectionWeeks, mobileNavWeeks);
 }
-
 
 async function init() {
     if (window.supabase) {
