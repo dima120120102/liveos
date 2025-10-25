@@ -119,12 +119,20 @@ body {
 .create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
+/* --- ИЗМЕНЕНИЕ: Стили для кнопки "Создать неделю" --- */
+#createWeekBtn {
+    width: 100%;
+    padding: 14px;
+    font-size: 16px;
+}
+
+
 /* --- КНОПКИ УПРАВЛЕНИЯ (БЛОК РЕДИЗАЙНА) --- */
 .top-controls {
     /* (Было: position: fixed) */
     position: relative; 
     display: grid; /* --- ИЗМЕНЕНО: grid --- */
-    grid-template-columns: 240px 1fr 240px; /* --- ИЗМЕНЕНО: 3 колонки (240px - ширина .goals) --- */
+    grid-template-columns: 240px 1fr auto; /* --- ИЗМЕНЕНО: 3 колонки (auto для целей) --- */
     align-items: center;
     gap: 10px; 
     z-index: 10000;
@@ -150,7 +158,9 @@ body {
     width: 100%;
 }
 .top-controls-right {
-    display: none; /* --- ИЗМЕНЕНО: Скрыто, т.к. KB-кнопка переехала --- */
+    display: flex; /* --- ИЗМЕНЕНО: Показываем правый блок --- */
+    padding-right: 10px;
+    align-items: center;
 }
 
 .top-controls-center {
@@ -270,6 +280,9 @@ body {
 
 /* --- ЦЕЛИ (Goal Styles) --- */
 .goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
+#goalsList {
+    /* Стили для #goalsList будут в media-query */
+}
 .goal{
     background:var(--bg-tertiary);
     border-radius:8px;
@@ -447,7 +460,10 @@ body {
 
 /* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
 .modal{
-    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);
+    /* ИЗМЕНЕНО: z-index повышен, чтобы быть выше шапки (z-index: 10000) */
+    z-index:100000; 
+    display:none;align-items: center; justify-content: center;
     opacity: 0; 
     transition: opacity 0.3s ease;
 }
@@ -877,6 +893,62 @@ body {
     background-color: #3e8e41;
 }
 
+/* --- НОВЫЕ СТИЛИ: КОНТЕЙНЕР УВЕДОМЛЕНИЙ --- */
+#notification-container {
+    position: fixed;
+    top: 80px; /* Ниже шапки */
+    right: 20px;
+    z-index: 100001; /* Выше модальных окон, но ниже AI */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.custom-notification {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--warning-color);
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    width: 350px;
+    max-width: 90vw;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.custom-notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+.custom-notification.success {
+    border-left-color: var(--success-color);
+}
+.custom-notification.error {
+    border-left-color: var(--danger-color);
+}
+.custom-notification p {
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+.custom-notification .close-btn {
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 5px;
+    line-height: 1;
+}
+.custom-notification .close-btn:hover {
+    color: var(--text-primary);
+}
+
 
 /* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
 .advice-modal-overlay {
@@ -1109,19 +1181,73 @@ body {
         display: none; /* Скрываем старый баннер */
     }
 
-    .main-container {
-        padding: 0; /* Убираем отступы у главного контейнера */
-        flex-direction: row-reverse; /* --- ИЗМЕНЕНО: Цели уходят вправо --- */
+    /* ИЗМЕНЕНО: Выравниваем колонки шапки по верху */
+    .top-controls {
+        align-items: start;
     }
 
-    /* Цели прилипают справа */
-    .goals {
-        height: calc(100vh - var(--header-height)); /* Занимают всю высоту минус шапка */
-        top: var(--header-height); /* Прилипают под шапкой */
-        max-height: calc(100vh - var(--header-height));
-        border-right: none; /* --- ИЗМЕНЕНО --- */
-        border-left: 1px solid var(--border-color); /* --- ИЗМЕНЕНО --- */
+    .main-container {
+        padding: 0; /* Убираем отступы у главного контейнера */
+        /* flex-direction: row-reverse; -- УДАЛЕНО: Цели теперь в шапке */
     }
+
+    /* --- ИЗМЕНЕНО: Стили для целей в шапке (теперь колонка) --- */
+    .goals {
+        position: static; /* Убираем sticky */
+        width: 100%;
+        height: auto;
+        max-height: none;
+        border: none; /* Убираем рамки */
+        padding: 0;
+        display: flex;
+        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
+        align-items: stretch; /* ИЗМЕНЕНО: растягиваем */
+        gap: 10px; /* Отступ между элементами */
+        overflow: visible;
+        background: transparent; /* Фон наследуется от шапки */
+    }
+    .goals h2 {
+        display: block; /* ИЗМЕНЕНО: Показываем заголовок */
+        margin: 0;
+        font-size: 16px;
+        color: var(--accent-color);
+        border: none;
+        padding: 0;
+    }
+    #goalsList {
+        display: flex;
+        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
+        gap: 10px; /* ИЗМЕНЕНО: отступ */
+        align-items: stretch;
+        /* Убраны: max-height, overflow-y, flex-wrap */
+        flex: 1; /* Занимает доступное место */
+    }
+    .goals .goal {
+        /* Убрано: flex-shrink */
+        font-size: 14px; /* ИЗМЕНЕНО: чуть крупнее */
+        padding: 8px 10px; /* ИЗМЕНЕНО: чуть крупнее */
+        margin: 0;
+    }
+    .add-goal-btn {
+        position: static; /* Убираем absolute */
+        transform: none;
+        width: 40px; /* ИЗМЕНЕНО: крупнее */
+        height: 40px; /* ИЗМЕНЕНО: крупнее */
+        font-size: 24px; /* ИЗМЕНЕНО: крупнее */
+        flex-shrink: 0;
+        display: flex; /* Показываем кнопку "добавить" всегда */
+        align-self: center; /* ИЗМЕНЕНО: центрируем кнопку */
+    }
+    .goals:hover .add-goal-btn {
+        display: flex;
+        transform: none; /* Убираем hover-эффект */
+    }
+    .add-goal-btn:hover {
+        background-color: var(--accent-color); 
+        transform: scale(1.05); /* Оставляем hover на самой кнопке */
+    }
+    /* --- КОНЕЦ СТИЛЕЙ ДЛЯ ЦЕЛЕЙ --- */
+
 
     /* .right - это контейнер для "Недель" (теперь левая колонка) */
     .right {
@@ -1187,17 +1313,40 @@ body {
         display: flex;
     }
 
+    /* --- ИЗМЕНЕНИЕ: .goals на мобильных --- */
     .goals { 
         width: 100%; 
         border-right: none; 
-        border-left: none; /* --- ИЗМЕНЕНО: убираем рамку и на мобильных --- */
+        border-left: none; 
         border-bottom: 1px solid var(--border-color); 
         padding: 15px; 
         height: auto; 
         max-height: none; 
         overflow-y: visible; 
-        position: static; /* Убираем sticky на мобильных */
+        position: static; /* Стили по умолчанию для мобильной секции */
     }
+    #goalsList {
+        /* Стили по умолчанию (колонка) */
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-height: none;
+        overflow-y: visible;
+    }
+    /* Кнопка "Добавить" на мобильных */
+    .add-goal-btn {
+        position:absolute;
+        left:50%;
+        transform:translateX(-50%);
+        bottom:15px;
+        width:40px;height:40px;
+        font-size:24px;
+        display:none; /* Скрыта, пока не наведешь */
+    }
+    .goals:hover .add-goal-btn{display:flex}
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ .goals --- */
+
+
     .right { padding: 15px; overflow-y: visible; }
     .months-wrapper { overflow-x: auto; } 
 
@@ -1205,17 +1354,25 @@ body {
     .mobile-bottom-nav {
         display: flex;
     }
+    
+    /* --- ИЗМЕНЕНИЕ: Шапка на мобильных --- */
     .top-controls { 
-        display: none; /* --- ИЗМЕНЕНО: Скрываем новую шапку на мобильных --- */
+        display: block; /* WAS: none. Показываем, т.к. .goals теперь тут */
+        align-items: start; /* ИЗМЕНЕНО */
     }
+    .top-controls-left,
+    .top-controls-center {
+        display: none; /* Скрываем левую колонку и лого на мобильных */
+    }
+    .top-controls-right {
+        display: block; /* Показываем правую колонку (где .goals) */
+    }
+    /* --- КОНЕЦ ИЗМЕНЕНИЙ ШАПКИ --- */
+
     #aiButtonContainer {
         display: none; 
     }
-    /* .knowledge-base-btn {
-        display: none;  -- УДАЛЕНО, т.к. вся шапка скрыта
-    } */
-    /* --- КОНЕЦ ИЗМЕНЕНИЙ ПО ЗАПРОСУ --- */
-
+    
     .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
     .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
@@ -1435,6 +1592,8 @@ body {
 
 <body>
 
+<div id="notification-container"></div>
+
 <div class="top-controls">
     <div class="top-controls-left">
         <div id="accountControl" class="account-control-btn">
@@ -1471,7 +1630,14 @@ body {
         <span>Time Owner</span>
     </div>
     
+    <div class="top-controls-right">
+        <aside class="goals mobile-section" id="mobileSectionGoals">
+            <h2>Годовые цели</h2>
+            <div id="goalsList"></div>
+            <div id="addGoalBtn" class="add-goal-btn">＋</div>
+        </aside>
     </div>
+</div>
 
 <div class="banner">
   <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
@@ -1479,12 +1645,6 @@ body {
 
 <div class="main-container">
   
-  <aside class="goals mobile-section" id="mobileSectionGoals">
-    <h2>Годовые цели</h2>
-    <div id="goalsList"></div>
-    <div id="addGoalBtn" class="add-goal-btn">＋</div>
-  </aside>
-
   <main class="right mobile-section" id="mobileSectionWeeks">
     
     <div class="desktop-weeks-layout">
@@ -1846,6 +2006,57 @@ function hideLoading() {
     setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
 }
 
+/* --- НОВАЯ ФУНКЦИЯ: Кастомные Уведомления --- */
+/**
+ * Показывает кастомное уведомление
+ * @param {string} message - Текст сообщения
+ * @param {'warning' | 'success' | 'error'} type - Тип уведомления (влияет на цвет)
+ * @param {number} duration - Длительность показа в мс (null для постоянного)
+ */
+function showNotification(message, type = 'warning', duration = 5000) {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notif = document.createElement('div');
+    notif.className = `custom-notification ${type}`; // type: 'warning', 'success', 'error'
+    
+    const messageP = document.createElement('p');
+    messageP.textContent = message;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-btn';
+    closeBtn.innerHTML = '&times;';
+    
+    notif.appendChild(messageP);
+    notif.appendChild(closeBtn);
+    container.appendChild(notif);
+
+    // Анимация появления
+    setTimeout(() => {
+        notif.classList.add('show');
+    }, 10); // небольшая задержка для запуска transition
+
+    let timer = null;
+
+    const removeNotif = () => {
+        if (timer) clearTimeout(timer);
+        notif.classList.remove('show');
+        // Ждем завершения анимации исчезновения
+        setTimeout(() => {
+            if (notif.parentElement) {
+                notif.parentElement.removeChild(notif);
+            }
+        }, 500); // 500ms соответствует transition
+    };
+    
+    closeBtn.onclick = removeNotif;
+
+    if (duration) {
+        timer = setTimeout(removeNotif, duration);
+    }
+}
+
+
 /* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ --- */
 function setUnsaved(isUnsaved) {
     const mobileSaveBtn = document.getElementById('mobileNavSave'); 
@@ -1893,7 +2104,8 @@ async function loadDataFromSupabase() {
     hideLoading();
     if (error && error.code !== 'PGRST116') { 
         console.error("Ошибка Supabase при загрузке:", error);
-        alert(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`);
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`, 'error', 8000);
     }
 
     const loadedData = (result && result.data_json) 
@@ -1946,7 +2158,8 @@ async function saveDataToSupabase() {
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        alert("Ошибка авторизации. Пожалуйста, войдите в систему снова.");
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification("Ошибка авторизации. Пожалуйста, войдите в систему снова.", 'error');
         window.location.href = 'login.html';
         return { status: "error", message: "Нет ключа авторизации." };
     }
@@ -1962,11 +2175,13 @@ async function saveDataToSupabase() {
     hideLoading();
     if (error) {
         console.error("Ошибка Supabase при сохранении:", error);
-        alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
+        // ИЗМЕНЕНО: alert на showNotification (сделано дольше)
+        showNotification(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`, 'error', 8000);
         return { status: "error", message: error.message };
     } else {
         setUnsaved(false);
-        alert("Данные успешно сохранены на сервер!");
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification('Данные успешно сохранены на сервер!', 'success', 5000);
         return { status: "success" };
     }
 }
@@ -1975,7 +2190,8 @@ saveAllBtn.onclick = saveDataToSupabase;
 async function changeUsername(newNick) {
     localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
     updateAuthButton();
-    alert(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`);
+    // ИЗМЕНЕНО: alert на showNotification
+    showNotification(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`, 'success');
     closeProfileModal();
     return { status: "success", newUsername: newNick };
 }
@@ -1996,7 +2212,8 @@ async function deleteProfileAndData() {
     hideLoading();
     if (error) {
         console.error("Ошибка Supabase при удалении:", error);
-        alert(`Ошибка при удалении профиля: ${error.message}`);
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification(`Ошибка при удалении профиля: ${error.message}`, 'error', 8000);
     } else {
         alert("Ваш профиль и все данные успешно удалены.");
         ['Auth', 'Username', 'Local', 'Unsaved', 'ConfirmDelete_v1'].forEach(key => localStorage.removeItem(`planner${key}`));
@@ -2093,16 +2310,22 @@ async function archiveAllMonths() {
     if (archivedCount > 0) {
         save(); 
         renderAll(); // Перерисовываем все
-        alert(`Успешно заархивировано ${archivedCount} недель.`);
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification(`Успешно заархивировано ${archivedCount} недель.`, 'success');
     } else {
-        alert("Не найдено недель для архивации в 'Месяцах'.");
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification("Не найдено недель для архивации в 'Месяцах'.", 'warning');
     }
     
 }
 
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
-    if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
+    if (!newNick) { 
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification("Имя пользователя не может быть пустым.", 'warning'); 
+        return; 
+    }
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
     await changeUsername(newNick); 
 };
@@ -2246,7 +2469,16 @@ function renderGoals(){
         goalsList.appendChild(div);
     });
 }
-document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
+// ИЗМЕНЕНО: Добавлена проверка на лимит целей
+document.getElementById('addGoalBtn').onclick=()=>{
+    if (data.goals.length >= 3) {
+        showNotification('Максимум 3 годовые цели.', 'warning', 5000);
+        return; 
+    }
+    data.goals.push('Новая цель');
+    save();
+    renderGoals();
+};
 const unassignedList=document.getElementById('unassignedList');
 const createWeekBtn=document.getElementById('createWeekBtn');
 const unassignedContainer = unassignedList.parentElement;
@@ -2900,7 +3132,9 @@ document.getElementById('addHabitBtn').onclick=()=>{
 document.getElementById('newDayBtn').onclick=()=>{
     const today=new Date().setHours(0,0,0,0);
     if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
-        alert('Запись за сегодня уже существует.'); return;
+        // ИЗМЕНЕНО: alert на showNotification
+        showNotification('Запись за сегодня уже существует.', 'warning'); 
+        return;
     }
     const newRecord={ date: new Date().toISOString(), tasks: {} };
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
@@ -2978,7 +3212,8 @@ function generateAIPrompt() {
     return prompt;
 }
 async function callGeminiAPI(prompt) {
-    alert("Для использования AI-совета требуется серверный прокси или отдельная реализация. Функционал временно недоступен после перехода с Apps Script.");
+    // ИЗМЕНЕНО: alert на showNotification
+    showNotification("Для использования AI-совета требуется серверный прокси. Функционал временно недоступен.", 'warning', 7000);
     return { status: "error", message: "AI функционал требует серверного прокси." };
 }
 getAISuggestionBtn.onclick = async () => {
@@ -3240,7 +3475,6 @@ function setupMobileNav() {
     showMobileSection(sectionWeeks, mobileNavWeeks);
 }
 
-
 async function init() {
     if (window.supabase) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -3261,6 +3495,7 @@ async function init() {
     if (archiveMonthsBtn) {
         archiveMonthsBtn.onclick = archiveAllMonths;
     }
+
 
     updateAuthButton();
     data = await loadDataFromSupabase();  
