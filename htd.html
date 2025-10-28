@@ -3,15 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Time Owner</title>
+<title>Мои Списки (v2) - Time Owner</title>
 <link rel="icon" type="image/png" href="pictures/favicon.png">
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0099ff">
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/drag-drop-touch"></script>
+
 <style>
-/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
+/* --- ОБЩИЕ СТИЛИ (Скопированы из вашего htd (1).html) --- */
 :root {
     --bg-main: #121212;
     --bg-secondary: #1e1e1e;
@@ -25,34 +23,15 @@
     --danger-color: #e53935;
     --success-color: #4CAF50;
     --warning-color: #FFC107;
-    /* --- НОВЫЕ ПЕРЕМЕННЫЕ ДЛЯ РЕДИЗАЙНА --- */
     --header-height: 60px;
 }
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent-color); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-hover); }
+* { scrollbar-color: var(--accent-color) var(--bg-secondary); scrollbar-width: thin; }
 
-/* --- КРАСИВЫЕ СТИЛИ ПРОКРУТКИ (СКРОЛЛБАРЫ) --- */
-::-webkit-scrollbar {
-    width: 10px; 
-    height: 10px; 
-}
-::-webkit-scrollbar-track {
-    background: var(--bg-secondary);
-}
-::-webkit-scrollbar-thumb {
-    background: var(--accent-color); 
-    border-radius: 5px;
-}
-::-webkit-scrollbar-thumb:hover {
-    background: var(--accent-hover);
-}
-* {
-  scrollbar-color: var(--accent-color) var(--bg-secondary); 
-  scrollbar-width: thin;
-}
-
-/* --- АНИМАЦИЯ ПОЯВЛЕНИЯ СТРАНИЦЫ --- */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
@@ -60,7 +39,7 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background: var(--bg-main);
     color: var(--text-primary);
     display: flex;
@@ -69,360 +48,335 @@ body {
     overflow-x: hidden; 
     animation: fadeIn 0.5s ease-in-out;
 }
-.banner{width:100%;display:flex;justify-content:center;overflow:hidden;}
-.banner img{width:100%;height:auto;max-height: 400px; object-fit:cover;display:block;}
 
-/* --- ОСНОВНАЯ СТРУКТУРА --- */
-.main-container{
-    display:flex;
-    padding: 0 10px;
-    overflow-x: hidden; 
-    transition: padding 0.3s ease; 
-}
-.goals{
-    width:240px;
-    background:var(--bg-secondary);
-    /* border-right:1px solid var(--border-color); -- ИЗМЕНЕНО В media-query */
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-    gap: 15px; 
-    overflow-y: auto; 
-    position:relative; 
-    flex-shrink: 0;
-    position: sticky;
-    top: 20px; /* Отступ при прилипании */
-    max-height: calc(100vh - 40px); /* Макс. высота = высота экрана минус отступы */
-}
-.right{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    padding:20px;
-    gap:15px;
-    overflow: hidden; 
-}
-
-/* --- ЭЛЕМЕНТЫ ИНТЕРФЕЙСА --- */
 .btn{
     background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 15px;border-radius:8px;cursor:pointer;font-weight: 600; 
     transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
-    display: flex; /* Для выравнивания иконки и текста */
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;
 }
-.btn:hover{
-    background-color: var(--bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+.btn:hover{ background-color: var(--bg-hover); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
 .btn:active { transform: scale(0.98) translateY(0); } 
 .btn-primary{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
 .btn-primary:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
+.btn-danger{background:var(--danger-color);border-color: var(--danger-color);color: #fff;}
+.btn-danger:hover{background:#c32727;}
+.btn-success{background:var(--success-color);border-color: var(--success-color);color: #fff;}
+.btn-success:hover{background:#3e8e41;}
 
-/* --- КНОПКИ УПРАВЛЕНИЯ (БЛОК РЕДИЗАЙНА) --- */
+/* --- СТИЛИ ШАПКИ (Упрощенные) --- */
 .top-controls {
-    /* (Было: position: fixed) */
-    position: relative; 
-    display: grid; /* --- ИЗМЕНЕНО: grid --- */
-    grid-template-columns: 240px 1fr auto; /* --- ИЗМЕНЕНО: 3 колонки (auto для целей) --- */
-    align-items: center;
-    gap: 10px; 
-    z-index: 10000;
-    /* --- НОВЫЕ СТИЛИ ДЛЯ ШАПКИ --- */
-    width: 100%;
-    padding: 10px 20px;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-color);
-    height: auto; /* --- ИЗМЕНЕНО: auto для колонки --- */
+    display: flex; align-items: center; justify-content: space-between; gap: 10px; 
+    z-index: 10000; width: 100%; padding: 10px 20px;
+    background: var(--bg-secondary); border-bottom: 1px solid var(--border-color);
     min-height: var(--header-height);
 }
-.top-controls-left {
-    display: flex;
-    align-items: stretch; /* --- ИЗМЕНЕНО: stretch --- */
-    gap: 8px; /* --- ИЗМЕНЕНО: 8px --- */
-    flex-direction: column; /* --- ИЗМЕНЕНО: column --- */
-}
-/* --- НОВЫЙ СТИЛЬ: Растягиваем кнопки в левой колонке --- */
-.top-controls-left .btn,
-.top-controls-left .header-btn,
-.top-controls-left .account-control-btn,
-.top-controls-left .trash-popover-container {
-    width: 100%;
-}
-.top-controls-right {
-    display: flex; /* --- ИЗМЕНЕНО: Показываем правый блок --- */
-    padding-right: 10px;
-    align-items: center;
-}
-
+.top-controls-left { display: flex; align-items: center; gap: 8px; }
 .top-controls-center {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 1.6em; /* --- ИЗМЕНЕНО: побольше --- */
-    font-weight: bold;
-    color: var(--accent-color);
-    justify-self: center; /* --- ИЗМЕНЕНО: grid centering --- */
+    display: flex; align-items: center; gap: 10px; font-size: 1.6em; 
+    font-weight: bold; color: var(--accent-color);
 }
-.top-controls-center img {
-    height: 40px; /* --- ИЗМЕНЕНО: побольше --- */
-    width: 40px; /* --- ИЗМЕНЕНО: побольше --- */
+.top-controls-center img { height: 40px; width: 40px; }
+.header-btn {
+    background: var(--bg-tertiary); color: var(--text-primary); padding: 8px 15px; border-radius: 8px; cursor: pointer;
+    font-size: 14px; font-weight: 600; transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
+    border: 1px solid var(--border-color); display: flex; align-items: center; gap: 8px; text-decoration: none;
+}
+.header-btn:hover { background: var(--accent-color); color: #fff; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+
+/* ---
+--- НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ СПИСКОВ (V2) ---
+--- */
+
+.lists-container {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+    height: calc(100vh - var(--header-height));
 }
 
-/* Стили для кнопок в шапке */
-.header-btn, .save-all-btn, .account-control-btn {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    padding: 8px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s ease; 
-    border: 1px solid var(--border-color);
+/* --- САЙДБАР (Главные списки) --- */
+.list-sidebar {
+    width: 300px;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--border-color);
     display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+.list-sidebar h2 {
+    margin: 0; font-size: 1.2em; color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color); padding-bottom: 10px;
+}
+#main-list-container {
+    display: flex; flex-direction: column; gap: 8px;
+}
+.main-list-item {
+    padding: 10px 12px;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s, color 0.2s;
+    border-left: 4px solid var(--border-color);
+    word-break: break-word;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 8px;
-    text-decoration: none; /* Для ссылки-кнопки */
 }
-.save-all-btn:hover {
-    background: var(--success-color);
-    border-color: var(--success-color);
-    color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+.main-list-item:hover {
+    background: var(--bg-hover);
+    border-left-color: var(--accent-hover);
 }
-.account-control-btn:hover, .header-btn:hover {
+.main-list-item.active {
     background: var(--accent-color);
     color: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    border-left-color: var(--warning-color);
+    font-weight: 600;
 }
-.account-control-btn img, .save-all-btn img, .header-btn img {
-    transition: filter 0.2s;
+.main-list-item .delete-list-btn {
+    font-size: 20px; color: var(--text-secondary); cursor: pointer;
+    transition: color 0.2s; padding: 0 5px; opacity: 0.5;
 }
-.account-control-btn:hover img, .save-all-btn:hover img, .header-btn:hover img {
-    filter: invert(10%);
-}
-.save-all-btn.unsaved {
-    border-color: var(--warning-color);
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
-    animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-    0% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-    50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
-    100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
-}
+.main-list-item:hover .delete-list-btn { opacity: 1; }
+.main-list-item .delete-list-btn:hover { color: var(--danger-color); }
 
-/* --- ЦЕЛИ (Goal Styles) --- */
-.goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
-#goalsList {
-    /* Стили для #goalsList будут в media-query */
-}
-.goal{
-    background:var(--bg-tertiary);
-    border-radius:8px;
-    padding:10px;
-    position:relative;
-    transition: background-color 0.2s, box-shadow 0.2s, transform 0.2s ease;
-    min-height: 40px;
-    border-left: 6px solid var(--success-color); 
-    font-size: 16px; 
-}
-.goal:hover{
-    background:var(--bg-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2); 
-}
-.goal .goal-remove{
-    position:absolute;right:8px;top:50%;transform: translateY(-50%);opacity:0;cursor:pointer;color:var(--danger-color);font-size: 20px;
-    transition: opacity 0.2s, transform 0.2s; 
-}
-.goal .goal-remove:hover { transform: translateY(-50%) scale(1.2); }
-.goal:hover .goal-remove{opacity:1;}
-.goal[contenteditable]:focus{
-    outline:2px solid var(--accent-color);
-    background: var(--bg-secondary);
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-.add-goal-btn{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:15px;
-    background:#555;
-    color:var(--text-primary);
-    width:40px;height:40px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    cursor:pointer;
-    display:none; 
-    transition: background-color 0.2s, transform 0.2s ease-out; 
-}
-.goals:hover .add-goal-btn{display:flex}
-.add-goal-btn:hover { 
-    background-color: var(--accent-color); 
-    transform: translateX(-50%) translateY(-5px) scale(1.05); 
-}
-
-/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
-.modal{
-    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);
-    /* ИЗМЕНЕНО: z-index повышен, чтобы быть выше шапки (z-index: 10000) */
-    z-index:100000; 
-    display:none;align-items: center; justify-content: center;
-    opacity: 0; 
-    transition: opacity 0.3s ease;
-}
-.modal.visible { opacity: 1; } 
-.modal-content {
-    background: var(--bg-main);
-    width: 95%;
-    border-radius: 12px;
+/* --- ОСНОВНОЙ ВИД (Папки и Элементы) --- */
+.list-main-view {
+    flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Убираем padding, чтобы инпут прилип к низу */
+}
+.list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    border-bottom: 2px solid var(--border-color);
+    background: var(--bg-secondary);
+    flex-shrink: 0;
+}
+.list-header h1 {
+    margin: 0;
+    font-size: 1.8em;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+.list-header-controls { display: flex; gap: 10px; }
+.list-header-controls .btn { flex-shrink: 0; }
+
+#list-content-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+}
+/* --- Стили для папок --- */
+.folder-container {
+    background: var(--bg-tertiary);
+    border-radius: 8px;
     border: 1px solid var(--border-color);
+    margin-bottom: 15px;
+    transition: box-shadow 0.2s;
+}
+.folder-container.drag-over {
+    box-shadow: 0 0 15px var(--accent-color);
+    border-color: var(--accent-color);
+}
+.folder-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    cursor: pointer;
+    background: var(--bg-hover);
+    border-radius: 8px 8px 0 0;
+    border-bottom: 1px solid var(--border-color);
+}
+.folder-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+    flex: 1;
+    word-break: break-word;
+}
+.folder-header .folder-delete-btn {
+    font-size: 20px; color: var(--text-secondary); cursor: pointer;
+    transition: color 0.2s; padding: 0 5px;
+}
+.folder-header .folder-delete-btn:hover { color: var(--danger-color); }
+.folder-items-list {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-height: 20px; /* Для drag-and-drop */
+}
+
+/* --- Стили для корневого списка (без папки) --- */
+.root-items-container {
+    padding: 10px;
+    background: var(--bg-secondary);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-height: 50px; /* Для drag-and-drop */
+    transition: box-shadow 0.2s;
+}
+.root-items-container.drag-over {
+    box-shadow: 0 0 15px var(--warning-color);
+    border-color: var(--warning-color);
+}
+.root-items-container h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    font-size: 1em;
+    border-bottom: 1px dashed var(--border-color);
+    padding-bottom: 5px;
+}
+
+
+/* --- Стили для элементов списка --- */
+.list-item-entry {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg-main);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--border-color);
+    transition: background 0.2s, opacity 0.2s, box-shadow 0.2s;
+    cursor: grab;
+}
+.list-item-entry.done {
+    opacity: 0.6;
+    border-left-color: var(--success-color);
+}
+.list-item-entry.dragging {
+    opacity: 0.5;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    cursor: grabbing;
+}
+.list-item-entry:active {
+    cursor: grabbing;
+}
+.list-item-entry input[type="checkbox"] {
+    width: 20px; height: 20px; flex-shrink: 0;
+    accent-color: var(--success-color); cursor: pointer; transform: scale(1.1);
+}
+.list-item-entry .item-text {
+    flex: 1;
+    font-size: 1.1em;
+    word-break: break-word;
+}
+.list-item-entry.done .item-text { text-decoration: line-through; }
+.list-item-entry .item-delete-btn {
+    font-size: 24px; color: var(--text-secondary); cursor: pointer;
+    transition: color 0.2s; padding: 0 5px;
+}
+.list-item-entry .item-delete-btn:hover { color: var(--danger-color); }
+
+/* --- НОВЫЙ СТИЛЬ: Форма добавления "а-ля Telegram" --- */
+.list-add-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--bg-secondary);
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.list-add-form input[type="text"] {
+    flex: 1;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 12px 15px;
+    border-radius: 24px; /* Делаем круглым */
+    font-size: 15px;
+}
+.list-add-form input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+}
+.list-add-form button {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 50%; /* Круглая кнопка */
+    font-size: 24px;
+}
+.list-add-form .send-icon {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    transform: translateX(1px);
+}
+
+
+#welcome-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: var(--text-secondary);
+    font-size: 1.2em;
+}
+#welcome-message span {
+    font-size: 3em;
+    margin-bottom: 15px;
+}
+
+/* --- Стили для режима публичного просмотра/редактирования --- */
+body.public-view .list-sidebar { display: none; }
+body.public-view .top-controls { display: none; }
+body.public-view .lists-container {
+    height: 100vh; /* Занимаем весь экран, т.к. нет шапки */
+}
+body.public-view .list-main-view { padding: 0; }
+
+/* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ (Скопировано) --- */
+.modal{
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);
+    z-index:100000; display:none;align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.3s ease;
+}
+.modal.visible { opacity: 1; } 
+.modal-content {
+    background: var(--bg-main); width: 95%; max-width: 500px;
+    border-radius: 12px; display: flex; flex-direction: column;
+    overflow: hidden; border: 1px solid var(--border-color);
     transform: scale(0.95); 
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    max-height: 90vh; /* ДОБАВЛЕНО ИЗ КАЛЕНДАРЯ */
+    max-height: 90vh;
 }
 .modal.visible .modal-content { transform: scale(1); } 
-
 .modal-header{
     display:flex;justify-content:space-between;align-items:center;padding:15px 20px;
     background:var(--bg-secondary);border-bottom:1px solid var(--border-color);
     flex-shrink: 0;
 }
-.modal-header h2 { /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
-    margin: 0;
-    font-size: 1.2em;
-    color: var(--accent-color);
-}
-.modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
+.modal-header h2 { margin: 0; font-size: 1.2em; color: var(--accent-color); }
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
+.modal-body{ padding: 20px; overflow-y: auto; flex-grow: 1; display: flex; flex-direction: column; gap: 15px; }
+.modal-footer { padding: 15px 20px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); flex-shrink: 0; display: flex; justify-content: flex-end; gap: 10px; }
 
-.modal-body{ /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
-    padding: 20px;
-    overflow-y: auto;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+/* Стили для модалки "Поделиться" */
+#share-link-input {
+    width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color);
+    color: var(--text-primary); padding: 10px 12px; border-radius: 6px; font-size: 14px;
 }
-.modal-footer { /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
-    padding: 15px 20px; 
-    border-top: 1px solid var(--border-color); 
-    background: var(--bg-secondary);
-    flex-shrink: 0;
-}
+.share-info { font-size: 14px; color: var(--text-secondary); line-height: 1.5; }
 
-/* --- МОДАЛЬНОЕ ОКНО ЛК --- */
-.small-modal-content {
-    max-width: 450px;
-    height: auto;
-    max-height: 90vh;
-    padding: 20px;
-    gap: 15px;
-}
-
-/* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
-#aiButtonContainer {
-    position: fixed;
-    bottom: 20px; 
-    left: 20px; 
-    z-index: 9999; 
-}
-#aiButtonContainer .btn {
-    background: #39556d; 
-    border-color: #39556d; 
-    color: #fff;
-    padding: 12px 20px;
-    font-size: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-}
-#aiButtonContainer .btn:hover {
-    background: #476a8a;
-    border-color: #476a8a;
-}
-@media (max-width: 768px) {
-    #aiButtonContainer {
-        bottom: 15px;
-        left: 15px;
-    }
-    #aiButtonContainer .btn {
-        padding: 10px 15px;
-        font-size: 14px;
-    }
-}
-
-/* --- СТИЛИ ДЛЯ ТРЕКЕРА ПРИВЫЧЕК --- */
-.habit-tracker{background:var(--bg-secondary);padding:25px 20px; margin-bottom: 20px;}
-.habit-tracker h2 { margin-top: 0; color: var(--success-color); }
-.habit-controls{display:flex;gap:10px;margin-bottom:20px;align-items:center; flex-wrap: wrap;}
-.habit-controls input{flex:1;background:var(--bg-tertiary);border:1px solid var(--border-color);color:var(--text-primary);padding:10px 12px;border-radius:8px; min-width: 200px;}
-.habit-table-wrapper { overflow-x: auto; }
-.habit-table{width:100%;border-collapse:collapse;table-layout:fixed; min-width: 600px;}
-.habit-table th, .habit-table td{border:1px solid var(--border-color);padding:10px;text-align:center; transition: background-color 0.2s;}
-.habit-table th{background:var(--bg-tertiary);font-weight:600; position: sticky; top: 0;}
-.habit-table td:first-child, .habit-table th:first-child { text-align:left;font-weight:bold; width: 100px; position: sticky; left: 0; background: var(--bg-tertiary); }
-.habit-table tr:hover td { background-color: var(--bg-hover); }
-.habit-table input[type="checkbox"]{width:20px;height:20px;cursor:pointer; accent-color: var(--success-color); transform: scale(1.1); transition: transform 0.1s;} 
-.habit-table input[type="checkbox"]:hover { transform: scale(1.2); }
-.progress-col { width: 150px; }
-.progress-bar-container { width: 100%; height: 22px; background-color: var(--bg-tertiary); border-radius: 5px; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border-color);}
-.progress-bar { position: absolute; left: 0; top: 0; height: 100%; background-color: var(--success-color); border-radius: 5px; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
-.progress-bar-text { position: relative; z-index: 1; font-size: 12px; font-weight: bold; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
-.habit-table th { position: relative; }
-.habit-header-content { display: flex; justify-content: space-between; align-items: center; gap: 5px; }
-.habit-header-content span[contenteditable] { flex-grow: 1; text-align: left; }
-.remove-habit {
-    color: var(--danger-color); font-size: 18px; font-weight: bold; cursor: pointer; line-height: 1;
-    opacity: 0.5; transition: opacity 0.2s, transform 0.2s; flex-shrink: 0;
-}
-.remove-habit:hover { opacity: 1; transform: rotate(90deg); }
-.habit-table-container { overflow: hidden; position: relative; transition: max-height 0.5s ease-out; max-height: 500px; }
-.habit-table-container.collapsed { max-height: 250px; }
-.toggle-history-btn { width: 100%; text-align: center; background: var(--bg-tertiary); color: var(--accent-color); padding: 10px; border: 1px solid var(--border-color); border-top: none; cursor: pointer; font-weight: 600; transition: background 0.2s; border-radius: 0 0 8px 8px; }
-.toggle-history-btn:hover { background: var(--bg-hover); }
-
-/* --- СТИЛИ ДЛЯ ТРЕКЕРА НАСТРОЕНИЯ --- */
-.mood-tracker { background: var(--bg-secondary); padding: 25px 20px; }
-.mood-tracker h2 { margin-top: 0; color: var(--warning-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 15px;}
-.mood-selection { display: flex; gap: 15px; justify-content: center; align-items: center; margin-bottom: 25px; }
-.mood-option { font-size: 40px; cursor: pointer; transition: transform 0.2s, opacity 0.2s, text-shadow 0.2s; opacity: 0.6; }
-.mood-option:hover { transform: scale(1.15) rotate(-5deg); opacity: 1; }
-.mood-option.selected { opacity: 1; transform: scale(1.25); text-shadow: 0 0 15px var(--warning-color); }
-.mood-history-controls { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; }
-.mood-calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; background: var(--bg-tertiary); padding: 10px; border-radius: 8px; }
-.mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-.mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
-.mood-calendar-cell:hover { transform: scale(1.05); }
-.mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
-.day-number { font-size: 12px; color: var(--text-secondary); }
-.day-mood { font-size: 18px; margin-top: 2px; }
-.current-month-select { background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 6px; cursor: pointer; }
-
-/* --- СТИЛИ ДЛЯ ЛИЧНОГО КАБИНЕТА --- */
-.profile-section { display: flex; flex-direction: column; gap: 15px; padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; }
-.profile-section h3 { margin: 0; color: var(--accent-color); font-size: 1.1em; border-bottom: 1px dashed var(--border-color); padding-bottom: 5px; }
-.profile-input-group { display: flex; gap: 10px; align-items: center; }
-.profile-input-group input { flex: 1; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 8px 12px; border-radius: 6px; }
-.btn-save-nick { background: var(--success-color); border-color: var(--success-color); }
-.btn-save-nick:hover { background: #3e8e41; }
-.btn-logout { background: var(--bg-tertiary); border-color: var(--border-color); }
-.btn-logout:hover { background: var(--bg-hover); }
-.btn-delete { background: var(--danger-color); border-color: var(--danger-color); }
-.btn-delete:hover { background: #c32727; }
-
-/* --- СТИЛИ ДЛЯ АНИМАЦИИ ЗАГРУЗКИ --- */
+/* --- АНИМАЦИЯ ЗАГРУЗКИ (Скопировано) --- */
 #loadingOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
     flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
@@ -431,1078 +385,61 @@ body {
 .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* --- КОНТЕЙНЕР УВЕДОМЛЕНИЙ --- */
+/* --- УВЕДОМЛЕНИЯ (Скопировано) --- */
 #notification-container {
-    position: fixed;
-    top: 80px; /* Ниже шапки */
-    right: 20px;
-    z-index: 100001; /* Выше модальных окон, но ниже AI */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    position: fixed; top: 80px; right: 20px; z-index: 100001;
+    display: flex; flex-direction: column; gap: 10px;
 }
 .custom-notification {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    border: 1px solid var(--border-color);
-    border-left: 5px solid var(--warning-color);
-    border-radius: 8px;
-    padding: 15px 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 15px;
-    width: 350px;
-    max-width: 90vw;
-    opacity: 0;
-    transform: translateX(100%);
-    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color);
+    border-left: 5px solid var(--warning-color); border-radius: 8px; padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3); display: flex; justify-content: space-between;
+    align-items: center; gap: 15px; width: 350px; max-width: 90vw; opacity: 0;
+    transform: translateX(100%); transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.custom-notification.show {
-    opacity: 1;
-    transform: translateX(0);
-}
-.custom-notification.success {
-    border-left-color: var(--success-color);
-}
-.custom-notification.error {
-    border-left-color: var(--danger-color);
-}
-.custom-notification p {
-    margin: 0;
-    line-height: 1.4;
-    word-break: break-word;
-}
+.custom-notification.show { opacity: 1; transform: translateX(0); }
+.custom-notification.success { border-left-color: var(--success-color); }
+.custom-notification.error { border-left-color: var(--danger-color); }
+.custom-notification p { margin: 0; line-height: 1.4; word-break: break-word; }
 .custom-notification .close-btn {
-    font-size: 24px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 0 5px;
-    line-height: 1;
+    font-size: 24px; color: var(--text-secondary); cursor: pointer;
+    background: none; border: none; padding: 0 5px; line-height: 1;
 }
-.custom-notification .close-btn:hover {
-    color: var(--text-primary);
-}
+.custom-notification .close-btn:hover { color: var(--text-primary); }
 
-
-/* --- БОКОВОЕ ОКНО AI-СОВЕТА (DRAWER) --- */
-.advice-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); 
-    display: none;
-    z-index: 10000000000;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-.advice-modal-overlay.visible {
-    display: block;
-    opacity: 1;
-}
-.advice-modal-drawer {
-    position: fixed;
-    top: 0;
-    right: 0; 
-    width: 400px; 
-    max-width: 90%; 
-    height: 100%;
-    background-color: var(--bg-secondary);
-    box-shadow: -6px 0 15px rgba(0, 0, 0, 0.4);
-    z-index: 100100000000;
-    display: flex;
-    flex-direction: column;
-    transform: translateX(100%); 
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.advice-modal-overlay.visible .advice-modal-drawer {
-    transform: translateX(0);
-}
-.advice-drawer-header {
-    padding: 15px 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
-}
-.advice-drawer-header h2 {
-    margin: 0;
-    color: var(--accent-color);
-    font-size: 1.3em;
-}
-.advice-drawer-close {
-    background: none;
-    border: none;
-    font-size: 30px;
-    cursor: pointer;
-    color: var(--text-secondary);
-    line-height: 1;
-    transition: color 0.2s;
-}
-.advice-drawer-close:hover {
-    color: var(--danger-color);
-}
-.advice-drawer-content {
-    padding: 20px;
-    flex-grow: 1;
-    overflow-y: auto; 
-}
-.advice-drawer-content p {
-    white-space: pre-wrap;
-    line-height: 1.7;
-    font-size: 15px;
-    color: var(--text-primary);
-    padding-right: 5px; 
-}
-.advice-drawer-content h3 {
-    font-size: 1.4em;
-    font-weight: 700;
-    color: var(--accent-color); 
-    margin-top: 25px;
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 2px solid var(--border-color);
-}
-.advice-drawer-content ul {
-    list-style: none; 
-    padding-left: 0;
-    margin-top: 0;
-}
-.advice-drawer-content li {
-    margin-bottom: 8px;
-    line-height: 1.5;
-    padding-left: 18px; 
-    position: relative;
-}
-.advice-drawer-content li::before {
-    content: '•';
-    color: var(--warning-color); 
-    font-weight: bold;
-    display: inline-block;
-    width: 1em;
-    margin-left: -1em;
-    position: absolute;
-    left: 0;
-}
-.advice-drawer-content strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-/* --- СТИЛИ ДЛЯ КНОПКИ БАЗЫ ЗНАНИЙ --- */
-.knowledge-base-btn {
-    color: #fff;
-    border: none;
-    text-decoration: none; 
-    background: linear-gradient(45deg, #007bff, #6f42c1, #d63384);
-    background-size: 200% 200%;
-    animation: gradient-animation 5s ease infinite;
-}
-.knowledge-base-btn:hover {
-    color: #fff;
-    box-shadow: 0 0 15px rgba(111, 66, 193, 0.7);
-}
-@keyframes gradient-animation {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-}
-    /* Основные стили футера */
-#main-footer {
-    position: relative; 
-    width: 100%;
-    min-height: 200px; 
-    background-color: #333; 
-    color: #fff;
-    padding: 20px 0;
-    overflow: hidden; 
-}
-#particles-js {
-    position: absolute; 
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    z-index: 1; 
-}
-.footer-content {
-    position: relative;
-    text-align: center;
-    padding-top: 50px; 
-    z-index: 2; 
-}
-.footer-content p {
-    margin: 0;
-    font-size: 14px;
-}
-
-/* --- СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ --- */
-.mobile-bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border-color);
-    display: none; /* Скрыто по умолчанию */
-    justify-content: space-around;
-    align-items: flex-start; 
-    padding: 6px 0 8px 0;
-    z-index: 10003; 
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
-}
-.mobile-nav-btn {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    font-size: 10px;
-    font-family: inherit;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    padding: 4px;
-    cursor: pointer;
-    transition: color 0.2s;
-    text-align: center;
-}
-.mobile-nav-btn .icon {
-    font-size: 20px;
-    margin-bottom: 3px;
-    line-height: 1;
-}
-.mobile-nav-btn .label {
-    line-height: 1.2;
-}
-.mobile-nav-btn:hover {
-    color: var(--text-primary);
-}
-/* НОВЫЙ СТИЛЬ: Активная кнопка-вкладка */
-.mobile-nav-btn.active {
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-.mobile-nav-btn#mobileNavSave.unsaved {
-    color: var(--warning-color);
-    animation: pulse-mobile 1.5s infinite;
-}
-.mobile-nav-btn#mobileNavSave.unsaved .icon {
-    animation: pulse-icon 1.5s infinite;
-}
-@keyframes pulse-mobile {
-    0% { color: var(--warning-color); }
-    50% { color: var(--text-primary); }
-    100% { color: var(--warning-color); }
-}
-@keyframes pulse-icon {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-
-/* ---
---- НОВЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ ---
---- */
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ ---
---- */
-
-.calendar-wrapper {
-    width: 95%; /* Убедитесь, что ширина меньше 100% для работы margin: auto */
-    max-width: 1400px;
-    margin: 20px auto; /* <--- ГЛАВНОЕ ДЛЯ ЦЕНТРИРОВАНИЯ */
-    padding: 20px;
-    background: var(--bg-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-}
-
-.calendar-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.calendar-nav {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-.calendar-nav .nav-btn {
-    font-size: 20px;
-    padding: 5px 12px;
-}
-#current-month-display {
-    font-size: 1.5em;
-    font-weight: 600;
-    color: var(--accent-color);
-    text-align: center;
-    min-width: 200px;
-}
-
-.view-toggle {
-    display: flex;
-    gap: 10px;
-}
-.view-toggle .btn {
-    background: var(--bg-tertiary);
-}
-.view-toggle .btn.active {
-    background: var(--accent-color);
-    color: #fff;
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-
-/* --- Стили для вида "Месяц" --- */
-#month-view {
-    display: block; /* По умолчанию */
-}
-.calendar-weekdays {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 5px;
-    margin-bottom: 10px;
-}
-.weekday {
-    text-align: center;
-    font-weight: 600;
-    color: var(--text-secondary);
-    padding: 10px 0;
-    font-size: 0.9em;
-}
-.calendar-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
-    min-height: 60vh;
-}
-.calendar-day {
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 8px;
-    min-height: 120px;
-    cursor: pointer;
-    transition: background-color 0.2s, border-color 0.2s;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-.calendar-day:hover {
-    background: var(--bg-hover);
-    border-color: var(--accent-color);
-}
-.calendar-day.other-month {
-    background: transparent;
-    opacity: 0.4;
-    cursor: default;
-}
-.calendar-day.other-month:hover {
-    background: transparent;
-    border-color: var(--border-color);
-}
-.calendar-day.today {
-    border-color: var(--warning-color);
-    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
-}
-.day-number {
-    font-weight: 600;
-    font-size: 0.9em;
-}
-.tasks-preview {
-    display: flex;
-    /* ИЗМЕНЕНО: Задачи теперь отображаются в строку и переносятся */
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 4px;
-    overflow: hidden;
-}
-.task-preview-item {
-    font-size: 0.8em;
-    padding: 2px 5px;
-    background: var(--bg-tertiary);
-    border-radius: 4px;
-    /* ИЗМЕНЕНО: Убрано все, что связано с текстом */
-    display: inline-block;
-    line-height: 1.2;
-}
-.task-preview-item.done {
-    opacity: 0.5;
-    text-decoration: line-through;
-}
-.task-preview-time {
-    color: var(--accent-color);
-    font-weight: 600;
-}
-
-/* --- Стили для вида "Неделя" --- */
-#week-view {
-    display: none; /* Скрыт по умолчанию */
-}
-.week-view-container {
-    display: flex;
-    gap: 10px;
-    overflow-x: auto;
-    padding-bottom: 15px;
-    min-height: 60vh;
-}
-.week-day-column {
-    flex: 1;
-    min-width: 280px;
-    max-width: 350px;
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-}
-.week-day-column.today {
-    border-color: var(--warning-color);
-    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
-}
-.week-day-header {
-    padding: 12px 15px;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--bg-tertiary);
-    border-radius: 8px 8px 0 0;
-}
-.week-day-header h3 {
-    margin: 0;
-    font-size: 1.1em;
-}
-.week-day-header .date-display {
-    font-size: 0.9em;
-    color: var(--text-secondary);
-}
-.task-list-week {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px;
-    overflow-y: auto;
-    flex-grow: 1;
-}
-
-/* ИЗМЕНЕНО: Стили для формы добавления в неделе */
-.add-task-form-week {
-    padding: 10px;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: 8px;
-    align-items: flex-end; /* Кнопка прижимается к низу */
-}
-.form-inputs-week {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    flex-grow: 1;
-}
-.add-task-form-week input {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 8px 10px;
-    border-radius: 6px;
-    font-size: 14px;
-    width: 100%; /* Поля занимают всю ширину колонки */
-}
-.add-task-form-week input[type="text"] {
-    flex-grow: 1;
-}
-.add-task-form-week button {
-    padding: 8px 10px;
-    min-width: 40px;
-    flex-shrink: 0; /* Кнопка не сжимается */
-}
-.send-icon {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-}
-
-/* --- Стили для элементов задач (в модалке и неделе) --- */
-#modal-task-list, .task-list-week {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.task-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--bg-tertiary);
-    padding: 10px;
-    border-radius: 6px;
-    border-left: 4px solid var(--border-color);
-    position: relative; /* ДОБАВЛЕНО: Для позиционирования меню */
-}
-.task-item.done {
-    border-left-color: var(--success-color);
-    opacity: 0.7;
-}
-.task-item-checkbox {
-    width: 18px;
-    height: 18px;
-    flex-shrink: 0;
-    accent-color: var(--success-color);
-    cursor: pointer;
-}
-.task-item-time {
-    font-weight: 600;
-    color: var(--accent-color);
-    font-size: 0.9em;
-    width: 50px;
-    flex-shrink: 0;
-}
-.task-item-text {
-    flex-grow: 1;
-    word-break: break-word;
-    font-size: 0.95em;
-}
-.task-item.done .task-item-text {
-    text-decoration: line-through;
-}
-
-/* ДОБАВЛЕНО: Стили для кнопки "Больше" (три точки) и меню */
-.task-item-more {
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 20px;
-    padding: 0 5px;
-    opacity: 0.6;
-    transition: opacity 0.2s, color 0.2s;
-    line-height: 1;
-    font-weight: bold;
-    flex-shrink: 0;
-}
-.task-item-more:hover {
-    opacity: 1;
-    color: var(--accent-color);
-}
-.task-item-menu {
-    display: none;
-    position: absolute;
-    top: 30px; /* Под кнопкой */
-    right: 5px;
-    background: var(--bg-main);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    z-index: 100;
-    width: 180px;
-    padding: 5px;
-    animation: fadeIn 0.1s ease-out;
-}
-.task-item-menu.visible {
-    display: block;
-}
-.task-menu-item {
-    padding: 8px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.2s, color 0.2s;
-    user-select: none;
-}
-.task-menu-item:hover {
-    background-color: var(--bg-hover);
-}
-.task-menu-item[data-action="delete"]:hover {
-    background-color: var(--danger-color);
-    color: #fff;
-}
-/* ---------------------------------- */
-
-.no-tasks {
-    color: var(--text-secondary);
-    text-align: center;
-    padding: 20px;
-}
-
-/* --- Стили для формы добавления в модалке --- */
-#add-task-form-modal {
-    display: flex;
-    gap: 10px;
-}
-#add-task-form-modal input {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-size: 15px;
-}
-#add-task-form-modal input:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
-}
-#new-task-time {
-    width: 100px;
-}
-#new-task-text {
-    flex-grow: 1;
-}
-#add-task-btn {
-    padding: 10px 12px;
-    min-width: 44px;
-}
-
-
-/* ДОБАВЛЕНО: Стили для модалки повторений */
-.form-group {
-    margin-bottom: 15px;
-}
-.form-group label, .recur-options p {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    font-size: 0.9em;
-}
-.form-control {
-    width: 100%;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-size: 15px;
-}
-select.form-control {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg fill="%23a0a0a0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
-    background-repeat: no-repeat;
-    background-position: right 10px center;
-    padding-right: 40px;
-}
-.weekday-picker {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-.weekday-picker label {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--bg-tertiary);
-    padding: 8px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid var(--border-color);
-    transition: background-color 0.2s, border-color 0.2s;
-    font-size: 0.9em;
-}
-.weekday-picker input {
-    accent-color: var(--accent-color);
-}
-.weekday-picker label:has(input:checked) {
-     background: var(--accent-color);
-     border-color: var(--accent-color);
-     color: #fff;
-}
-/* ---------------------------------- */
-
-
-/* --- 
---- СТИЛИ РЕДИЗАЙНА ДЛЯ ДЕСКТОПА ---
---- */
-
-@media (min-width: 769px) {
-    .banner {
-        display: none; /* Скрываем старый баннер */
-    }
-
-    /* ИЗМЕНЕНО: Выравниваем колонки шапки по верху */
-    .top-controls {
-        align-items: start;
-    }
-
-    .main-container {
-        padding: 0; /* Убираем отступы у главного контейнера */
-    }
-
-    /* --- ИЗМЕНЕНО: Стили для целей в шапке (теперь колонка) --- */
-    .goals {
-        position: static; /* Убираем sticky */
+/* --- АДАПТИВНОСТЬ --- */
+@media (max-width: 768px) {
+    .list-sidebar {
         width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
         height: auto;
-        max-height: none;
-        border: none; /* Убираем рамки */
-        padding: 0;
-        display: flex;
-        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
-        align-items: stretch; /* ИЗМЕНЕНО: растягиваем */
-        gap: 10px; /* Отступ между элементами */
-        overflow: visible;
-        background: transparent; /* Фон наследуется от шапки */
+        max-height: 100vh;
+        overflow-y: auto;
     }
-    .goals h2 {
-        display: block; /* ИЗМЕНЕНО: Показываем заголовок */
-        margin: 0;
-        font-size: 16px;
-        color: var(--accent-color);
-        border: none;
-        padding: 0;
-    }
-    #goalsList {
-        display: flex;
-        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
-        gap: 10px; /* ИЗМЕНЕНО: отступ */
-        align-items: stretch;
-        flex: 1; /* Занимает доступное место */
-    }
-    .goals .goal {
-        font-size: 14px; /* ИЗМЕНЕНО: чуть крупнее */
-        padding: 8px 10px; /* ИЗМЕНЕНО: чуть крупнее */
-        margin: 0;
-    }
-    .add-goal-btn {
-        position: static; /* Убираем absolute */
-        transform: none;
-        width: 40px; /* ИЗМЕНЕНО: крупнее */
-        height: 40px; /* ИЗМЕНЕНО: крупнее */
-        font-size: 24px; /* ИЗМЕНЕНО: крупнее */
-        flex-shrink: 0;
-        display: flex; /* Показываем кнопку "добавить" всегда */
-        align-self: center; /* ИЗМЕНЕНО: центрируем кнопку */
-    }
-    .goals:hover .add-goal-btn {
-        display: flex;
-        transform: none; /* Убираем hover-эффект */
-    }
-    .add-goal-btn:hover {
-        background-color: var(--accent-color); 
-        transform: scale(1.05); /* Оставляем hover на самой кнопке */
-    }
-    /* --- КОНЕЦ СТИЛЕЙ ДЛЯ ЦЕЛЕЙ --- */
-
-
-    /* .right - это контейнер для "Календаря" */
-    .right {
-        padding: 10px;
-        gap: 10px;
-    }
-
-    /* --- Стили для .calendar-wrapper внутри .right --- */
-    .right .calendar-wrapper {
-        width: 100%;
-        margin: 0;
-        flex-grow: 1; /* Занимает все место */
-    }
-}
-
-
-/* --- АДАПТИВНОСТЬ ДЛЯ МОБИЛЬНЫХ УСТРОЙСТВ --- */
-@media (max-width: 768px) {
-    body { 
-        font-size: 14px; 
-        padding-bottom: 80px; 
-    }
-    .main-container { flex-direction: column; padding: 0; overflow-x: hidden; } 
-    
-    .mobile-section {
-        display: none; 
-    }
-    .mobile-section.active {
-        display: block; 
-    }
-    .mobile-section.goals.active {
-        display: flex;
-    }
-
-    /* --- ИЗМЕНЕНИЕ: .goals на мобильных --- */
-    .goals { 
-        width: 100%; 
-        border-right: none; 
-        border-left: none; 
-        border-bottom: 1px solid var(--border-color); 
-        padding: 15px; 
-        height: auto; 
-        max-height: none; 
-        overflow-y: visible; 
-        position: static; /* Стили по умолчанию для мобильной секции */
-    }
-    #goalsList {
-        /* Стили по умолчанию (колонка) */
-        display: flex;
+    .lists-container {
         flex-direction: column;
-        gap: 15px;
-        max-height: none;
-        overflow-y: visible;
+        height: auto;
     }
-    /* Кнопка "Добавить" на мобильных */
-    .add-goal-btn {
-        position:absolute;
-        left:50%;
-        transform:translateX(-50%);
-        bottom:15px;
-        width:40px;height:40px;
-        font-size:24px;
-        display:none; /* Скрыта, пока не наведешь */
-    }
-    .goals:hover .add-goal-btn{display:flex}
-    /* --- КОНЕЦ ИЗМЕНЕНИЙ .goals --- */
-
-
-    .right { padding: 0; overflow-y: visible; } /* Убрали отступы для .right */
-
-    /* --- ИЗМЕНЕНИЯ ПО ЗАПРОСУ --- */
-    .mobile-bottom-nav {
-        display: flex;
-    }
+    /* Скрываем сайдбар, если выбран список */
+    .lists-container.list-selected .list-sidebar { display: none; }
+    /* Показываем только главный вид, если список выбран */
+    .lists-container:not(.list-selected) .list-main-view { display: none; }
     
-    /* --- ИЗМЕНЕНИЕ: Шапка на мобильных --- */
-    .top-controls { 
-        display: block; /* WAS: none. Показываем, т.к. .goals теперь тут */
-        align-items: start; /* ИЗМЕНЕНО */
-    }
-    .top-controls-left,
-    .top-controls-center {
-        display: none; /* Скрываем левую колонку и лого на мобильных */
-    }
-    .top-controls-right {
-        display: block; /* Показываем правую колонку (где .goals) */
-    }
-    /* --- КОНЕЦ ИЗМЕНЕНИЙ ШАПКИ --- */
-
-    #aiButtonContainer {
-        display: none; 
-    }
+    .list-main-view { padding: 0; }
+    .list-header { padding: 10px 15px; }
+    .list-header h1 { font-size: 1.4em; }
+    #list-content-area { padding: 10px; }
     
-    .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
-    .habit-controls { flex-direction: column; align-items: stretch; }
+    /* Кнопка "Назад" для мобильных */
+    #back-to-lists-btn { display: flex; }
     
-    /* --- Стили календаря на мобильных --- */
-    .calendar-wrapper { width: 100%; margin: 0; border-radius: 0; border: none; padding: 10px; }
-    .calendar-header { flex-direction: column; gap: 15px; }
-    #current-month-display { font-size: 1.3em; }
-    .calendar-grid { gap: 2px; min-height: 50vh; }
-    .calendar-day { min-height: 80px; padding: 5px; gap: 3px; }
-    .day-number { font-size: 0.8em; }
-    .task-preview-item { font-size: 0.7em; padding: 1px 3px; }
-    .weekday { font-size: 0.8em; padding: 5px 0; }
+    .list-add-form { padding: 10px 15px; }
+    .list-add-form button { width: 44px; height: 44px; }
+    .list-add-form input[type="text"] { padding: 10px 15px; }
     
-    .week-day-column { min-width: 290px; }
-    
-    .add-task-form-week input { padding: 6px 8px; font-size: 13px; }
-    .add-task-form-week button { padding: 6px 8px; min-width: 36px; }
-    .send-icon { width: 18px; height: 18px; }
-    /* --- Конец стилей календаря --- */
-    
-    /* --- Стили модалок --- */
-    .modal-content { width: 100%; height: 100%; max-height: 100vh; border-radius: 0; }
-    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
-    .advice-modal-drawer { width: 100%; max-width: 100%; }
-
-    .mood-calendar { grid-template-columns: repeat(4, 1fr); }
-    .mood-option { font-size: 30px; }
-}
-
-/* --- СТАТИСТИКА В ПРОФИЛЕ --- */
-.profile-stats {
-    display: flex;
-    justify-content: space-around;
-    gap: 15px;
-    padding: 10px;
-    background: var(--bg-tertiary);
-    border-radius: 6px;
-}
-.profile-stats div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-}
-.profile-stats span {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-.profile-stats strong {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--accent-color);
-}
-
-
-/* --- МОБИЛЬНАЯ НАВИГАЦИЯ (РЕДИЗАЙН) --- */
-@media (max-width: 768px) {
-    .mobile-bottom-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end; 
-        height: 75px; 
-        padding: 0 10px;
-        padding-bottom: 8px; 
-    }
-    .mobile-bottom-nav .mobile-nav-btn {
-        flex: 1;
-        max-width: 60px; 
-        align-items: center;
-        justify-content: center;
-        padding-top: 6px; 
-        height: 60px; 
-        align-self: center; 
-    }
-
-    .mobile-nav-center-btn-container {
-        flex: 0 0 70px; 
-        position: relative;
-        display: flex;
-        justify-content: center;
-        height: 100%;
-        align-items: flex-start; 
-    }
-
-    .mobile-nav-center-btn {
-        position: absolute;
-        top: -20px; 
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: var(--accent-color);
-        border: 4px solid var(--bg-main);
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.4);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.2s ease, background-color 0.2s;
-    }
-    .mobile-nav-center-btn:hover {
-        transform: scale(1.1);
-        background-color: var(--accent-hover);
-    }
-    .mobile-nav-center-btn:active {
-        transform: scale(0.95);
-    }
-
-    .hamburger-icon {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-        width: 22px;
-    }
-    .hamburger-icon span {
-        width: 100%;
-        height: 3px;
-        background-color: #fff;
-        border-radius: 2px;
-        transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    /* Анимация гамбургера в крестик (при открытии меню) */
-    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(1) {
-        transform: translateY(7px) rotate(45deg);
-    }
-    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(2) {
-        opacity: 0;
-    }
-    .mobile-nav-center-btn.is-open .hamburger-icon span:nth-child(3) {
-        transform: translateY(-7px) rotate(-45deg);
-    }
-}
-
-/* --- ВСПЛЫВАЮЩЕЕ МОБИЛЬНОЕ МЕНЮ (РЕДИЗАЙН) --- */
-.mobile-menu-overlay {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    z-index: 10002;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; 
-    align-items: center;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    padding-bottom: 95px; 
-}
-.mobile-menu-overlay.visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.mobile-menu-content {
-    display: flex;
-    flex-direction: column;
-    gap: 10px; 
-    
-    padding: 15px;
-    width: 90%;
-    max-width: 320px; 
-    
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.3);
-
-    transform-origin: bottom center;
-    transform: translateY(10px) scale(0.9);
-    opacity: 0;
-    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s ease-out;
-}
-.mobile-menu-overlay.visible .mobile-menu-content {
-    transform: translateY(0) scale(1);
-    opacity: 1;
-}
-
-.mobile-menu-btn {
-    background: var(--bg-hover); 
-    border: 1px solid var(--border-color);
-    color: var(--text-primary);
-    border-radius: 10px; 
-    padding: 12px 15px;
-    
-    display: flex;
-    flex-direction: row; 
-    align-items: center;
-    justify-content: flex-start; 
-    gap: 15px; 
-    
-    font-size: 16px; 
-    font-weight: 500; 
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-.mobile-menu-btn .icon {
-    font-size: 24px; 
-    flex-shrink: 0;
-    width: 30px; 
-    text-align: center;
-}
-.mobile-menu-btn .label {
-    font-size: 15px; 
-    font-weight: 500;
-}
-.mobile-menu-btn:hover {
-    background-color: var(--accent-color); 
-    transform: translateY(-2px);
-    color: #fff;
-}
-.mobile-menu-btn:active {
-    transform: scale(0.98);
-}
-
-.mobile-menu-close-btn {
-    display: none; 
+    /* Скрываем шапку в публичном режиме */
+    body.public-view .top-controls { display: none; }
 }
 </style>
 </head>
@@ -1510,370 +447,141 @@ select.form-control {
 <body>
 
 <div id="notification-container"></div>
+<div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div>Загрузка...</div>
+</div>
 
 <div class="top-controls">
     <div class="top-controls-left">
-        <div id="accountControl" class="account-control-btn">
-            <img src="pictures/account.png" width="16" height="16" alt="Profile">
-            <span id="usernameDisplay">Профиль</span>
-        </div>
-        <button id="saveAllBtn" class="save-all-btn">
-            <img src="pictures/save.png" width="16" height="16" alt="Save">
-            <span id="saveAllBtnText">Сохранить все</span>
-        </button>
-        <a href="meds.html" class="header-btn">
-            <span class="icon">💊️</span>
-            <span>Лекарства</span>
-        </a>
-        
-        <a href="knowledge_base.html" class="btn knowledge-base-btn">
-            🧠 Перейти в Базу Знаний
+        <a href="htd (1).html" class="header-btn">
+            <span>‹</span>
+            <span>В Планировщик</span>
         </a>
     </div>
 
     <div class="top-controls-center">
         <img src="pictures/favicon.png" alt="Logo">
-        <span>Time Owner</span>
+        <span>Мои Списки</span>
     </div>
     
     <div class="top-controls-right">
-        <aside class="goals mobile-section" id="mobileSectionGoals">
-            <h2>Годовые цели</h2>
-            <div id="goalsList"></div>
-            <div id="addGoalBtn" class="add-goal-btn">＋</div>
-        </aside>
+        <button class="btn" id="back-to-lists-btn" style="display: none;">
+            <span>‹</span>
+            <span>К Спискам</span>
+        </button>
     </div>
 </div>
 
-<div class="banner">
-  <img id="bannerImg" src="pictures/banner.jpg" alt="Баннер">
-</div>
+<div class="lists-container" id="lists-container">
 
-<div class="main-container">
-  
-  <main class="right mobile-section" id="mobileSectionWeeks">
-    
-    <main class="calendar-wrapper">
-        <div class="calendar-header">
-            <div class="view-toggle">
-                <button class="btn active" id="month-view-btn">Месяц</button>
-                <button class="btn" id="week-view-btn">Неделя</button>
+    <aside class="list-sidebar" id="list-sidebar">
+        <h2>Мои списки</h2>
+        <button class="btn btn-primary" id="new-list-btn">
+            <span>＋</span>
+            <span>Новый список</span>
+        </button>
+        
+        <div id="main-list-container">
             </div>
+    </aside>
+
+    <main class="list-main-view" id="list-main-view">
+        
+        <div id="welcome-message">
+            <span>📝</span>
+            <p>Выберите список из меню слева, чтобы начать.<br>Или создайте новый список.</p>
+        </div>
+
+        <div id="list-content-wrapper" style="display: none; height: 100%; display: flex; flex-direction: column; overflow: hidden;">
             
-            <div class="calendar-nav">
-                <button class="btn nav-btn" id="prev-btn">‹</button>
-                <h2 id="current-month-display"></h2>
-                <button class="btn nav-btn" id="next-btn">›</button>
-            </div>
-            
-            <button class="btn" id="today-btn">Сегодня</button>
-        </div>
-
-        <div id="month-view" style="display: block;">
-            <div class="calendar-weekdays">
-                <div class="weekday">Пн</div>
-                <div class="weekday">Вт</div>
-                <div class="weekday">Ср</div>
-                <div class="weekday">Чт</div>
-                <div class="weekday">Пт</div>
-                <div class="weekday">Сб</div>
-                <div class="weekday">Вс</div>
-            </div>
-            <div class="calendar-grid" id="calendar-grid">
-                </div>
-        </div>
-
-        <div id="week-view" style="display: none;">
-            <div class="week-view-container" id="week-view-container">
-                </div>
-        </div>
-    </main>
-    
-  </main>
-</div> 
-
-<section class="habit-tracker mobile-section" id="mobileSectionHabits">
-    <h2>✅ Трекер Привычек</h2>
-    <div class="habit-controls">
-        <input type="text" id="newHabitInput" placeholder="Введите новую привычку">
-        <button id="addHabitBtn" class="btn">Добавить привычку</button>
-        <button id="newDayBtn" class="btn create-week">Новый день</button>
-    </div>
-    <div class="habit-table-container" id="habitTableContainer">
-        <div class="habit-table-wrapper">
-            <table class="habit-table">
-                <thead>
-                    <tr id="habitHeaderRow">
-                        <th>Дата</th>
-                        <th class="progress-col">Прогресс дня</th>
-                    </tr>
-                </thead>
-                <tbody id="habitBody">
-                </tbody >
-            </table>
-        </div>
-    </div>
-    <button class="toggle-history-btn" id="toggleHabitHistoryBtn" style="display:none;">
-        Показать всю историю
-    </button>
-</section>
-
-<section class="mood-tracker mobile-section" id="mobileSectionMood">
-    <h2>✨ Трекер Настроения</h2>
-    <p style="text-align:center;">Как твой день?</p>
-    <div class="mood-selection">
-        <span class="mood-option" data-mood="bad" title="Плохо">😔</span>
-        <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
-        <span class="mood-option" data-mood="great" title="Отлично">😄</span>
-    </div>
-
-    <h3>История настроения</h3>
-    <div class="mood-history-controls">
-        <select id="moodMonthSelect" class="current-month-select"></select>
-    </div>
-    <div id="moodCalendar" class="mood-calendar">
-        </div>
-</section>
-
-<div class="modal" id="profileModal">
-    <div class="modal-content small-modal-content">
-        <h2>Личный кабинет</h2>
-
-        <div class="profile-section">
-            <h3>Статистика задач</h3>
-            <div class="profile-stats">
-                <div>
-                    <span>Выполнено:</span>
-                    <strong id="completedTasksCount">0</strong>
-                </div>
-                <div>
-                    <span>Осталось:</span>
-                    <strong id="uncompletedTasksCount">0</strong>
+            <div class="list-header">
+                <h1 id="list-title">Название списка</h1>
+                <div class="list-header-controls">
+                    <button class="btn" id="list-new-folder-btn">Новая папка</button>
+                    <button class="btn btn-success" id="list-share-btn">Поделиться</button>
                 </div>
             </div>
-        </div>
 
-        <div class="profile-section">
-            <h3>Имя пользователя (Ник)</h3>
-            <div class="profile-input-group">
-                <input type="text" id="nickInput" placeholder="Введите новый ник">
-                <button id="saveNickBtn" class="btn btn-save-nick">Сохранить</button>
-            </div>
-        </div>
-
-        <div class="profile-section">
-            <h3>Управление аккаунтом</h3>
-            <button id="deleteProfileBtn" class="btn btn-delete">
-                <img src="pictures/trash.png" width="16" alt="Удалить">
-                Удалить профиль и все данные
-            </button>
-            <button id="logoutBtn" class="btn btn-logout">
-                <img src="pictures/logout.png" width="16" alt="Выход"> 
-                Выйти из аккаунта
-            </button>
-        </div>
-
-        <button class="btn" onclick="closeProfileModal()">Закрыть</button>
-    </div>
-</div>
-
-<div class="modal" id="day-modal">
-    <div class="modal-content" style="max-width: 600px;"> <div class="modal-header">
-            <h2 id="modal-date-display"></h2>
-            <span id="close-modal">×</span>
-        </div>
-        <div class="modal-body">
-            <div id="modal-task-list">
+            <div id="list-content-area">
                 </div>
-        </div>
-        <div class="modal-footer">
-            <form id="add-task-form-modal" action="javascript:void(0);">
-                <input type="time" id="new-task-time" required>
-                <input type="text" id="new-task-text" placeholder="Новая задача..." required>
-                <button type="submit" class="btn btn-primary" id="add-task-btn" title="Добавить задачу">
+
+            <form class="list-add-form" id="list-add-form">
+                <input type="text" id="new-item-text" placeholder="Новый пункт..." required>
+                <button type="submit" class="btn btn-primary" title="Добавить">
                     <svg class="send-icon" viewBox="0 0 24 24">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                     </svg>
                 </button>
             </form>
         </div>
-    </div>
+
+    </main>
 </div>
 
-<div class="modal" id="recur-modal">
-    <div class="modal-content" style="max-width: 600px;"> <div class="modal-header">
-            <h2>Настроить повторение задачи</h2>
-            <span class="close-recur-modal">×</span>
+<div class="modal" id="share-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Поделиться Списком</h2>
+            <span id="close-share-modal">×</span>
         </div>
         <div class="modal-body">
-            <form id="recur-form">
-                <div class="form-group">
-                    <label for="recur-type">Повторять:</label>
-                    <select id="recur-type" class="form-control">
-                        <option value="weekly">Раз в неделю</option>
-                        <option value="monthly">Раз в месяц</option>
-                        <option value="yearly">Раз в год</option>
-                        <option value="custom">Свой вариант (дни)</option>
-                    </select>
-                </div>
-                
-                <div id="recur-weekly-options" class="recur-options">
-                    <p>Выберите дни недели:</p>
-                    <div class="weekday-picker" id="recur-weekly-days">
-                        <label><input type="checkbox" value="1"> Пн</label>
-                        <label><input type="checkbox" value="2"> Вт</label>
-                        <label><input type="checkbox" value="3"> Ср</label>
-                        <label><input type="checkbox" value="4"> Чт</label>
-                        <label><input type="checkbox" value="5"> Пт</label>
-                        <label><input type="checkbox" value="6"> Сб</label>
-                        <label><input type="checkbox" value="0"> Вс</label>
-                    </div>
-                </div>
-
-                <div id="recur-custom-options" class="recur-options" style="display: none;">
-                    <label for="recur-custom-days">Повторять каждые (дней):</label>
-                    <input type="number" id="recur-custom-days" class="form-control" value="2" min="1" max="30">
-                </div>
-                
-                <div class="form-group" style="margin-top: 15px;">
-                     <label for="recur-end-date">Дата окончания (необязательно):</label>
-                     <input type="date" id="recur-end-date" class="form-control">
-                </div>
-
-            </form>
-        </div>
-        <div class="modal-footer">
-             <button type="button" class="btn close-recur-modal">Отмена</button>
-             <button type="button" class="btn btn-primary" id="save-recur-btn">Сохранить</button>
+            <p class="share-info">
+                Скопируйте эту ссылку и отправьте ее кому угодно.
+                <strong>Любой</strong>, у кого есть ссылка, сможет просматривать и **редактировать** этот список, даже без входа в систему.
+            </p>
+            <input type="text" id="share-link-input" readonly>
+            <button class="btn btn-primary" id="copy-share-link-btn">Копировать ссылку</button>
+            <hr style="border-color: var(--border-color); margin: 15px 0;">
+            <p class->Доступ</p>
+            <button class="btn btn-danger" id="disable-sharing-btn">
+                Отключить публичный доступ
+            </button>
         </div>
     </div>
 </div>
-<div id="loadingOverlay">
-    <div class="spinner"></div>
-    <div>Пожалуйста, подождите...</div>
-</div>
-
-<div id="aiAdviceModalOverlay" class="advice-modal-overlay">
-    <div id="aiAdviceModal" class="advice-modal-drawer">
-        <div class="advice-drawer-header">
-            <h2>🤖 AI Совет</h2>
-            <button class="advice-drawer-close" onclick="closeAiAdviceModal()">&times;</button>
-        </div>
-        <div class="advice-drawer-content">
-            <p id="aiAdviceText"></p>
-        </div>
-    </div>
-</div>
-
-<div id="aiButtonContainer">
-    <button id="getAISuggestionBtn" class="btn">
-        🤖 Получить AI совет
-    </button>
-</div>
-
-<footer id="main-footer">
-    <div id="particles-js"></div> 
-
-    <div class="footer-content">
-        <p>Time Owner: Станьте настоящим Владельцем своего времени, а не его заложником. <br>Платформа для организации, контроля и управления самым ценным ресурсом — вашей жизнью. <br>Достигайте целей, управляйте задачами и максимизируйте продуктивность с полным осознанием и контролем.</p>
-        <a href="meds.html">
-            <span class="icon">💊️</span>
-            <span class="label">Лекарства</span>
-        </a>
-    </div>
-</footer>
-
-<nav class="mobile-bottom-nav">
-    <button class="mobile-nav-btn" id="mobileNavWeeks">
-        <span class="icon">🗓️</span>
-        <span class="label">Календарь</span> </button>
-    <button class="mobile-nav-btn" id="mobileNavHabits">
-        <span class="icon">✅</span>
-        <span class="label">Привычки</span>
-    </button>
-    
-    <div class="mobile-nav-center-btn-container">
-        <button class="mobile-nav-center-btn" id="mobileNavMenuBtn">
-            <div class="hamburger-icon">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </button>
-    </div>
-    
-    <button class="mobile-nav-btn" id="mobileNavSave">
-        <span class="icon">💾</span>
-        <span class="label">Сохранить</span>
-    </button>
-    <button class="mobile-nav-btn" id="mobileNavProfile">
-        <span class="icon">👤</span>
-        <span class="label">Профиль</span>
-    </button>
-</nav>
-
-<div class="mobile-menu-overlay" id="mobileMenuOverlay">
-    <div class="mobile-menu-content">
-        <button class="mobile-menu-btn" id="mobileMenuGoals">
-            <span class="icon">🎯</span>
-            <span class="label">Цели</span>
-        </button>
-        <button class="mobile-menu-btn" id="mobileMenuMood">
-            <span class="icon">✨</span>
-            <span class="label">Настроение</span>
-        </button>
-        <button class="mobile-menu-btn" id="mobileMenuKB">
-            <span class="icon">🧠</span>
-            <span class="label">База</span>
-        </button>
-        <button class="mobile-menu-btn" id="mobileMenuAI">
-            <span class="icon">🤖</span>
-            <span class="label">AI</span>
-        </button>
-        <button class="mobile-menu-btn" id="mobileMenuMedics">
-            <span class="icon">💊</span>
-            <span class="label">Лекарства</span>
-        </button>
-    </div>
-    </div>
 
 
 <script>
 // =================================================================
-// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ (Обновленные для Supabase)
+// 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ
 // =================================================================
 
-// --- КОНСТАНТЫ SUPABASE ---
+// --- КОНСТАНТЫ SUPABASE (Вставьте ваши) ---
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
-let supabase = null; 
-let currentUserId = null; // ДОБАВЛЕНО ДЛЯ КАЛЕНДАРЯ
 
-// --- ОБЩИЕ КОНСТАНТЫ ---
-const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
-const STORAGE_KEY_USERNAME = 'plannerUsername';
-const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
-const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
-// STORAGE_KEY_CONFIRM_DELETE удален
+let supabase = null;
+let currentUserId = null;
+let currentList = null; // {id, name, is_public_editable, ...}
+let currentListFolders = []; // [{id, name, ...}]
+let currentListItems = []; // [{id, content, is_done, folder_id, ...}]
+let allUserLists = []; // [{id, name, ...}]
 
-const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
-
-let notificationTimers = {}; 
-let data = null; // Это для Goals, Habits, Mood
-// dragId, dragTitle, dragOrigin, currentDayDrag удалены
-
-const saveAllBtn = document.getElementById('saveAllBtn');
-const saveAllBtnText = document.getElementById('saveAllBtnText');
-const accountControlBtn = document.getElementById('accountControl');
-accountControlBtn.onclick = handleAccountControlClick;
-
-const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
-const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay');
-const aiAdviceText = document.getElementById('aiAdviceText');
-
-// --- Ссылки на корзину и модалку подтверждения удалены ---
-
+// --- DOM Элементы ---
 const loadingOverlay = document.getElementById('loadingOverlay');
+const container = document.getElementById('lists-container');
+const sidebar = document.getElementById('list-sidebar');
+const mainView = document.getElementById('list-main-view');
+const mainListContainer = document.getElementById('main-list-container');
+const welcomeMessage = document.getElementById('welcome-message');
+const listContentWrapper = document.getElementById('list-content-wrapper');
+const listTitle = document.getElementById('list-title');
+const listContentArea = document.getElementById('list-content-area');
+const listAddForm = document.getElementById('list-add-form');
+const newItemText = document.getElementById('new-item-text');
+const backToListsBtn = document.getElementById('back-to-lists-btn');
+
+const shareModal = document.getElementById('share-modal');
+const shareLinkInput = document.getElementById('share-link-input');
+
+// --- Drag & Drop State ---
+let draggedItem = null;
+
+// =================================================================
+// 2. UI ХЕЛПЕРЫ (Загрузка, Уведомления)
+// =================================================================
+
 function showLoading() {
     loadingOverlay.style.display = 'flex';
     setTimeout(() => { loadingOverlay.style.opacity = '1'; }, 10);
@@ -1883,1204 +591,623 @@ function hideLoading() {
     setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
 }
 
-/* --- НОВАЯ ФУНКЦИЯ: Кастомные Уведомления --- */
 function showNotification(message, type = 'warning', duration = 5000) {
     const container = document.getElementById('notification-container');
     if (!container) return;
-
     const notif = document.createElement('div');
-    notif.className = `custom-notification ${type}`; // type: 'warning', 'success', 'error'
-    
-    const messageP = document.createElement('p');
-    messageP.textContent = message;
-    
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'close-btn';
-    closeBtn.innerHTML = '&times;';
-    
-    notif.appendChild(messageP);
-    notif.appendChild(closeBtn);
+    notif.className = `custom-notification ${type}`;
+    notif.innerHTML = `<p>${message}</p><button class="close-btn">&times;</button>`;
     container.appendChild(notif);
-
-    setTimeout(() => {
-        notif.classList.add('show');
-    }, 10); 
-
-    let timer = null;
-
+    setTimeout(() => { notif.classList.add('show'); }, 10);
+    
     const removeNotif = () => {
-        if (timer) clearTimeout(timer);
         notif.classList.remove('show');
-        setTimeout(() => {
-            if (notif.parentElement) {
-                notif.parentElement.removeChild(notif);
-            }
-        }, 500); 
+        setTimeout(() => { if (notif.parentElement) notif.parentElement.removeChild(notif); }, 500);
     };
-    
-    closeBtn.onclick = removeNotif;
-
-    if (duration) {
-        timer = setTimeout(removeNotif, duration);
-    }
-}
-
-
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ (Goals, Habits, Mood) --- */
-function setUnsaved(isUnsaved) {
-    const mobileSaveBtn = document.getElementById('mobileNavSave'); 
-
-    if (isUnsaved) {
-        localStorage.setItem(STORAGE_KEY_UNSAVED, 'true');
-        saveAllBtn.classList.add('unsaved');
-        document.getElementById('saveAllBtnText').textContent = 'Сохранить все (!)'; 
-        if (mobileSaveBtn) mobileSaveBtn.classList.add('unsaved');
-    } else {
-        localStorage.removeItem(STORAGE_KEY_UNSAVED);
-        saveAllBtn.classList.remove('unsaved');
-        document.getElementById('saveAllBtnText').textContent = 'Сохранить все';
-        if (mobileSaveBtn) mobileSaveBtn.classList.remove('unsaved');
-    }
-}
-function save() {
-    if (!data) return;
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
-    setUnsaved(true);
+    notif.querySelector('.close-btn').onclick = removeNotif;
+    if (duration) setTimeout(removeNotif, duration);
 }
 
 // =================================================================
-// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE (Goals, Habits, Mood)
-// =================================================================
-async function loadDataFromSupabase() {
-    if (!supabase) { console.error("Supabase client not initialized."); return null; }
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!dataKey) { 
-        window.location.href = 'login.html'; 
-        return null; 
-    }
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        if (!confirm("У вас есть несохраненные изменения. Загрузить данные с сервера и потерять локальные изменения? (Отмена - продолжить работу с локальными данными)")) {
-            setUnsaved(true);
-            try { return JSON.parse(localStorage.getItem(STORAGE_KEY_LOCAL)); } catch (e) { console.error("Ошибка парсинга локальных данных."); }
-        }
-    }
-    showLoading();
-    const { data: result, error } = await supabase
-        .from('user_data')
-        .select('data_json')
-        .eq('data_key', dataKey)
-        .single(); 
-    hideLoading();
-    if (error && error.code !== 'PGRST116') { 
-        console.error("Ошибка Supabase при загрузке:", error);
-        showNotification(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`, 'error', 8000);
-    }
-
-    // ЛОГИКА НЕДЕЛЬ/МЕСЯЦЕВ/АРХИВА УДАЛЕНА
-    const loadedData = (result && result.data_json) 
-        ? result.data_json 
-        : {goals:[],habits:[],habitRecords:[], moodRecords:{}}; 
-
-    if (!loadedData.goals) loadedData.goals = [];
-    if (!loadedData.habits) loadedData.habits = [];
-    if (!loadedData.habitRecords) loadedData.habitRecords = [];
-    if (!loadedData.moodRecords) loadedData.moodRecords = {};
-
-    // Блок обработки данных старых недель удален
-
-    setUnsaved(false);
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
-    return loadedData;
-}
-
-async function saveDataToSupabase() {
-    if (!data) return { status: "error", message: "Данные для сохранения отсутствуют." };
-    if (!supabase) { console.error("Supabase client not initialized."); return { status: "error", message: "Клиент не инициализирован." }; }
-    localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!dataKey) {
-        showNotification("Ошибка авторизации. Пожалуйста, войдите в систему снова.", 'error');
-        window.location.href = 'login.html';
-        return { status: "error", message: "Нет ключа авторизации." };
-    }
-    showLoading();
-    const payload = {
-        data_key: dataKey, 
-        data_json: data, 
-        created_at: new Date().toISOString() 
-    };
-    const { error } = await supabase
-        .from('user_data')
-        .upsert(payload, { onConflict: 'data_key' }); 
-    hideLoading();
-    if (error) {
-        console.error("Ошибка Supabase при сохранении:", error);
-        showNotification(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`, 'error', 8000);
-        return { status: "error", message: error.message };
-    } else {
-        setUnsaved(false);
-        showNotification('Данные (Цели, Привычки, Настроение) успешно сохранены на сервер!', 'success', 5000);
-        return { status: "success" };
-    }
-}
-saveAllBtn.onclick = saveDataToSupabase;
-
-async function changeUsername(newNick) {
-    localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
-    updateAuthButton();
-    showNotification(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`, 'success');
-    closeProfileModal();
-    return { status: "success", newUsername: newNick };
-}
-
-async function deleteProfileAndData() {
-    if (!supabase) { console.error("Supabase client not initialized."); return; }
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
-    if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
-    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
-    const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
-    if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
-    showLoading();
-    const { error } = await supabase
-        .from('user_data')
-        .delete()
-        .eq('data_key', dataKey);
-    // TODO: Также удалить задачи из daily_tasks
-    hideLoading();
-    if (error) {
-        console.error("Ошибка Supabase при удалении:", error);
-        showNotification(`Ошибка при удалении профиля: ${error.message}`, 'error', 8000);
-    } else {
-        alert("Ваш профиль и все данные (кроме задач календаря) успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}`));
-        window.location.href = 'login.html';
-    }
-}
-
-
-// =================================================================
-// 3. ФУНКЦИИ ЛИЧНОГО КАБИНЕТА
+// 3. ЛОГИКА АВТОРИЗАЦИИ И ИНИЦИАЛИЗАЦИИ
 // =================================================================
 
-const usernameDisplay = document.getElementById('usernameDisplay');
-const profileModal = document.getElementById('profileModal');
-const nickInput = document.getElementById('nickInput');
-
-function calculateTaskStats() {
-    // Эта функция больше не может работать, так как задачи теперь в другой системе.
-    // Оставляем заглушку, чтобы не было ошибок.
-    return { completed: 0, uncompleted: 0 };
-}
-
-function updateAuthButton() {
-    const username = localStorage.getItem(STORAGE_KEY_USERNAME);
-    usernameDisplay.textContent = username || 'Профиль';
-}
-function handleAccountControlClick() { openProfileModal(); }
-
-function openProfileModal() {
-    nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
-    
-    // Считаем и отображаем статистику (пока заглушка)
-    const stats = calculateTaskStats();
-    const completedEl = document.getElementById('completedTasksCount');
-    const uncompletedEl = document.getElementById('uncompletedTasksCount');
-    
-    if (completedEl) completedEl.textContent = stats.completed;
-    if (uncompletedEl) uncompletedEl.textContent = stats.uncompleted;
-    
-    profileModal.style.display='flex';
-    setTimeout(()=>profileModal.classList.add('visible'), 10);
-}
-
-function closeProfileModal() {
-    profileModal.classList.remove('visible');
-    setTimeout(() => { profileModal.style.display='none'; }, 300);
-}
-
-// archiveAllMonths() удалена
-
-document.getElementById('saveNickBtn').onclick = async () => {
-    const newNick = nickInput.value.trim();
-    if (!newNick) { 
-        showNotification("Имя пользователя не может быть пустым.", 'warning'); 
-        return; 
-    }
-    if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
-    await changeUsername(newNick); 
-};
-document.getElementById('logoutBtn').onclick = () => {
-    if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        if (!confirm("У вас есть несохраненные изменения (Цели/Привычки/Настроение), которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
-            return; 
-        }
-    }
-    showLoading(); 
-    localStorage.removeItem(STORAGE_KEY_AUTH);
-    localStorage.removeItem(STORAGE_KEY_USERNAME);
-    localStorage.removeItem(STORAGE_KEY_LOCAL);
-    localStorage.removeItem(STORAGE_KEY_UNSAVED);
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 500); 
-};
-document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
-
-
-// --- Функции корзины и старых недель удалены ---
-
-/* --- ЦЕЛИ (Goal Styles) --- */
-const goalsList=document.getElementById('goalsList');
-function renderGoals(){
-    goalsList.innerHTML='';
-    data.goals.forEach((t,i)=>{
-        const div=document.createElement('div'); div.className='goal'; div.contentEditable=true; div.innerText=t;
-        div.addEventListener('input',()=> { data.goals[i] = div.innerText.replace(/×/g, '').trim(); save(); });
-        const rm=document.createElement('span'); rm.className='goal-remove'; rm.innerText='×';
-        rm.onclick=()=>{data.goals.splice(i,1); save(); renderGoals(); };
-        div.appendChild(rm);
-        goalsList.appendChild(div);
-    });
-}
-document.getElementById('addGoalBtn').onclick=()=>{
-    if (data.goals.length >= 3) {
-        showNotification('Максимум 3 годовые цели.', 'warning', 5000);
-        return; 
-    }
-    data.goals.push('Новая цель');
-    save();
-    renderGoals();
-};
-
-// --- Функции нераспределенных, месяцев, архива, модалки недели УДАЛЕНЫ ---
-
-
-// =================================================================
-// 4. НОВЫЙ БЛОК: ЛОГИКА КАЛЕНДАРЯ
-// =================================================================
-
-// --- ЭЛЕМЕНТЫ DOM КАЛЕНДАРЯ ---
-const currentMonthDisplay = document.getElementById('current-month-display');
-const calendarGrid = document.getElementById('calendar-grid');
-const weekViewContainer = document.getElementById('week-view-container');
-const prevBtn = document.getElementById('prev-btn');
-const nextBtn = document.getElementById('next-btn');
-const todayBtn = document.getElementById('today-btn');
-const monthViewBtn = document.getElementById('month-view-btn');
-const weekViewBtn = document.getElementById('week-view-btn');
-const monthView = document.getElementById('month-view');
-const weekView = document.getElementById('week-view');
-
-const dayModal = document.getElementById('day-modal');
-const closeModalBtn = document.getElementById('close-modal');
-const modalDateDisplay = document.getElementById('modal-date-display');
-const modalTaskList = document.getElementById('modal-task-list');
-const addTaskFormModal = document.getElementById('add-task-form-modal');
-const newTaskTimeInput = document.getElementById('new-task-time');
-const newTaskTextInput = document.getElementById('new-task-text');
-
-// --- ГЛОБАЛЬНОЕ СОСТОЯНИЕ КАЛЕНДАРЯ ---
-let state = {
-    tasks: {}, // { 'YYYY-MM-DD': [task1, task2] }
-    currentDate: new Date(),
-    currentView: 'month', // 'month' or 'week'
-    currentModalDate: null, // 'YYYY-MM-DD'
-    currentRecurTask: null
-};
-const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ КАЛЕНДАРЯ ---
-
-function getISODate(date) {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
-function getMonthDays(year, month) {
-    const days = [];
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    
-    let dayOfWeek = firstDay.getDay();
-    if (dayOfWeek === 0) dayOfWeek = 7;
-    
-    const prevMonthLastDay = new Date(year, month, 0).getDate();
-    for (let i = dayOfWeek - 1; i > 0; i--) {
-        const date = new Date(year, month - 1, prevMonthLastDay - i + 1);
-        days.push({ date: date, isCurrentMonth: false });
-    }
-    
-    for (let i = 1; i <= lastDay.getDate(); i++) {
-        const date = new Date(year, month, i);
-        days.push({ date: date, isCurrentMonth: true });
-    }
-    
-    const nextDays = 42 - days.length;
-    for (let i = 1; i <= nextDays; i++) {
-        const date = new Date(year, month + 1, i);
-        days.push({ date: date, isCurrentMonth: false });
-    }
-    
-    return days;
-}
-
-function getWeekDays(date) {
-    const days = [];
-    let dayOfWeek = date.getDay();
-    if (dayOfWeek === 0) dayOfWeek = 7; // Вс = 7
-    
-    const monday = new Date(date);
-    monday.setDate(date.getDate() - (dayOfWeek - 1));
-    
-    for (let i = 0; i < 7; i++) {
-        const weekDay = new Date(monday);
-        weekDay.setDate(monday.getDate() + i);
-        days.push(weekDay);
-    }
-    return days;
-}
-
-// --- ЛОГИКА SUPABASE КАЛЕНДАРЯ ---
-
-async function fetchTasks() {
-    if (!supabase || !currentUserId) return;
-    
-    showLoading();
-    const { data, error } = await supabase
-        .from('daily_tasks')
-        .select('*')
-        .eq('user_id', currentUserId);
-        
-    hideLoading();
-    
-    if (error) {
-        console.error("Ошибка загрузки задач:", error);
-        return;
-    }
-    
-    state.tasks = data.reduce((acc, task) => {
-        const date = task.task_date;
-        if (!acc[date]) {
-            acc[date] = [];
-        }
-        acc[date].push(task);
-        return acc;
-    }, {});
-    
-    for (const date in state.tasks) {
-        state.tasks[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-    }
-}
-
-async function addTask(date, time, text) {
-    if (!supabase || !currentUserId) return;
-    
-    showLoading();
-    const { data, error } = await supabase
-        .from('daily_tasks')
-        .insert({
-            user_id: currentUserId,
-            task_date: date,
-            time: time,
-            text: text,
-            is_done: false
-        })
-        .select()
-        .single();
-    
-    hideLoading();
-    
-    if (error) {
-        console.error("Ошибка добавления задачи:", error);
-        return null;
-    }
-    return data;
-}
-
-async function updateTaskStatus(taskId, isDone) {
-    if (!supabase) return;
-    
-    const { error } = await supabase
-        .from('daily_tasks')
-        .update({ is_done: isDone })
-        .eq('id', taskId);
-        
-    if (error) {
-        console.error("Ошибка обновления задачи:", error);
-    }
-}
-
-async function deleteTask(taskId) {
-    if (!supabase) return;
-    
-    const { error } = await supabase
-        .from('daily_tasks')
-        .delete()
-        .eq('id', taskId);
-        
-    if (error) {
-        console.error("Ошибка удаления задачи:", error);
-    }
-    return !error;
-}
-
-// --- ЛОГИКА РЕНДЕРИНГА КАЛЕНДАРЯ ---
-
-function render() {
-    const year = state.currentDate.getFullYear();
-    const month = state.currentDate.getMonth();
-    
-    currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
-    
-    if (state.currentView === 'month') {
-        renderMonthView(year, month);
-        monthView.style.display = 'block';
-        weekView.style.display = 'none';
-        monthViewBtn.classList.add('active');
-        weekViewBtn.classList.remove('active');
-    } else {
-        renderWeekView(state.currentDate);
-        monthView.style.display = 'none';
-        weekView.style.display = 'block';
-        monthViewBtn.classList.remove('active');
-        weekViewBtn.classList.add('active');
-    }
-}
-
-function renderMonthView(year, month) {
-    calendarGrid.innerHTML = '';
-    const days = getMonthDays(year, month);
-    const todayISO = getISODate(new Date());
-    
-    days.forEach(dayObj => {
-        const dayEl = document.createElement('div');
-        dayEl.className = 'calendar-day';
-        const dateISO = getISODate(dayObj.date);
-        
-        if (!dayObj.isCurrentMonth) {
-            dayEl.classList.add('other-month');
-        }
-        
-        if (dateISO === todayISO) {
-            dayEl.classList.add('today');
-        }
-        
-        const dayNumber = document.createElement('div');
-        dayNumber.className = 'day-number';
-        dayNumber.textContent = dayObj.date.getDate();
-        dayEl.appendChild(dayNumber);
-        
-        const tasks = state.tasks[dateISO] || [];
-        if (tasks.length > 0) {
-            const tasksPreview = document.createElement('div');
-            tasksPreview.className = 'tasks-preview';
-            
-            tasks.slice(0, 5).forEach(task => { 
-                const taskPill = document.createElement('div');
-                taskPill.className = 'task-preview-item';
-                if (task.is_done) {
-                    taskPill.classList.add('done');
-                }
-                
-                if (task.time) {
-                    taskPill.innerHTML = `<span class="task-preview-time">${task.time.slice(0, 5)}</span>`;
-                } else {
-                    taskPill.innerHTML = `<span class="task-preview-time">•</span>`;
-                }
-                tasksPreview.appendChild(taskPill);
-            });
-            
-            if (tasks.length > 5) {
-                 const morePill = document.createElement('div');
-                 morePill.className = 'task-preview-item';
-                 morePill.textContent = `...`;
-                 tasksPreview.appendChild(morePill);
-            }
-            
-            dayEl.appendChild(tasksPreview);
-        }
-        
-        if (dayObj.isCurrentMonth) {
-            dayEl.onclick = () => openDayModal(dateISO);
-        }
-        
-        calendarGrid.appendChild(dayEl);
-    });
-}
-
-function renderWeekView(date) {
-    weekViewContainer.innerHTML = '';
-    const days = getWeekDays(date);
-    const todayISO = getISODate(new Date());
-    
-    days.forEach((day, index) => {
-        const dateISO = getISODate(day);
-        const dayCol = document.createElement('div');
-        dayCol.className = 'week-day-column';
-        if (dateISO === todayISO) {
-            dayCol.classList.add('today');
-        }
-        
-        const dayHeader = document.createElement('div');
-        dayHeader.className = 'week-day-header';
-        dayHeader.innerHTML = `
-            <h3>${dayNames[index]}</h3>
-            <div class="date-display">${day.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long' })}</div>
-        `;
-        dayCol.appendChild(dayHeader);
-        
-        const taskList = document.createElement('div');
-        taskList.className = 'task-list-week';
-        dayCol.appendChild(taskList);
-        
-        const tasks = state.tasks[dateISO] || [];
-        if (tasks.length === 0) {
-            taskList.innerHTML = '<p class="no-tasks">Задач нет.</p>';
-        } else {
-            tasks.forEach(task => {
-                taskList.appendChild(createTaskItemElement(task));
-            });
-        }
-        
-        const addForm = document.createElement('form');
-        addForm.className = 'add-task-form-week';
-        addForm.action = "javascript:void(0);";
-        addForm.innerHTML = `
-            <div class="form-inputs-week">
-                <input type="text" class="week-task-text" placeholder="Новая задача..." required>
-                <input type="time" class="week-task-time" required>
-            </div>
-            <button type="submit" class="btn btn-primary" title="Добавить задачу">
-                <svg class="send-icon" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
-            </button>
-        `;
-        
-        addForm.onsubmit = async (e) => {
-            const timeInput = e.target.querySelector('.week-task-time');
-            const textInput = e.target.querySelector('.week-task-text');
-            
-            const newTask = await addTask(dateISO, timeInput.value, textInput.value);
-            if (newTask) {
-                if (!state.tasks[dateISO]) state.tasks[dateISO] = [];
-                state.tasks[dateISO].push(newTask);
-                state.tasks[dateISO].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-                
-                timeInput.value = '';
-                textInput.value = '';
-                render(); 
-            }
-        };
-        
-        dayCol.appendChild(addForm);
-        weekViewContainer.appendChild(dayCol);
-    });
-}
-
-// --- ЛОГИКА МОДАЛЬНОГО ОКНА КАЛЕНДАРЯ ---
-
-async function handleDeleteTask(task, taskEl) {
-    if (confirm(`Удалить задачу "${task.text}"?`)) {
-        const success = await deleteTask(task.id);
-        if (success) {
-            const date = task.task_date;
-            state.tasks[date] = state.tasks[date].filter(t => t.id !== task.id);
-            
-            if (dayModal.classList.contains('visible') && state.currentModalDate === date) {
-                taskEl.remove();
-                if (state.tasks[date].length === 0) {
-                    modalTaskList.innerHTML = '<p class="no-tasks">Задач на этот день нет.</p>';
-                }
-            }
-            render(); 
-        }
-    }
-}
-
-function handleDownloadTask(task) {
-    const content = `Задача: ${task.text}\nДата: ${task.task_date}\nВремя: ${task.time || 'Весь день'}\nСтатус: ${task.is_done ? 'Выполнено' : 'Не выполнено'}`;
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const safeFileName = task.text.replace(/[^a-z0-9а-я\s]/gi, '_').substring(0, 30);
-    a.download = `Задача_${safeFileName}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-}
-
-function openRecurModal(task) {
-    const modal = document.getElementById('recur-modal');
-    state.currentRecurTask = task; 
-    
-    document.getElementById('recur-type').value = 'weekly';
-    document.getElementById('recur-weekly-days').querySelectorAll('input').forEach(cb => cb.checked = false);
-    document.getElementById('recur-custom-days').value = '2';
-    document.getElementById('recur-end-date').value = '';
-
-    document.getElementById('recur-weekly-options').style.display = 'block';
-    document.getElementById('recur-custom-options').style.display = 'none';
-
-    modal.style.display = 'flex';
-    setTimeout(() => modal.classList.add('visible'), 10);
-}
-
-
-function createTaskItemElement(task) {
-    const taskEl = document.createElement('div');
-    taskEl.className = 'task-item';
-    taskEl.dataset.taskId = task.id;
-    if (task.is_done) {
-        taskEl.classList.add('done');
-    }
-    
-    const checkbox = document.createElement('input');
-    checkbox.type = 'checkbox';
-    checkbox.className = 'task-item-checkbox';
-    checkbox.checked = task.is_done;
-    checkbox.onchange = async () => {
-        const newStatus = checkbox.checked;
-        await updateTaskStatus(task.id, newStatus);
-        
-        task.is_done = newStatus;
-        taskEl.classList.toggle('done', newStatus);
-        render(); 
-    };
-    
-    const timeEl = document.createElement('span');
-    timeEl.className = 'task-item-time';
-    timeEl.textContent = task.time ? task.time.slice(0, 5) : 'Весь день';
-    
-    const textEl = document.createElement('span');
-    textEl.className = 'task-item-text';
-    textEl.textContent = task.text;
-    
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'task-item-more';
-    moreBtn.innerHTML = '⋮'; 
-    moreBtn.title = 'Опции';
-
-    const menu = document.createElement('div');
-    menu.className = 'task-item-menu';
-    menu.innerHTML = `
-        <div class="task-menu-item" data-action="delete">Удалить задачу</div>
-        <div class="task-menu-item" data-action="download">Скачать (.txt)</div>
-        <div class="task-menu-item" data-action="recur">Сделать регулярной</div>
-    `;
-    
-    moreBtn.onclick = (e) => {
-        e.stopPropagation();
-        document.querySelectorAll('.task-item-menu.visible').forEach(m => {
-            if (m !== menu) m.classList.remove('visible');
-        });
-        menu.classList.toggle('visible');
-    };
-    
-    menu.onclick = (e) => {
-        e.stopPropagation();
-        const target = e.target.closest('.task-menu-item');
-        if (!target) return;
-        
-        const action = target.dataset.action;
-        
-        if (action === 'delete') {
-            handleDeleteTask(task, taskEl); 
-        }
-        if (action === 'download') {
-            handleDownloadTask(task);
-        }
-        if (action === 'recur') {
-            openRecurModal(task);
-        }
-        
-        menu.classList.remove('visible'); 
-    };
-
-    taskEl.appendChild(checkbox);
-    taskEl.appendChild(timeEl);
-    taskEl.appendChild(textEl);
-    taskEl.appendChild(moreBtn); 
-    taskEl.appendChild(menu); 
-    
-    return taskEl;
-}
-
-function openDayModal(dateISO) {
-    state.currentModalDate = dateISO;
-    const date = new Date(dateISO + 'T12:00:00'); 
-    modalDateDisplay.textContent = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
-    
-    modalTaskList.innerHTML = '';
-    const tasks = state.tasks[dateISO] || [];
-    
-    if (tasks.length === 0) {
-        modalTaskList.innerHTML = '<p class="no-tasks">Задач на этот день нет.</p>';
-    } else {
-        tasks.forEach(task => {
-            modalTaskList.appendChild(createTaskItemElement(task));
-        });
-    }
-    
-    dayModal.style.display = 'flex';
-    setTimeout(() => dayModal.classList.add('visible'), 10);
-}
-
-function closeModal() {
-    dayModal.classList.remove('visible');
-    setTimeout(() => { dayModal.style.display = 'none'; }, 300);
-    state.currentModalDate = null;
-    newTaskTimeInput.value = '';
-    newTaskTextInput.value = '';
-}
-
-async function handleModalAddTask() {
-    const time = newTaskTimeInput.value;
-    const text = newTaskTextInput.value.trim();
-    const date = state.currentModalDate;
-    
-    if (!text || !date) return;
-    
-    const newTask = await addTask(date, time, text);
-    
-    if (newTask) {
-        if (!state.tasks[date]) state.tasks[date] = [];
-        state.tasks[date].push(newTask);
-        state.tasks[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
-        
-        newTaskTimeInput.value = '';
-        newTaskTextInput.value = '';
-        
-        openDayModal(date);
-        render();
-    }
-}
-// =================================================================
-// КОНЕЦ БЛОКА КАЛЕНДАРЯ
-// =================================================================
-
-
-/* --- ТРЕКЕР ПРИВЫЧЕК --- */
-const newHabitInput = document.getElementById('newHabitInput');
-const habitTableContainer = document.getElementById('habitTableContainer');
-const toggleHabitHistoryBtn = document.getElementById('toggleHabitHistoryBtn');
-let isHabitHistoryCollapsed = true;
-function renderHabitTracker() {
-    habitTableContainer.innerHTML = `<div class="habit-table-wrapper"><table class="habit-table"><thead><tr id="habitHeaderRow"><th>Дата</th></tr></thead><tbody id="habitBody"></tbody></table></div>`;
-    const headerRow = document.getElementById('habitHeaderRow');
-    const body = document.getElementById('habitBody');
-    data.habits.forEach((habit, index) => {
-        const th = document.createElement('th');
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'habit-header-content';
-        const textSpan = document.createElement('span');
-        textSpan.contentEditable = true;
-        textSpan.innerText = habit;
-        textSpan.addEventListener('blur', () => { data.habits[index] = textSpan.innerText.trim(); save(); });
-        const removeBtn = document.createElement('span');
-        removeBtn.innerText = '×';
-        removeBtn.className = 'remove-habit';
-        removeBtn.title = 'Удалить привычку';
-        removeBtn.onclick = (e) => {
-            e.stopPropagation();
-            if (confirm(`Удалить привычку "${habit}"? Это действие необратимо.`)) {
-                data.habits.splice(index, 1);
-                data.habitRecords.forEach(record => {
-                    if (record.tasks && record.tasks.hasOwnProperty(habit)) {
-                        delete record.tasks[habit];
-                    }
-                });
-                save();
-                renderHabitTracker();
-            }
-        };
-        contentDiv.appendChild(textSpan);
-        contentDiv.appendChild(removeBtn);
-        th.appendChild(contentDiv);
-        headerRow.appendChild(th);
-    });
-    const progressTh = document.createElement('th');
-    progressTh.className = 'progress-col';
-    progressTh.innerText = 'Прогресс';
-    headerRow.appendChild(progressTh);
-    body.innerHTML = '';
-    const recordsToShow = isHabitHistoryCollapsed ? data.habitRecords.slice(0, 7) : data.habitRecords;
-    recordsToShow.forEach(record => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${new Date(record.date).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit'})}</td>`;
-        let completed = 0;
-        data.habits.forEach(habit => {
-            const td = document.createElement('td');
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.checked = !!(record.tasks && record.tasks[habit]);
-            if(checkbox.checked) completed++;
-            checkbox.onchange = () => {
-                if(!record.tasks) record.tasks = {};
-                record.tasks[habit] = checkbox.checked;
-                save();
-                renderHabitTracker();
-            };
-            td.appendChild(checkbox);
-            tr.appendChild(td);
-        });
-        const percentage = data.habits.length > 0 ? (completed / data.habits.length) * 100 : 0;
-        const progressTd = document.createElement('td');
-        progressTd.innerHTML = `<div class="progress-bar-container"><div class="progress-bar" style="width: ${percentage}%;"></div><span class="progress-bar-text">${percentage.toFixed(0)}%</span></div>`;
-        tr.appendChild(progressTd);
-        body.appendChild(tr);
-    });
-    toggleHabitHistoryBtn.style.display = data.habitRecords.length > 7 ? 'block' : 'none';
-    toggleHabitHistoryBtn.textContent = isHabitHistoryCollapsed ? 'Показать всю историю' : 'Свернуть историю';
-    habitTableContainer.classList.toggle('collapsed', isHabitHistoryCollapsed && data.habitRecords.length > 7);
-}
-toggleHabitHistoryBtn.onclick = () => { isHabitHistoryCollapsed = !isHabitHistoryCollapsed; renderHabitTracker(); };
-document.getElementById('addHabitBtn').onclick=()=>{
-    const text=newHabitInput.value.trim();
-    if(text && !data.habits.includes(text)){
-        data.habits.push(text);
-        newHabitInput.value='';
-        save(); renderHabitTracker();
-    }
-};
-document.getElementById('newDayBtn').onclick=()=>{
-    const today=new Date().setHours(0,0,0,0);
-    if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
-        showNotification('Запись за сегодня уже существует.', 'warning'); 
-        return;
-    }
-    const newRecord={ date: new Date().toISOString(), tasks: {} };
-    data.habits.forEach(h=>{newRecord.tasks[h]=false;});
-    data.habitRecords.unshift(newRecord);
-    save(); renderHabitTracker();
-};
-
-/* --- ТРЕКЕР НАСТРОЕНИЯ --- */
-const moodMonthSelect = document.getElementById('moodMonthSelect');
-const moodCalendar = document.getElementById('moodCalendar');
-function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`; }
-function updateMoodSelect() {
-    const now = new Date();
-    moodMonthSelect.innerHTML = '';
-    const monthsLocale = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-    for (let i = 0; i < 12; i++) {
-        const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-        const option = document.createElement('option');
-        option.value = `${date.getFullYear()}-${date.getMonth()}`;
-        option.textContent = `${monthsLocale[date.getMonth()]} ${date.getFullYear()}`;
-        moodMonthSelect.appendChild(option);
-    }
-    moodMonthSelect.value = `${now.getFullYear()}-${now.getMonth()}`;
-    moodMonthSelect.onchange = renderMoodCalendar;
-}
-function renderMoodCalendar() {
-    moodCalendar.innerHTML = '';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += `<div class="mood-calendar-day">${day}</div>`; });
-    const [year, month] = moodMonthSelect.value.split('-').map(Number);
-    const date = new Date(year, month, 1);
-    let firstDay = date.getDay();
-    if (firstDay === 0) firstDay = 7;
-    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += `<div class="mood-calendar-cell empty"></div>`; }
-    while (date.getMonth() === month) {
-        const dayKey = getDayKey(date);
-        const mood = data.moodRecords[dayKey];
-        moodCalendar.innerHTML += `<div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>`;
-        date.setDate(date.getDate() + 1);
-    }
-}
-function updateMoodSelection() {
-    const todayKey = getDayKey(new Date());
-    const savedMood = data.moodRecords[todayKey];
-    document.querySelectorAll('.mood-option').forEach(el => {
-        el.classList.toggle('selected', savedMood && el.dataset.mood === savedMood);
-        el.onclick = () => {
-            data.moodRecords[todayKey] = (savedMood === el.dataset.mood) ? undefined : el.dataset.mood;
-            save(); updateMoodSelection(); renderMoodCalendar();
-        };
-    });
-}
-
-// =================================================================
-// 5. AI ФУНКЦИОНАЛ
-// =================================================================
-
-function closeAiAdviceModal() {
-    aiAdviceModalOverlay.classList.remove('visible');
-    setTimeout(() => { aiAdviceModalOverlay.style.display = 'none'; }, 300);
-}
-aiAdviceModalOverlay.addEventListener('click', (e) => {
-    if (e.target === aiAdviceModalOverlay) {
-        closeAiAdviceModal();
-    }
-});
-function openAiAdviceModal(suggestion) {
-    let htmlSuggestion = suggestion;
-    // ... (код форматирования Markdown) ...
-    aiAdviceText.innerHTML = htmlSuggestion;
-    aiAdviceModalOverlay.style.display = 'block';
-    setTimeout(() => { aiAdviceModalOverlay.classList.add('visible'); }, 10);
-}
-function generateAIPrompt() {
-    let prompt = "";
-    // ... (код генерации промпта) ...
-    return prompt;
-}
-async function callGeminiAPI(prompt) {
-    showNotification("Для использования AI-совета требуется серверный прокси. Функционал временно недоступен.", 'warning', 7000);
-    return { status: "error", message: "AI функционал требует серверного прокси." };
-}
-getAISuggestionBtn.onclick = async () => {
-    const promptText = generateAIPrompt();
-    const result = await callGeminiAPI(promptText);
-    if (result.status === 'success' && result.suggestion) {
-        openAiAdviceModal(result.suggestion);
-    }
-};
-
-// =================================================================
-// 6. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API)
-// =================================================================
-
-// Функции уведомлений для старых недель удалены
-
-function requestNotificationPermission() {
-    if (!("Notification" in window)) {
-        console.warn("Этот браузер не поддерживает Desktop Notifications.");
-        return;
-    }
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-            console.log("Разрешение на уведомления:", permission);
-        });
-    }
-}
-
-// =================================================================
-// 7. ИНИЦИАЛИЗАЦИЯ
-// =================================================================
-
-function renderAll(){
-    renderGoals();
-    // renderUnassigned, renderMonths, renderArchive УДАЛЕНЫ
-    renderHabitTracker();
-    updateMoodSelect();
-    renderMoodCalendar();
-    updateMoodSelection(); 
-}
-
-function setupMobileNav() {
-    // --- Секции ---
-    const sectionGoals = document.getElementById('mobileSectionGoals');
-    const sectionWeeks = document.getElementById('mobileSectionWeeks'); // Теперь это Календарь
-    const sectionHabits = document.getElementById('mobileSectionHabits');
-    const sectionMood = document.getElementById('mobileSectionMood');
-    const allSections = [sectionGoals, sectionWeeks, sectionHabits, sectionMood];
-
-    // --- Кнопки основной панели ---
-    const mobileNavWeeks = document.getElementById('mobileNavWeeks');
-    const mobileNavHabits = document.getElementById('mobileNavHabits');
-    const mobileNavMenuBtn = document.getElementById('mobileNavMenuBtn');
-    const mobileNavSave = document.getElementById('mobileNavSave');
-    const mobileNavProfile = document.getElementById('mobileNavProfile');
-    
-    const allTabButtons = [mobileNavWeeks, mobileNavHabits]; 
-
-    // --- Всплывающее меню ---
-    const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-    const mobileMenuGoals = document.getElementById('mobileMenuGoals');
-    const mobileMenuMood = document.getElementById('mobileMenuMood');
-    const mobileMenuKB = document.getElementById('mobileMenuKB');
-    const mobileMenuAI = document.getElementById('mobileMenuAI');
-    const mobileMenuMedics = document.getElementById('mobileMenuMedics'); 
-
-    // --- Функция показа секции ---
-    const showMobileSection = (sectionToShow, buttonToActivate) => {
-        allSections.forEach(sec => sec.classList.remove('active'));
-        allTabButtons.forEach(btn => {
-            if(btn) btn.classList.remove('active');
-        });
-        if (sectionToShow) sectionToShow.classList.add('active');
-        if (buttonToActivate) buttonToActivate.classList.add('active');
-    };
-
-    // --- Функции всплывающего меню ---
-    const openMobileMenuOverlay = () => {
-        if (mobileMenuOverlay) mobileMenuOverlay.classList.add('visible');
-        if (mobileNavMenuBtn) mobileNavMenuBtn.classList.add('is-open');
-    };
-    const closeMobileMenuOverlay = () => {
-        if (mobileMenuOverlay) mobileMenuOverlay.classList.remove('visible');
-        if (mobileNavMenuBtn) mobileNavMenuBtn.classList.remove('is-open');
-    };
-
-    // --- Назначение кликов для ОСНОВНОЙ ПАНЕЛИ ---
-    if (mobileNavWeeks) mobileNavWeeks.onclick = () => showMobileSection(sectionWeeks, mobileNavWeeks);
-    if (mobileNavHabits) mobileNavHabits.onclick = () => showMobileSection(sectionHabits, mobileNavHabits);
-    
-    if (mobileNavSave && saveAllBtn) mobileNavSave.onclick = () => saveAllBtn.click();
-    if (mobileNavProfile && accountControlBtn) mobileNavProfile.onclick = () => accountControlBtn.click();
-
-    if (mobileNavMenuBtn) mobileNavMenuBtn.onclick = () => {
-        if (mobileMenuOverlay.classList.contains('visible')) {
-            closeMobileMenuOverlay();
-        } else {
-            openMobileMenuOverlay();
-        }
-    };
-    
-    if (mobileMenuOverlay) mobileMenuOverlay.onclick = (e) => {
-        if (e.target === mobileMenuOverlay) {
-            closeMobileMenuOverlay();
-        }
-    };
-
-    // --- Назначение кликов для ВСПЛЫВАЮЩЕГО МЕНЮ ---
-    if (mobileMenuGoals) mobileMenuGoals.onclick = () => {
-        showMobileSection(sectionGoals, null); 
-        closeMobileMenuOverlay();
-    };
-    if (mobileMenuMood) mobileMenuMood.onclick = () => {
-        showMobileSection(sectionMood, null); 
-        closeMobileMenuOverlay();
-    };
-    if (mobileMenuKB) mobileMenuKB.onclick = () => {
-        window.location.href = 'knowledge_base.html';
-        closeMobileMenuOverlay();
-    };
-    if (mobileMenuAI && getAISuggestionBtn) mobileMenuAI.onclick = () => {
-        getAISuggestionBtn.click();
-        closeMobileMenuOverlay();
-    };
-    if (mobileMenuMedics) mobileMenuMedics.onclick = () => {
-        window.location.href = 'meds.html';
-        closeMobileMenuOverlay();
-    };
-
-    // --- Показываем секцию по умолчанию при загрузке ---
-    showMobileSection(sectionWeeks, mobileNavWeeks); // Календарь по умолчанию
-}
-
-async function init() {
+document.addEventListener('DOMContentLoaded', () => {
     if (window.supabase) {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } else {
-        console.error("Supabase library not found on window. Did the script load correctly?");
-        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Ошибка: Не удалось загрузить библиотеку Supabase.</h2>';
+        console.error("Supabase library not found.");
         return;
     }
 
-    const authKey = localStorage.getItem(STORAGE_KEY_AUTH);
-    if (!authKey) { 
-        window.location.href = 'login.html'; 
-        return; 
-    }
+    const urlParams = new URLSearchParams(window.location.search);
+    const shareToken = urlParams.get('id');
 
-    // ОБНОВЛЕНО: Получаем ID пользователя при инициализации
-    const { data: { user }, error: userError } = await supabase.auth.getUser();
-    if (userError || !user) {
-        console.error("Ошибка авторизации или пользователь не найден:", userError);
-        window.location.href = 'login.html'; 
-        return;
-    }
-    currentUserId = user.id; // Устанавливаем глобальную переменную
-
-    updateAuthButton();
-    
-    // 1. Загружаем данные для Целей, Привычек, Настроения
-    data = await loadDataFromSupabase();  
-    if (data) {
-        renderAll(); // Рендерим Цели, Привычки, Настроение
-        requestNotificationPermission(); 
+    if (shareToken) {
+        document.body.classList.add('public-view');
+        loadPublicList(shareToken);
     } else {
-        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные (Цели/Привычки). Попробуйте обновить страницу.</h2>';
-        return; // Не продолжаем, если основные данные не загружены
+        checkAuth();
+        setupEventListeners();
     }
-    
-    // 2. Загружаем и рендерим Календарь
-    await fetchTasks(); 
-    render(); // Рендерим Календарь
-    
-    // 3. Устанавливаем слушатели Календаря
-    prevBtn.onclick = () => {
-        if (state.currentView === 'month') {
-            state.currentDate.setMonth(state.currentDate.getMonth() - 1);
-        } else {
-            state.currentDate.setDate(state.currentDate.getDate() - 7);
-        }
-        render();
-    };
-    
-    nextBtn.onclick = () => {
-        if (state.currentView === 'month') {
-            state.currentDate.setMonth(state.currentDate.getMonth() + 1);
-        } else {
-            state.currentDate.setDate(state.currentDate.getDate() + 7);
-        }
-        render();
-    };
-    
-    todayBtn.onclick = () => {
-        state.currentDate = new Date();
-        render();
-    };
-    
-    monthViewBtn.onclick = () => {
-        state.currentView = 'month';
-        render();
-    };
-    weekViewBtn.onclick = () => {
-        state.currentView = 'week';
-        render();
-    };
-    
-    closeModalBtn.onclick = closeModal;
-    dayModal.onclick = (e) => {
-        if (e.target === dayModal) closeModal();
-    };
-    addTaskFormModal.onsubmit = handleModalAddTask;
+});
 
-    const recurModal = document.getElementById('recur-modal');
-    const recurTypeSelect = document.getElementById('recur-type');
-    const weeklyOptions = document.getElementById('recur-weekly-options');
-    const customOptions = document.getElementById('recur-custom-options');
-    
-    recurTypeSelect.onchange = () => {
-        const type = recurTypeSelect.value;
-        weeklyOptions.style.display = (type === 'weekly') ? 'block' : 'none';
-        customOptions.style.display = (type === 'custom') ? 'block' : 'none';
-    };
-    
-    document.querySelectorAll('.close-recur-modal').forEach(btn => {
-        btn.onclick = () => {
-            recurModal.classList.remove('visible');
-            setTimeout(() => { recurModal.style.display = 'none'; }, 300);
-            state.currentRecurTask = null;
-        };
-    });
-    
-    document.getElementById('save-recur-btn').onclick = () => {
-        if (!state.currentRecurTask) return;
-        alert('Логика сохранения регулярной задачи еще не реализована.\nВыбранная задача: ' + state.currentRecurTask.text);
-        document.querySelector('.close-recur-modal').click();
-    };
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.task-item-more') && !e.target.closest('.task-item-menu')) {
-             document.querySelectorAll('.task-item-menu.visible').forEach(m => m.classList.remove('visible'));
+function checkAuth() {
+    supabase.auth.onAuthStateChange(async (event, session) => {
+        if (session && session.user) {
+            currentUserId = session.user.id;
+            await loadUserDashboard();
+        } else {
+            window.location.href = 'login.html';
         }
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    init();
-    setupMobileNav(); // Вызываем настройку навигации
-});
+// =================================================================
+// 4. РЕЖИМ ЛИЧНОГО КАБИНЕТА
+// =================================================================
+
+async function loadUserDashboard() {
+    showLoading();
+    const { data: lists, error } = await supabase
+        .from('shared_lists')
+        .select('*')
+        .eq('owner_id', currentUserId)
+        .order('created_at');
+    
+    if (error) {
+        console.error("Ошибка загрузки списков:", error);
+        hideLoading();
+        return;
+    }
+    allUserLists = lists;
+    renderSidebar();
+    hideLoading();
+}
+
+function renderSidebar() {
+    mainListContainer.innerHTML = '';
+    allUserLists.forEach(list => {
+        const listEl = document.createElement('div');
+        listEl.className = 'main-list-item';
+        listEl.dataset.listId = list.id;
+        
+        const listNameSpan = document.createElement('span');
+        listNameSpan.textContent = list.name;
+        listEl.appendChild(listNameSpan);
+        
+        const deleteBtn = document.createElement('span');
+        deleteBtn.className = 'delete-list-btn';
+        deleteBtn.innerHTML = '&times;';
+        deleteBtn.title = 'Удалить список';
+        deleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            handleDeleteList(list.id, list.name);
+        };
+        listEl.appendChild(deleteBtn);
+        
+        if (currentList && list.id === currentList.id) {
+            listEl.classList.add('active');
+        }
+        
+        listEl.onclick = () => {
+            loadListContent(list.id);
+        };
+        mainListContainer.appendChild(listEl);
+    });
+}
+
+async function loadListContent(listId) {
+    showLoading();
+    
+    // 1. Получаем сам список
+    const { data: listData, error: listError } = await supabase
+        .from('shared_lists')
+        .select('*')
+        .eq('id', listId)
+        .single();
+    
+    if (listError) {
+        showNotification('Ошибка: ' + listError.message, 'error');
+        hideLoading();
+        return;
+    }
+    currentList = listData;
+
+    // 2. Получаем папки
+    const { data: foldersData, error: foldersError } = await supabase
+        .from('list_folders')
+        .select('*')
+        .eq('list_id', listId)
+        .order('created_at');
+        
+    if (foldersError) {
+        showNotification('Ошибка: ' + foldersError.message, 'error');
+        hideLoading();
+        return;
+    }
+    currentListFolders = foldersData;
+    
+    // 3. Получаем элементы
+    const { data: itemsData, error: itemsError } = await supabase
+        .from('list_items')
+        .select('*')
+        .eq('list_id', listId)
+        .order('created_at');
+        
+    if (itemsError) {
+        showNotification('Ошибка: ' itemsError.message, 'error');
+        hideLoading();
+        return;
+    }
+    currentListItems = itemsData;
+    
+    // 4. Рендерим все
+    renderSidebar(); // Обновить active
+    renderMainView();
+    
+    // Мобильная логика
+    if (window.innerWidth <= 768) {
+        container.classList.add('list-selected');
+        backToListsBtn.style.display = 'flex';
+    }
+    
+    hideLoading();
+}
+
+function renderMainView() {
+    welcomeMessage.style.display = 'none';
+    listContentWrapper.style.display = 'flex';
+    listTitle.textContent = currentList.name;
+
+    const shareBtn = document.getElementById('list-share-btn');
+    shareBtn.textContent = currentList.is_public_editable ? 'Доступ (Вкл)' : 'Поделиться';
+    shareBtn.classList.toggle('btn-success', !currentList.is_public_editable);
+    
+    listContentArea.innerHTML = ''; // Очищаем
+    
+    // Рендерим папки
+    currentListFolders.forEach(folder => {
+        const folderEl = createFolderElement(folder);
+        const itemsInFolder = currentListItems.filter(item => item.folder_id === folder.id);
+        const folderItemsList = folderEl.querySelector('.folder-items-list');
+        
+        itemsInFolder.forEach(item => {
+            folderItemsList.appendChild(createItemElement(item));
+        });
+        listContentArea.appendChild(folderEl);
+    });
+    
+    // Рендерим элементы без папки
+    const rootItems = currentListItems.filter(item => !item.folder_id);
+    const rootContainer = document.createElement('div');
+    rootContainer.className = 'root-items-container';
+    rootContainer.dataset.folderId = 'null'; // 'null' как ID для корня
+    rootContainer.innerHTML = '<h3>Без папки</h3>';
+    
+    rootItems.forEach(item => {
+        rootContainer.appendChild(createItemElement(item));
+    });
+    listContentArea.appendChild(rootContainer);
+    
+    // Добавляем слушатели drag-and-drop
+    setupDragAndDropListeners();
+}
+
+function createFolderElement(folder) {
+    const folderEl = document.createElement('div');
+    folderEl.className = 'folder-container';
+    folderEl.dataset.folderId = folder.id;
+    
+    folderEl.innerHTML = `
+        <div class="folder-header">
+            <h3>${folder.name}</h3>
+            <span class="folder-delete-btn" title="Удалить папку">&times;</span>
+        </div>
+        <div class="folder-items-list">
+            </div>
+    `;
+    
+    folderEl.querySelector('.folder-delete-btn').onclick = (e) => {
+        e.stopPropagation();
+        handleDeleteFolder(folder.id, folder.name);
+    };
+    
+    return folderEl;
+}
+
+function createItemElement(item) {
+    const itemEl = document.createElement('div');
+    itemEl.className = 'list-item-entry';
+    itemEl.dataset.itemId = item.id;
+    itemEl.draggable = true; // Включаем drag
+    
+    if (item.is_done) {
+        itemEl.classList.add('done');
+    }
+
+    itemEl.innerHTML = `
+        <input type="checkbox" ${item.is_done ? 'checked' : ''}>
+        <span class="item-text">${item.content}</span>
+        <span class="item-delete-btn" title="Удалить пункт">&times;</span>
+    `;
+
+    itemEl.querySelector('input[type="checkbox"]').onchange = (e) => handleToggleItem(item.id, e.target.checked);
+    itemEl.querySelector('.item-delete-btn').onclick = () => handleDeleteItem(item.id);
+    
+    // Слушатели drag для элемента
+    itemEl.ondragstart = (e) => {
+        draggedItem = itemEl;
+        setTimeout(() => itemEl.classList.add('dragging'), 0);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', item.id);
+    };
+    
+    itemEl.ondragend = () => {
+        draggedItem.classList.remove('dragging');
+        draggedItem = null;
+    };
+
+    return itemEl;
+}
+
+// =================================================================
+// 5. ОБРАБОТЧИКИ ДЕЙСТВИЙ (CRUD)
+// =================================================================
+
+function setupEventListeners() {
+    // --- Сайдбар ---
+    document.getElementById('new-list-btn').onclick = handleNewList;
+    
+    // --- Главный вид ---
+    listAddForm.onsubmit = (e) => {
+        e.preventDefault();
+        handleAddItem();
+    };
+    document.getElementById('list-new-folder-btn').onclick = handleNewFolderInList;
+    
+    // --- Шапка (для мобильных) ---
+    backToListsBtn.onclick = () => {
+        container.classList.remove('list-selected');
+        backToListsBtn.style.display = 'none';
+        currentList = null;
+        renderSidebar(); // Обновить active
+    };
+    
+    // --- Модалка "Поделиться" ---
+    document.getElementById('list-share-btn').onclick = openShareModal;
+    document.getElementById('close-share-modal').onclick = closeShareModal;
+    document.getElementById('copy-share-link-btn').onclick = copyShareLink;
+    document.getElementById('disable-sharing-btn').onclick = disableSharing;
+    shareModal.onclick = (e) => {
+        if (e.target === shareModal) closeShareModal();
+    };
+}
+
+async function handleNewList() {
+    const name = prompt("Введите название нового списка (н-р, 'Поход'):");
+    if (!name || !currentUserId) return;
+
+    showLoading();
+    const { data, error } = await supabase
+        .from('shared_lists')
+        .insert({ name: name, owner_id: currentUserId })
+        .select()
+        .single();
+    
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+    } else {
+        allUserLists.push(data);
+        renderSidebar();
+        loadListContent(data.id); // Сразу открываем новый список
+        showNotification(`Список "${name}" создан!`, 'success');
+    }
+    hideLoading();
+}
+
+async function handleDeleteList(listId, listName) {
+    if (!confirm(`Вы уверены, что хотите удалить список "${listName}"? Это действие необратимо и удалит ВСЕ папки и элементы в нем.`)) return;
+    
+    showLoading();
+    const { error } = await supabase
+        .from('shared_lists')
+        .delete()
+        .eq('id', listId);
+        
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+    } else {
+        allUserLists = allUserLists.filter(l => l.id !== listId);
+        currentList = null;
+        renderSidebar();
+        welcomeMessage.style.display = 'flex';
+        listContentWrapper.style.display = 'none';
+        container.classList.remove('list-selected');
+        backToListsBtn.style.display = 'none';
+        showNotification(`Список "${listName}" удален.`, 'success');
+    }
+    hideLoading();
+}
+
+async function handleNewFolderInList() {
+    if (!currentList) return;
+    const name = prompt("Введите название новой папки (н-р, 'Продукты'):");
+    if (!name) return;
+    
+    showLoading();
+    const { data, error } = await supabase
+        .from('list_folders')
+        .insert({ name: name, list_id: currentList.id })
+        .select()
+        .single();
+        
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+    } else {
+        currentListFolders.push(data);
+        renderMainView(); // Перерисовываем
+        showNotification(`Папка "${name}" создана!`, 'success');
+    }
+    hideLoading();
+}
+
+async function handleDeleteFolder(folderId, folderName) {
+    if (!confirm(`Удалить папку "${folderName}"? Все элементы из нее будут перемещены в "Без папки".`)) return;
+    
+    showLoading();
+    // 1. Обнуляем folder_id у всех дочерних элементов
+    const { error: updateError } = await supabase
+        .from('list_items')
+        .update({ folder_id: null })
+        .eq('folder_id', folderId);
+        
+    if (updateError) {
+        showNotification('Ошибка: ' + updateError.message, 'error');
+        hideLoading();
+        return;
+    }
+
+    // 2. Удаляем саму папку
+    const { error: deleteError } = await supabase
+        .from('list_folders')
+        .delete()
+        .eq('id', folderId);
+
+    if (deleteError) {
+        showNotification('Ошибка: ' + deleteError.message, 'error');
+    } else {
+        // Обновляем локальные данные и рендерим
+        currentListFolders = currentListFolders.filter(f => f.id !== folderId);
+        currentListItems.forEach(i => { if (i.folder_id === folderId) i.folder_id = null; });
+        renderMainView();
+        showNotification(`Папка "${folderName}" удалена.`, 'success');
+    }
+    hideLoading();
+}
+
+async function handleAddItem() {
+    const content = newItemText.value.trim();
+    if (!content || !currentList) return;
+    
+    // Временно добавляем в UI (в корень)
+    const tempId = `temp-${Date.now()}`;
+    const tempItem = { id: tempId, content: content, is_done: false, list_id: currentList.id, folder_id: null };
+    const itemEl = createItemElement(tempItem);
+    itemEl.style.opacity = '0.5';
+    document.querySelector('.root-items-container').appendChild(itemEl);
+    newItemText.value = '';
+
+    const { data: newItem, error } = await supabase
+        .from('list_items')
+        .insert({ content: content, list_id: currentList.id, folder_id: null }) // По умолчанию в корень
+        .select()
+        .single();
+    
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+        itemEl.remove();
+    } else {
+        itemEl.remove(); // Удаляем временный
+        currentListItems.push(newItem); // Добавляем настоящий
+        const realItemEl = createItemElement(newItem); // Создаем настоящий
+        document.querySelector('.root-items-container').appendChild(realItemEl);
+    }
+}
+
+async function handleDeleteItem(itemId) {
+    const itemEl = document.querySelector(`.list-item-entry[data-item-id="${itemId}"]`);
+    if (itemEl) itemEl.style.opacity = '0.3';
+
+    const { error } = await supabase
+        .from('list_items')
+        .delete()
+        .eq('id', itemId);
+
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+        if (itemEl) itemEl.style.opacity = '1';
+    } else {
+        if (itemEl) itemEl.remove();
+        currentListItems = currentListItems.filter(i => i.id !== itemId);
+    }
+}
+
+async function handleToggleItem(itemId, isDone) {
+    const itemEl = document.querySelector(`.list-item-entry[data-item-id="${itemId}"]`);
+    if (itemEl) itemEl.classList.toggle('done', isDone);
+
+    const { error } = await supabase
+        .from('list_items')
+        .update({ is_done: isDone })
+        .eq('id', itemId);
+
+    if (error) {
+        showNotification('Ошибка: ' + error.message, 'error');
+        if (itemEl) itemEl.classList.toggle('done', !isDone); // Откат
+    } else {
+        const item = currentListItems.find(i => i.id === itemId);
+        if (item) item.is_done = isDone;
+    }
+}
+
+// =================================================================
+// 6. ЛОГИКА "ПОДЕЛИТЬСЯ"
+// =================================================================
+// (Эта часть осталась почти без изменений, т.к. логика та же)
+
+async function openShareModal() {
+    if (!currentList) return;
+    showLoading();
+    const { data, error } = await supabase
+        .from('shared_lists')
+        .update({ is_public_editable: true })
+        .eq('id', currentList.id)
+        .select('share_token')
+        .single();
+    hideLoading();
+    if (error) { showNotification('Ошибка: ' + error.message, 'error'); return; }
+
+    currentList.is_public_editable = true;
+    renderMainView(); // Обновить кнопку
+
+    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${data.share_token}`;
+    shareLinkInput.value = shareUrl;
+    shareModal.style.display = 'flex';
+    setTimeout(() => shareModal.classList.add('visible'), 10);
+}
+
+function closeShareModal() {
+    shareModal.classList.remove('visible');
+    setTimeout(() => { shareModal.style.display = 'none'; }, 300);
+}
+
+function copyShareLink() {
+    shareLinkInput.select();
+    document.execCommand('copy');
+    showNotification('Ссылка скопирована!', 'success');
+}
+
+async function disableSharing() {
+    if (!currentList) return;
+    if (!confirm('Отключить доступ по ссылке?')) return;
+    showLoading();
+    const { error } = await supabase
+        .from('shared_lists')
+        .update({ is_public_editable: false })
+        .eq('id', currentList.id);
+    hideLoading();
+    if (error) { showNotification('Ошибка: ' + error.message, 'error'); return; }
+    
+    currentList.is_public_editable = false;
+    renderMainView(); // Обновить кнопку
+    showNotification('Доступ по ссылке отключен.', 'success');
+    closeShareModal();
+}
+
+// =================================================================
+// 7. РЕЖИМ ПУБЛИЧНОГО ПРОСМОТРА (по ?id=...)
+// =================================================================
+
+async function loadPublicList(shareToken) {
+    showLoading();
+    // 1. Получаем список, его папки и его элементы одним запросом
+    const { data, error } = await supabase
+        .from('shared_lists')
+        .select('*, list_folders(*), list_items(*)')
+        .eq('share_token', shareToken)
+        .eq('is_public_editable', true)
+        .single();
+        
+    hideLoading();
+    if (error || !data) {
+        console.error("Ошибка:", error);
+        document.body.innerHTML = `<h2 style="color: var(--warning-color); text-align: center; margin-top: 50px;">Список не найден или доступ закрыт.</h2>`;
+        return;
+    }
+    
+    // RLS позволяет анониму это делать
+    currentList = data;
+    currentListFolders = data.list_folders || [];
+    currentListItems = data.list_items || [];
+    
+    // Настраиваем UI
+    renderMainView();
+    
+    // Скрываем/отключаем кнопки "для владельца"
+    document.getElementById('list-new-folder-btn').style.display = 'none';
+    document.getElementById('list-share-btn').style.display = 'none';
+    document.querySelectorAll('.folder-delete-btn').forEach(btn => btn.style.display = 'none');
+    
+    // Включаем форму добавления
+    listAddForm.onsubmit = (e) => {
+        e.preventDefault();
+        handleAddItem(); // Будет работать из-за RLS
+    };
+    
+    // Включаем Drag-and-Drop
+    setupDragAndDropListeners();
+}
+
+// =================================================================
+// 8. ЛОГИКА DRAG & DROP
+// =================================================================
+
+function setupDragAndDropListeners() {
+    const dropZones = document.querySelectorAll('.folder-container, .root-items-container');
+    
+    dropZones.forEach(zone => {
+        zone.ondragover = (e) => {
+            e.preventDefault();
+            zone.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'move';
+        };
+        
+        zone.ondragleave = () => {
+            zone.classList.remove('drag-over');
+        };
+        
+        zone.ondrop = (e) => {
+            e.preventDefault();
+            zone.classList.remove('drag-over');
+            if (!draggedItem) return;
+            
+            const itemId = draggedItem.dataset.itemId;
+            let newFolderId = zone.dataset.folderId; // 'null' для корня
+            if (newFolderId === 'null') newFolderId = null; 
+            
+            // 1. Перемещаем в DOM
+            const targetList = zone.querySelector('.folder-items-list') || zone;
+            targetList.appendChild(draggedItem);
+            
+            // 2. Обновляем в Supabase
+            updateItemFolder(itemId, newFolderId);
+        };
+    });
+}
+
+async function updateItemFolder(itemId, newFolderId) {
+    draggedItem.style.opacity = '0.5'; // Показываем "обработку"
+    
+    const { error } = await supabase
+        .from('list_items')
+        .update({ folder_id: newFolderId })
+        .eq('id', itemId);
+        
+    if (error) {
+        showNotification('Ошибка перемещения: ' + error.message, 'error');
+        // Тут нужна логика отката, но для простоты просто перезагрузим
+        loadListContent(currentList.id);
+    } else {
+        // Обновляем локальный кеш
+        const item = currentListItems.find(i => i.id === itemId);
+        if (item) item.folder_id = newFolderId;
+        draggedItem.style.opacity = '1';
+        showNotification('Элемент перемещен!', 'success', 2000);
+    }
+}
+
 </script>
-<script src="js/footer.js"></script>
 
 </body>
 </html>
