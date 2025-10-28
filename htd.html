@@ -8,6 +8,8 @@
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0099ff">
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/drag-drop-touch"></script>
 <style>
 /* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ --- */
 :root {
@@ -116,16 +118,8 @@ body {
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .btn:active { transform: scale(0.98) translateY(0); } 
-.create-week{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
-.create-week:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
-
-/* --- ИЗМЕНЕНИЕ: Стили для кнопки "Создать неделю" --- */
-#createWeekBtn {
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-}
-
+.btn-primary{background:var(--accent-color);border-color: var(--accent-color);color: #fff;}
+.btn-primary:hover{background:var(--accent-hover);border-color: var(--accent-hover);}
 
 /* --- КНОПКИ УПРАВЛЕНИЯ (БЛОК РЕДИЗАЙНА) --- */
 .top-controls {
@@ -206,10 +200,6 @@ body {
     transform: translateY(-2px);
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
-.header-btn.trash-btn:hover {
-    background: var(--danger-color);
-    border-color: var(--danger-color);
-}
 .account-control-btn img, .save-all-btn img, .header-btn img {
     transition: filter 0.2s;
 }
@@ -226,57 +216,6 @@ body {
     50% { box-shadow: 0 0 12px rgba(255, 193, 7, 0.8); }
     100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.4); }
 }
-/* --- НОВАЯ ВЫПАДАЮЩАЯ КОРЗИНА --- */
-.trash-popover-container {
-    position: relative;
-}
-.trash-popover {
-    display: none; /* Скрыта по умолчанию */
-    position: absolute;
-    top: 110%; /* Прямо под кнопкой */
-    left: 0;
-    width: 300px;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    z-index: 10001;
-    padding: 15px;
-    opacity: 0;
-    transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease;
-}
-.trash-popover.visible {
-    display: block;
-    opacity: 1;
-    transform: translateY(0);
-}
-.trash-popover .trash-icon {
-    filter: invert(30%) sepia(80%) saturate(700%) hue-rotate(330deg); 
-    transition: transform 0.2s;
-    margin-bottom: 10px;
-}
-.trash-popover.dragover {
-    background-color: rgba(229, 57, 53, 0.15); 
-    border-color: var(--danger-color);
-    box-shadow: 0 0 10px rgba(229, 57, 53, 0.4);
-}
-.trash-popover.dragover .trash-icon {
-    transform: scale(1.2) rotate(-5deg);
-}
-.trash-label {
-    margin-top: 5px;
-    font-weight: bold;
-    color: var(--danger-color);
-    text-align: center;
-}
-.trash-hint {
-    font-size: 12px;
-    color: var(--text-secondary);
-    margin-top: 5px;
-    text-align: center;
-}
-
 
 /* --- ЦЕЛИ (Goal Styles) --- */
 .goals h2 { margin-top: 0; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px;}
@@ -332,135 +271,12 @@ body {
     transform: translateX(-50%) translateY(-5px) scale(1.05); 
 }
 
-/* --- НЕДЕЛИ И МЕСЯЦЫ --- */
-.unassigned-container {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    max-width: none; 
-    flex: 1 1 300px; 
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-.unassigned-container.dragover {
-    border-color: var(--accent-color);
-    background: rgba(0, 123, 255, 0.08);
-}
-/* НОВЫЙ СТИЛЬ: подсветка при перетаскивании из архива */
-.unassigned-container.dragover-from-archive {
-    border-color: var(--warning-color);
-    background: rgba(255, 193, 7, 0.08);
-}
-.unassigned-list{
-    max-height: 250px; 
-    overflow-y: auto;
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-top:10px;
-    padding-right: 5px;
-}
-.week-item,.week-card{
-    background:var(--bg-tertiary);border: 1px solid var(--border-color); border-radius:8px;padding:10px 12px;cursor:grab;display:flex;align-items:center;justify-content:space-between; 
-    transition: border-color 0.2s, transform 0.2s ease, box-shadow 0.2s;
-    font-weight: 500;
-}
-.week-item:hover { 
-    border-color: var(--accent-color);
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-.months-wrapper { 
-    overflow-x: auto; 
-    padding-bottom: 20px; 
-    flex-shrink: 0; 
-    /* max-height: 500px;  */ /* --- ИЗМЕНЕНО: убираем ограничение высоты для правой колонки */
-    height: 100%; /* Занимаем всю высоту */
-}
-.months{ display:flex; gap:15px; padding:10px 4px; width: max-content; }
-.month{
-    min-width:280px; 
-    background-color: var(--bg-secondary);
-    border-radius:12px;
-    padding: 20px;
-    display:flex;
-    flex-direction:column;
-    gap: 15px;
-    flex-shrink:0; 
-    border-top: 4px solid;
-    transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.3s ease; /* --- ИЗМЕНЕНО: добавлена анимация рамки */
-}
-/* --- НОВЫЙ СТИЛЬ: ПОДСВЕТКА ТЕКУЩЕГО МЕСЯЦА --- */
-.month.current-month {
-    border: 2px solid var(--warning-color);
-    border-top: 4px solid var(--warning-color);
-    box-shadow: 0 0 15px rgba(255, 193, 7, 0.4);
-}
-
-.month:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-}
-.month .m-title{text-align:center;font-weight:bold; font-size: 1.2em; margin-bottom: 5px; color: var(--accent-color);}
-.month .month-weeks{display:flex;flex-direction:column;gap:8px; min-height: 40px;}
-.drop-zone{border:2px dashed var(--border-color);border-radius:8px;padding:15px;text-align:center;color:var(--text-secondary);font-size:13px;transition:0.2s ease-in-out; margin-top: 10px;}
-.drop-zone.dragover{border-color:var(--success-color);color:var(--success-color);background:rgba(76,175,80,0.08);}
-
-/* --- НОВЫЕ СТИЛИ: БЛОК АРХИВА --- */
-.archive-container-wrapper {
-    margin-top: 20px;
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-}
-.archive-container-wrapper h2 {
-    margin-top: 0;
-    color: var(--accent-color);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-}
-.archive-hint {
-    font-size: 13px;
-    color: var(--text-secondary);
-    margin-bottom: 15px;
-}
-.archive-container {
-    min-height: 100px;
-    max-height: 400px; 
-    /* overflow-y: auto; -- УБРАНО, т.к. список скрыт */
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-right: 5px;
-}
-.archive-list {
-    display: none; /* --- ИЗМЕНЕНО: Список по умолчанию скрыт --- */
-    flex-direction: column;
-    gap: 8px;
-    flex-grow: 1;
-}
-.drop-zone-archive {
-    border: 2px dashed var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    text-align: center;
-    color: var(--text-secondary);
-    font-size: 13px;
-    transition: 0.2s ease-in-out;
-    margin-top: 10px;
-}
-.drop-zone-archive.dragover {
-    border-color: var(--success-color);
-    color: var(--success-color);
-    background: rgba(76, 175, 80, 0.08);
-}
-/* --- КОНЕЦ СТИЛЕЙ АРХИВА --- */
-
-
 /* --- МОДАЛЬНОЕ ОКНО: ОБЩИЕ СТИЛИ --- */
 .modal{
-    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);z-index:1000;display:none;align-items: center; justify-content: center;
+    position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter: blur(5px);
+    /* ИЗМЕНЕНО: z-index повышен, чтобы быть выше шапки (z-index: 10000) */
+    z-index:100000; 
+    display:none;align-items: center; justify-content: center;
     opacity: 0; 
     transition: opacity 0.3s ease;
 }
@@ -475,193 +291,38 @@ body {
     border: 1px solid var(--border-color);
     transform: scale(0.95); 
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    max-height: 90vh; /* ДОБАВЛЕНО ИЗ КАЛЕНДАРЯ */
 }
 .modal.visible .modal-content { transform: scale(1); } 
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:15px 20px;background:var(--bg-secondary);border-bottom:1px solid var(--border-color);}
+
+.modal-header{
+    display:flex;justify-content:space-between;align-items:center;padding:15px 20px;
+    background:var(--bg-secondary);border-bottom:1px solid var(--border-color);
+    flex-shrink: 0;
+}
+.modal-header h2 { /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
+    margin: 0;
+    font-size: 1.2em;
+    color: var(--accent-color);
+}
 .modal-header .actions{display:flex;justify-content:flex-end;align-items:center;gap:15px;position:relative;}
 .modal-header span{cursor:pointer;font-size:24px;position:relative; color: var(--text-secondary); transition: color 0.2s;}
 .modal-header span:hover { color: var(--accent-color); }
-.modal-footer { padding: 10px 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; }
 
-/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ: УЛУЧШЕННЫЙ ДИЗАЙН --- */
-.modal-content.week-editor {
-    max-width: 1200px; 
-    height: 90vh;
-}
-.week-header-inputs {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-wrap: wrap; 
-}
-.week-header-inputs input[type="text"] {
+.modal-body{ /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
+    padding: 20px;
+    overflow-y: auto;
     flex-grow: 1;
-    min-width: 200px;
-    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:18px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.week-header-inputs input[type="date"] {
-    background:var(--bg-tertiary);color:var(--text-primary);border:1px solid var(--border-color);padding:8px 12px;border-radius:6px;font-size:16px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.modal-header input:focus { 
-    border-color: var(--warning-color); 
-    outline: none;
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
-.menu{
-    position:absolute; top:35px; right:0; background:var(--bg-tertiary); border:1px solid var(--border-color); border-radius:8px;
-    display:flex; flex-direction:column; min-width:180px; z-index:200; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.4);
-    opacity: 0; visibility: hidden; transform: translateY(-10px);
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
-.menu.show { opacity: 1; visibility: visible; transform: translateY(0); }
-.menu div{padding:10px 15px;cursor:pointer;transition:background-color 0.2s, color 0.2s;display:flex;align-items:center;gap:10px;}
-.menu div:hover{background:var(--accent-color); color: #fff;}
-.menu div img { transition: filter 0.2s; }
-.modal-body{display:flex;flex:1;overflow:hidden;}
-.modal-left{width:280px;background: var(--bg-main); border-right:1px solid var(--border-color);padding:15px;overflow-y:auto; display: flex; flex-direction: column; gap: 20px;}
-.modal-right{flex:1;padding:15px;display:flex;flex-direction:column;gap:15px;overflow:hidden;}
-.modal-description textarea{
-    width:100%;background:var(--bg-secondary);color:var(--text-primary);border:1px solid var(--border-color);padding:10px;border-radius:6px; min-height: 80px; resize: vertical;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-.modal-description textarea:focus { 
-    border-color: var(--warning-color); 
-    outline: none; 
-    box-shadow: 0 0 8px rgba(255, 193, 7, 0.4);
-} 
-.modal-days{
-    display: flex; 
-    flex-direction: row; 
-    overflow-x: auto; 
-    gap: 12px;
-    flex: 1; 
-    align-items: stretch; 
-    padding-bottom: 10px;
-}
-.day{
-    background: var(--bg-secondary); border-radius:10px;padding:12px;
-    min-width: 250px; 
-    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    border-top: 3px solid var(--accent-color);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    height: 100%; 
+    gap: 15px;
 }
-.day:hover {
-    transform: none; 
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.day h4{margin:0;display:flex;justify-content:space-between;align-items:center;font-size:14px; color: var(--text-secondary); border-bottom: 1px solid var(--border-color); padding-bottom: 8px;}
-.day h4 .day-label { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: flex-start;
-    font-size: 16px;
-    color: var(--text-primary);
-}
-.day h4 .day-label .day-date {
-    font-size: 12px;
-    color: var(--text-secondary);
-    font-weight: normal;
-    margin-top: 2px;
-}
-.tasks{
-    display:flex;flex-direction:column;gap:8px;overflow-y:auto; 
-    flex: 1; 
-    min-height: 50px;
-}
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ ЗАДАЧ --- */
-.task-item{
-    background:var(--bg-tertiary);border-radius:6px;padding:8px 10px;display:flex;align-items:flex-start; 
-    transition: background-color 0.2s, border-left 0.2s; border-left: 3px solid var(--border-color);
-    cursor: grab;
-}
-.task-item:hover { background-color: var(--bg-hover); border-left-color: var(--accent-hover); }
-.task-item[contenteditable]:focus { outline: 1px solid var(--warning-color); background: var(--bg-secondary); } 
-.task-done {
-    opacity: 0.7;
-    text-decoration: none; 
-    border-left-color: var(--success-color);
-}
-.task-done .task-time-input {
-    color: var(--text-secondary);
-}
-.task-done .task-text[contenteditable] {
-    text-decoration: line-through;
-}
-.task-item.dragging {
-    opacity: 0.4;
-    transform: rotate(2deg);
-}
-.task-time-input {
-    width: 50px;
-    background: transparent;
-    border: none;
-    color: var(--accent-color);
-    font-size: 13px;
-    margin-right: 10px;
-    padding: 0;
-    text-align: right;
-    font-weight: 600;
+.modal-footer { /* СТИЛЬ ИЗ КАЛЕНДАРЯ */
+    padding: 15px 20px; 
+    border-top: 1px solid var(--border-color); 
+    background: var(--bg-secondary);
     flex-shrink: 0;
 }
-.task-time-input:focus {
-    outline: none;
-    border-bottom: 1px dashed var(--warning-color);
-}
-.task-check {
-    cursor: pointer;
-    margin-right: 10px;
-    font-size: 1.2em;
-    line-height: 1;
-    color: var(--text-secondary);
-    transition: color 0.2s, transform 0.2s;
-    flex-shrink: 0; 
-    margin-top: 2px; 
-}
-.task-done .task-check {
-    text-decoration: none; 
-    color: var(--success-color);
-    transform: scale(1.1);
-}
-.task-check:hover {
-    color: var(--accent-color);
-    transform: scale(1.2);
-}
-.task-text-container {
-    flex-grow: 1;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start; 
-}
-.task-text[contenteditable] {
-    flex-grow: 1;
-    padding-right: 10px;
-    min-height: 18px; 
-    word-break: break-word; 
-}
-.add-task-btn{
-    margin-top:auto;background:transparent;color:var(--text-secondary);border: 1px dashed var(--border-color);padding:8px;
-    border-radius:6px;cursor:pointer;font-size:13px; transition: all 0.2s; width: 100%; 
-}
-.add-task-btn:hover { background-color: var(--accent-color); color: #fff; border-style: solid; }
-.modal-goals h4{margin:0 0 10px 0;font-size:16px; color: var(--warning-color); border-bottom: 1px solid var(--border-color); padding-bottom: 5px;}
-.modal-goals ul{margin:0;padding-left:0;display:flex;flex-direction:column;
-    gap: 10px; 
-}
-.modal-goals ul li{
-    background:var(--bg-tertiary); padding:10px; border-radius:8px; transition:0.2s; list-style: none;
-    border-left: 6px solid var(--success-color); 
-    font-size: 15px;
-}
-.modal-goals ul li:hover{background:var(--bg-hover);}
-.task-delete{cursor:pointer;margin-left:8px; filter: invert(50%); width: 14px; transition: filter 0.2s, transform 0.2s; flex-shrink: 0;}
-.task-delete:hover { filter: invert(80%); transform: scale(1.1); }
 
 /* --- МОДАЛЬНОЕ ОКНО ЛК --- */
 .small-modal-content {
@@ -670,56 +331,6 @@ body {
     max-height: 90vh;
     padding: 20px;
     gap: 15px;
-}
-/* --- СТИЛИ ДЛЯ КОРЗИНЫ И РЕКЛАМЫ --- */
-.top-plan-controls {
-    display: flex;
-    gap: 15px; 
-    align-items: flex-start; 
-    flex-wrap: wrap; 
-    justify-content: flex-start; 
-}
-.unassigned-container {
-    background-color: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid var(--border-color);
-    max-width: none; 
-    flex: 1 1 300px; 
-    transition: border-color 0.2s ease-in-out, background-color 0.2s ease-in-out;
-}
-.unassigned-container.dragover {
-    border-color: var(--accent-color);
-    background: rgba(0, 123, 255, 0.08);
-}
-.trash-container {
-    /* --- СТИЛИ УДАЛЕНЫ, ТАК КАК КОРЗИНА ТЕПЕРЬ В ШАПКЕ --- */
-    display: none; 
-}
-
-.top-buttons {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-.open-trash-btn {
-    /* --- СТИЛИ УДАЛЕНЫ, ТАК КАК КНОПКА УДАЛЕНА --- */
-    display: none;
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 768px) {
-    .top-plan-controls {
-        flex-direction: column;
-        gap: 10px;
-    }
-    .trash-container {
-       display: none; /* Скрываем и на мобильных */
-    }
-    .trash-hint { display: none; } 
-    .top-buttons {
-        flex-wrap: wrap;
-    }
 }
 
 /* --- СТИЛИ ДЛЯ КНОПКИ В НИЖНЕМ ЛЕВОМ УГЛУ (AI Совет) --- */
@@ -815,83 +426,69 @@ body {
 #loadingOverlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: none; 
     flex-direction: column; justify-content: center; align-items: center; color: var(--text-primary); font-size: 1.2em;
-    z-index: 10001; opacity: 0; transition: opacity 0.3s ease;
+    z-index: 100001; opacity: 0; transition: opacity 0.3s ease;
 }
 .spinner { border: 4px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 4px solid var(--accent-color); width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 15px; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА ПОДТВЕРЖДЕНИЯ (NEW) --- */
-.confirm-modal-content {
-    max-width: 400px;
-    padding: 20px;
-    text-align: center;
-    gap: 20px;
-}
-.confirm-modal-content h2 {
-    color: var(--danger-color);
-    margin-top: 0;
-}
-.confirm-modal-content p {
-    margin-bottom: 25px;
-}
-.confirm-actions {
-    display: flex;
-    justify-content: space-around;
-    gap: 10px;
-}
-.confirm-actions .btn {
-    flex: 1;
-}
-.checkbox-group {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-top: 15px;
-    font-size: 14px;
-}
-.checkbox-group input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
-    cursor: pointer;
-    accent-color: var(--danger-color);
-}
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА АРХИВА --- */
-.archive-modal-list {
+/* --- КОНТЕЙНЕР УВЕДОМЛЕНИЙ --- */
+#notification-container {
+    position: fixed;
+    top: 80px; /* Ниже шапки */
+    right: 20px;
+    z-index: 100001; /* Выше модальных окон, но ниже AI */
     display: flex;
     flex-direction: column;
     gap: 10px;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 10px;
-    background: var(--bg-main);
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 15px;
 }
-.archive-modal-item {
+.custom-notification {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-left: 5px solid var(--warning-color);
+    border-radius: 8px;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: var(--bg-tertiary);
-    padding: 10px 15px;
-    border-radius: 6px;
+    gap: 15px;
+    width: 350px;
+    max-width: 90vw;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
-.archive-modal-item span { font-weight: 500; }
-.archive-modal-item .btn-unarchive { 
-    padding: 5px 10px; 
-    font-size: 12px;
-    background-color: var(--success-color);
-    border-color: var(--success-color);
-    color: #fff;
+.custom-notification.show {
+    opacity: 1;
+    transform: translateX(0);
 }
-.archive-modal-item .btn-unarchive:hover {
-    background-color: #3e8e41;
+.custom-notification.success {
+    border-left-color: var(--success-color);
+}
+.custom-notification.error {
+    border-left-color: var(--danger-color);
+}
+.custom-notification p {
+    margin: 0;
+    line-height: 1.4;
+    word-break: break-word;
+}
+.custom-notification .close-btn {
+    font-size: 24px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0 5px;
+    line-height: 1;
+}
+.custom-notification .close-btn:hover {
+    color: var(--text-primary);
 }
 
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ БОКОВОГО ОКНА AI-СОВЕТА (DRAWER) --- */
+/* --- БОКОВОЕ ОКНО AI-СОВЕТА (DRAWER) --- */
 .advice-modal-overlay {
     position: fixed;
     top: 0;
@@ -963,8 +560,6 @@ body {
     color: var(--text-primary);
     padding-right: 5px; 
 }
-
-/* --- НОВЫЕ СТИЛИ ДЛЯ СТИЛИЗАЦИИ MARKDOWN В AI СОВЕТЕ --- */
 .advice-drawer-content h3 {
     font-size: 1.4em;
     font-weight: 700;
@@ -1112,9 +707,418 @@ body {
 }
 
 
+/* ---
+--- НОВЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ ---
+--- */
+
+/* --- НОВЫЕ СТИЛИ ДЛЯ КАЛЕНДАРЯ ---
+--- */
+
+.calendar-wrapper {
+    width: 95%; /* Убедитесь, что ширина меньше 100% для работы margin: auto */
+    max-width: 1400px;
+    margin: 20px auto; /* <--- ГЛАВНОЕ ДЛЯ ЦЕНТРИРОВАНИЯ */
+    padding: 20px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.calendar-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.calendar-nav .nav-btn {
+    font-size: 20px;
+    padding: 5px 12px;
+}
+#current-month-display {
+    font-size: 1.5em;
+    font-weight: 600;
+    color: var(--accent-color);
+    text-align: center;
+    min-width: 200px;
+}
+
+.view-toggle {
+    display: flex;
+    gap: 10px;
+}
+.view-toggle .btn {
+    background: var(--bg-tertiary);
+}
+.view-toggle .btn.active {
+    background: var(--accent-color);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+/* --- Стили для вида "Месяц" --- */
+#month-view {
+    display: block; /* По умолчанию */
+}
+.calendar-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    margin-bottom: 10px;
+}
+.weekday {
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 10px 0;
+    font-size: 0.9em;
+}
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    min-height: 60vh;
+}
+.calendar-day {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 8px;
+    min-height: 120px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.calendar-day:hover {
+    background: var(--bg-hover);
+    border-color: var(--accent-color);
+}
+.calendar-day.other-month {
+    background: transparent;
+    opacity: 0.4;
+    cursor: default;
+}
+.calendar-day.other-month:hover {
+    background: transparent;
+    border-color: var(--border-color);
+}
+.calendar-day.today {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+.day-number {
+    font-weight: 600;
+    font-size: 0.9em;
+}
+.tasks-preview {
+    display: flex;
+    /* ИЗМЕНЕНО: Задачи теперь отображаются в строку и переносятся */
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 4px;
+    overflow: hidden;
+}
+.task-preview-item {
+    font-size: 0.8em;
+    padding: 2px 5px;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    /* ИЗМЕНЕНО: Убрано все, что связано с текстом */
+    display: inline-block;
+    line-height: 1.2;
+}
+.task-preview-item.done {
+    opacity: 0.5;
+    text-decoration: line-through;
+}
+.task-preview-time {
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+/* --- Стили для вида "Неделя" --- */
+#week-view {
+    display: none; /* Скрыт по умолчанию */
+}
+.week-view-container {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    min-height: 60vh;
+}
+.week-day-column {
+    flex: 1;
+    min-width: 280px;
+    max-width: 350px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+}
+.week-day-column.today {
+    border-color: var(--warning-color);
+    box-shadow: 0 0 10px rgba(255, 193, 7, 0.3);
+}
+.week-day-header {
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-tertiary);
+    border-radius: 8px 8px 0 0;
+}
+.week-day-header h3 {
+    margin: 0;
+    font-size: 1.1em;
+}
+.week-day-header .date-display {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+}
+.task-list-week {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* ИЗМЕНЕНО: Стили для формы добавления в неделе */
+.add-task-form-week {
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: 8px;
+    align-items: flex-end; /* Кнопка прижимается к низу */
+}
+.form-inputs-week {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-grow: 1;
+}
+.add-task-form-week input {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 8px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%; /* Поля занимают всю ширину колонки */
+}
+.add-task-form-week input[type="text"] {
+    flex-grow: 1;
+}
+.add-task-form-week button {
+    padding: 8px 10px;
+    min-width: 40px;
+    flex-shrink: 0; /* Кнопка не сжимается */
+}
+.send-icon {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+}
+
+/* --- Стили для элементов задач (в модалке и неделе) --- */
+#modal-task-list, .task-list-week {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.task-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-tertiary);
+    padding: 10px;
+    border-radius: 6px;
+    border-left: 4px solid var(--border-color);
+    position: relative; /* ДОБАВЛЕНО: Для позиционирования меню */
+}
+.task-item.done {
+    border-left-color: var(--success-color);
+    opacity: 0.7;
+}
+.task-item-checkbox {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    accent-color: var(--success-color);
+    cursor: pointer;
+}
+.task-item-time {
+    font-weight: 600;
+    color: var(--accent-color);
+    font-size: 0.9em;
+    width: 50px;
+    flex-shrink: 0;
+}
+.task-item-text {
+    flex-grow: 1;
+    word-break: break-word;
+    font-size: 0.95em;
+}
+.task-item.done .task-item-text {
+    text-decoration: line-through;
+}
+
+/* ДОБАВЛЕНО: Стили для кнопки "Больше" (три точки) и меню */
+.task-item-more {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 20px;
+    padding: 0 5px;
+    opacity: 0.6;
+    transition: opacity 0.2s, color 0.2s;
+    line-height: 1;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+.task-item-more:hover {
+    opacity: 1;
+    color: var(--accent-color);
+}
+.task-item-menu {
+    display: none;
+    position: absolute;
+    top: 30px; /* Под кнопкой */
+    right: 5px;
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    z-index: 100;
+    width: 180px;
+    padding: 5px;
+    animation: fadeIn 0.1s ease-out;
+}
+.task-item-menu.visible {
+    display: block;
+}
+.task-menu-item {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.2s, color 0.2s;
+    user-select: none;
+}
+.task-menu-item:hover {
+    background-color: var(--bg-hover);
+}
+.task-menu-item[data-action="delete"]:hover {
+    background-color: var(--danger-color);
+    color: #fff;
+}
+/* ---------------------------------- */
+
+.no-tasks {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 20px;
+}
+
+/* --- Стили для формы добавления в модалке --- */
+#add-task-form-modal {
+    display: flex;
+    gap: 10px;
+}
+#add-task-form-modal input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 15px;
+}
+#add-task-form-modal input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+}
+#new-task-time {
+    width: 100px;
+}
+#new-task-text {
+    flex-grow: 1;
+}
+#add-task-btn {
+    padding: 10px 12px;
+    min-width: 44px;
+}
+
+
+/* ДОБАВЛЕНО: Стили для модалки повторений */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label, .recur-options p {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.9em;
+}
+.form-control {
+    width: 100%;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-size: 15px;
+}
+select.form-control {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%23a0a0a0" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 40px;
+}
+.weekday-picker {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.weekday-picker label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--bg-tertiary);
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    transition: background-color 0.2s, border-color 0.2s;
+    font-size: 0.9em;
+}
+.weekday-picker input {
+    accent-color: var(--accent-color);
+}
+.weekday-picker label:has(input:checked) {
+     background: var(--accent-color);
+     border-color: var(--accent-color);
+     color: #fff;
+}
+/* ---------------------------------- */
+
+
 /* --- 
---- НОВЫЕ СТИЛИ РЕДИЗАЙНА ДЛЯ ДЕСКТОПА ---
---- (Применяются ТОЛЬКО на экранах шире 768px) ---
+--- СТИЛИ РЕДИЗАЙНА ДЛЯ ДЕСКТОПА ---
 --- */
 
 @media (min-width: 769px) {
@@ -1122,12 +1126,16 @@ body {
         display: none; /* Скрываем старый баннер */
     }
 
-    .main-container {
-        padding: 0; /* Убираем отступы у главного контейнера */
-        /* flex-direction: row-reverse; -- УДАЛЕНО: Цели теперь в шапке */
+    /* ИЗМЕНЕНО: Выравниваем колонки шапки по верху */
+    .top-controls {
+        align-items: start;
     }
 
-    /* --- ИЗМЕНЕНО: Стили для целей в шапке --- */
+    .main-container {
+        padding: 0; /* Убираем отступы у главного контейнера */
+    }
+
+    /* --- ИЗМЕНЕНО: Стили для целей в шапке (теперь колонка) --- */
     .goals {
         position: static; /* Убираем sticky */
         width: 100%;
@@ -1136,39 +1144,41 @@ body {
         border: none; /* Убираем рамки */
         padding: 0;
         display: flex;
-        flex-direction: row; /* Горизонтально */
-        align-items: center;
+        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
+        align-items: stretch; /* ИЗМЕНЕНО: растягиваем */
         gap: 10px; /* Отступ между элементами */
         overflow: visible;
         background: transparent; /* Фон наследуется от шапки */
     }
     .goals h2 {
-        display: none; /* Скрываем заголовок "Годовые цели" на десктопе */
+        display: block; /* ИЗМЕНЕНО: Показываем заголовок */
+        margin: 0;
+        font-size: 16px;
+        color: var(--accent-color);
+        border: none;
+        padding: 0;
     }
     #goalsList {
         display: flex;
-        flex-direction: row;
-        gap: 8px;
-        flex-wrap: wrap; /* Разрешаем перенос целей */
-        align-items: center;
-        max-height: 50px; /* Ограничиваем высоту (ок. 2 рядов) */
-        overflow-y: auto; /* Прокрутка, если целей слишком много */
+        flex-direction: column; /* ИЗМЕНЕНО: в колонку */
+        gap: 10px; /* ИЗМЕНЕНО: отступ */
+        align-items: stretch;
         flex: 1; /* Занимает доступное место */
     }
     .goals .goal {
-        flex-shrink: 0; /* Не сжимаем цели */
-        font-size: 13px;
-        padding: 5px 10px;
+        font-size: 14px; /* ИЗМЕНЕНО: чуть крупнее */
+        padding: 8px 10px; /* ИЗМЕНЕНО: чуть крупнее */
         margin: 0;
     }
     .add-goal-btn {
         position: static; /* Убираем absolute */
         transform: none;
-        width: 30px;
-        height: 30px;
-        font-size: 20px;
+        width: 40px; /* ИЗМЕНЕНО: крупнее */
+        height: 40px; /* ИЗМЕНЕНО: крупнее */
+        font-size: 24px; /* ИЗМЕНЕНО: крупнее */
         flex-shrink: 0;
         display: flex; /* Показываем кнопку "добавить" всегда */
+        align-self: center; /* ИЗМЕНЕНО: центрируем кнопку */
     }
     .goals:hover .add-goal-btn {
         display: flex;
@@ -1181,48 +1191,17 @@ body {
     /* --- КОНЕЦ СТИЛЕЙ ДЛЯ ЦЕЛЕЙ --- */
 
 
-    /* .right - это контейнер для "Недель" (теперь левая колонка) */
+    /* .right - это контейнер для "Календаря" */
     .right {
         padding: 10px;
         gap: 10px;
     }
 
-    /* --- НОВЫЙ КОНТЕЙНЕР ДЛЯ РАЗДЕЛЕНИЯ "НЕДЕЛЬ" --- */
-    .desktop-weeks-layout {
-        display: flex;
-        flex-direction: row;
-        gap: 15px;
-        flex: 1; /* Занимает все доступное место */
-    }
-
-    /* --- НОВАЯ ЛЕВАЯ КОЛОНКА (Нераспределенные, Архив) --- */
-    .desktop-weeks-left {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        width: 420px; /* Фиксированная ширина */
-        flex-shrink: 0;
-    }
-
-    /* --- НОВАЯ ПРАВАЯ КОЛОНКА (Месяцы) --- */
-    .desktop-weeks-right {
-        display: flex;
-        flex-direction: column;
-        flex: 1; /* Занимает оставшееся место */
-        min-width: 0; /* Для корректной работы flex */
-    }
-    
-    .desktop-weeks-right .months-wrapper {
-        flex: 1; /* Растягиваем обертку месяцев */
-        max-height: none; /* Снимаем ограничение по высоте */
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        background: var(--bg-main);
-    }
-
-    .top-plan-controls {
-        flex-direction: column; /* "Нераспределенные" теперь в колонке */
-        align-items: stretch;
+    /* --- Стили для .calendar-wrapper внутри .right --- */
+    .right .calendar-wrapper {
+        width: 100%;
+        margin: 0;
+        flex-grow: 1; /* Занимает все место */
     }
 }
 
@@ -1279,8 +1258,7 @@ body {
     /* --- КОНЕЦ ИЗМЕНЕНИЙ .goals --- */
 
 
-    .right { padding: 15px; overflow-y: visible; }
-    .months-wrapper { overflow-x: auto; } 
+    .right { padding: 0; overflow-y: visible; } /* Убрали отступы для .right */
 
     /* --- ИЗМЕНЕНИЯ ПО ЗАПРОСУ --- */
     .mobile-bottom-nav {
@@ -1290,6 +1268,7 @@ body {
     /* --- ИЗМЕНЕНИЕ: Шапка на мобильных --- */
     .top-controls { 
         display: block; /* WAS: none. Показываем, т.к. .goals теперь тут */
+        align-items: start; /* ИЗМЕНЕНО */
     }
     .top-controls-left,
     .top-controls-center {
@@ -1306,27 +1285,34 @@ body {
     
     .save-all-btn, .account-control-btn { font-size: 12px; padding: 6px 10px; }
     .habit-controls { flex-direction: column; align-items: stretch; }
-    .modal-content.week-editor { width: 100%; height: 100%; border-radius: 0; }
-    .modal-body { flex-direction: column; }
-    .modal-left { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); max-height: 200px; }
-    .modal-right { overflow-y: auto; }
-    .modal-days { grid-template-columns: 1fr; }
-    .modal-header input { width: 50%; }
+    
+    /* --- Стили календаря на мобильных --- */
+    .calendar-wrapper { width: 100%; margin: 0; border-radius: 0; border: none; padding: 10px; }
+    .calendar-header { flex-direction: column; gap: 15px; }
+    #current-month-display { font-size: 1.3em; }
+    .calendar-grid { gap: 2px; min-height: 50vh; }
+    .calendar-day { min-height: 80px; padding: 5px; gap: 3px; }
+    .day-number { font-size: 0.8em; }
+    .task-preview-item { font-size: 0.7em; padding: 1px 3px; }
+    .weekday { font-size: 0.8em; padding: 5px 0; }
+    
+    .week-day-column { min-width: 290px; }
+    
+    .add-task-form-week input { padding: 6px 8px; font-size: 13px; }
+    .add-task-form-week button { padding: 6px 8px; min-width: 36px; }
+    .send-icon { width: 18px; height: 18px; }
+    /* --- Конец стилей календаря --- */
+    
+    /* --- Стили модалок --- */
+    .modal-content { width: 100%; height: 100%; max-height: 100vh; border-radius: 0; }
+    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
+    .advice-modal-drawer { width: 100%; max-width: 100%; }
+
     .mood-calendar { grid-template-columns: repeat(4, 1fr); }
     .mood-option { font-size: 30px; }
-    .small-modal-content { max-width: 100%; margin: 0; border-radius: 0; }
-    .advice-modal-drawer {
-        width: 100%;
-        max-width: 100%;
-    }
-
-    /* --- ИЗМЕНЕНО: Новая структура .right на мобильных --- */
-    .desktop-weeks-layout { display: block; }
-    .desktop-weeks-left { display: block; }
-    .desktop-weeks-right { display: block; }
 }
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ СТАТИСТИКИ В ПРОФИЛЕ --- */
+/* --- СТАТИСТИКА В ПРОФИЛЕ --- */
 .profile-stats {
     display: flex;
     justify-content: space-around;
@@ -1352,7 +1338,7 @@ body {
 }
 
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ НИЖНЕЙ МОБИЛЬНОЙ НАВИГАЦИИ (РЕДИЗАЙН) --- */
+/* --- МОБИЛЬНАЯ НАВИГАЦИЯ (РЕДИЗАЙН) --- */
 @media (max-width: 768px) {
     .mobile-bottom-nav {
         display: flex;
@@ -1430,7 +1416,7 @@ body {
     }
 }
 
-/* --- НОВЫЕ СТИЛИ ДЛЯ ВСПЛЫВАЮЩЕГО МОБИЛЬНОГО МЕНЮ (РЕДИЗАЙН) --- */
+/* --- ВСПЛЫВАЮЩЕЕ МОБИЛЬНОЕ МЕНЮ (РЕДИЗАЙН) --- */
 .mobile-menu-overlay {
     position: fixed;
     bottom: 0;
@@ -1523,6 +1509,8 @@ body {
 
 <body>
 
+<div id="notification-container"></div>
+
 <div class="top-controls">
     <div class="top-controls-left">
         <div id="accountControl" class="account-control-btn">
@@ -1538,17 +1526,6 @@ body {
             <span>Лекарства</span>
         </a>
         
-        <div class="trash-popover-container">
-            <button id="headerTrashBtn" class="header-btn trash-btn">
-                <img src="pictures/trash-icon.png" width="16" height="16" alt="Trash">
-                <span>Корзина</span>
-            </button>
-            <div id="trashPopover" class="trash-popover">
-                <img src="pictures/trash-icon.png" width="30" height="30" alt="Trash" class="trash-icon">
-                <div class="trash-label">Корзина (удаление)</div>
-                <div class="trash-hint">Перетащи неделю сюда для безвозвратного удаления</div>
-            </div>
-        </div>
         <a href="knowledge_base.html" class="btn knowledge-base-btn">
             🧠 Перейти в Базу Знаний
         </a>
@@ -1576,52 +1553,42 @@ body {
   
   <main class="right mobile-section" id="mobileSectionWeeks">
     
-    <div class="desktop-weeks-layout">
-        
-        <div class="desktop-weeks-left">
-            <div class="top-buttons">
-                <button id="createWeekBtn" class="btn create-week">Создать неделю</button>
-                </div>
-
-            <div class="top-plan-controls">
-                <div class="unassigned-container">
-                    <div style="color:var(--text-secondary);font-size:13px;">Не распределённые недели</div>
-                    <div id="unassignedList" class="unassigned-list"></div>
-                </div>
-                </div>
+    <main class="calendar-wrapper">
+        <div class="calendar-header">
+            <div class="view-toggle">
+                <button class="btn active" id="month-view-btn">Месяц</button>
+                <button class="btn" id="week-view-btn">Неделя</button>
+            </div>
             
-            <div class="archive-container-wrapper">
-                <h2>🗄️ Архив недель</h2>
-                <p class="archive-hint">Перетащите недели сюда, чтобы заархивировать. Недели из архива можно перетащить обратно в "Не распределённые".</p>
-                
-                <button id="archiveAllMonthsBtn" class="btn" style="width: 100%; margin-bottom: 15px; background-color: var(--bg-tertiary);">
-                    <img src="pictures/save.png" width="16" alt="Архив"> 
-                    Архивировать все недели из "Месяцев"
-                </button>
-                <p class="archive-hint" style="font-size: 12px; margin-top: -5px; margin-bottom: 15px;">
-                    Это действие перенесет все недели из разделов "Месяцы" в "Архив".
-                </p>
+            <div class="calendar-nav">
+                <button class="btn nav-btn" id="prev-btn">‹</button>
+                <h2 id="current-month-display"></h2>
+                <button class="btn nav-btn" id="next-btn">›</button>
+            </div>
+            
+            <button class="btn" id="today-btn">Сегодня</button>
+        </div>
 
-                <button id="openArchiveModalBtn" class="btn" style="width: 100%; margin-bottom: 15px;">
-                    <span class="icon">📂</span>
-                    Открыть Архив
-                </button>
-
-                <div id="archiveContainer" class="archive-container">
-                    <div id="archiveList" class="archive-list">
-                        </div>
-                    <div class="drop-zone-archive" data-month="archive">Перетащите сюда для архивации</div>
+        <div id="month-view" style="display: block;">
+            <div class="calendar-weekdays">
+                <div class="weekday">Пн</div>
+                <div class="weekday">Вт</div>
+                <div class="weekday">Ср</div>
+                <div class="weekday">Чт</div>
+                <div class="weekday">Пт</div>
+                <div class="weekday">Сб</div>
+                <div class="weekday">Вс</div>
+            </div>
+            <div class="calendar-grid" id="calendar-grid">
                 </div>
-            </div>
-        </div>
-        
-        <div class="desktop-weeks-right">
-            <div class="months-wrapper">
-                <div class="months" id="months"></div>
-            </div>
         </div>
 
-    </div> 
+        <div id="week-view" style="display: none;">
+            <div class="week-view-container" id="week-view-container">
+                </div>
+        </div>
+    </main>
+    
   </main>
 </div> 
 
@@ -1668,45 +1635,6 @@ body {
         </div>
 </section>
 
-<div class="modal" id="weekModal">
-    <div class="modal-content week-editor">
-        <div class="modal-header">
-            <div class="week-header-inputs">
-                <input id="weekTitle" type="text" placeholder="Название недели">
-                <input id="weekStartDate" type="date" title="Начальная дата недели (Понедельник)">
-                <h6>- Начальная дата недели (Понедельник)</h6>
-            </div>
-            <div class="actions">
-                <div id="menuContainer" style="position: relative;">
-                    <span id="menuBtn">⋮</span>
-                    <div class="menu" id="weekMenu">
-                        <div id="deleteWeek"><img src="pictures/trash.png" width="16" alt="Удалить"> Удалить неделю</div>
-                        <div id="downloadWeek"><img src="pictures/download-icon.png" width="16" alt="Скачать"> Скачать <br> TXT</div>
-                    </div>
-                </div>
-                <span id="closeModal">×</span>
-            </div>
-        </div>
-        <div class="modal-body">
-            <div class="modal-left">
-                <div class="modal-description">
-                    <textarea id="weekDesc" placeholder="Описание недели..."></textarea>
-                </div>
-                <div class="modal-goals">
-                    <h4>Годовые цели</h4>
-                    <ul id="modalGoalsList"></ul>
-                </div>
-            </div>
-            <div class="modal-right">
-                <div class="modal-days" id="daysContainer"></div>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="save-btn btn" id="saveBtn">Закрыть</button>
-        </div>
-    </div>
-</div>
-
 <div class="modal" id="profileModal">
     <div class="modal-content small-modal-content">
         <h2>Личный кабинет</h2>
@@ -1749,33 +1677,77 @@ body {
     </div>
 </div>
 
-<div class="modal" id="confirmModal">
-    <div class="modal-content small-modal-content confirm-modal-content">
-        <h2>⚠️ Подтверждение удаления</h2>
-        <p id="confirmMessage"></p>
-
-        <div class="confirm-actions">
-            <button id="confirmCancelBtn" class="btn btn-logout">Отмена</button>
-            <button id="confirmDeleteBtn" class="btn btn-delete">Удалить</button>
+<div class="modal" id="day-modal">
+    <div class="modal-content" style="max-width: 600px;"> <div class="modal-header">
+            <h2 id="modal-date-display"></h2>
+            <span id="close-modal">×</span>
         </div>
-
-        <div class="checkbox-group">
-            <input type="checkbox" id="dontAskAgain">
-            <label for="dontAskAgain">Больше не спрашивать при удалении</label>
+        <div class="modal-body">
+            <div id="modal-task-list">
+                </div>
+        </div>
+        <div class="modal-footer">
+            <form id="add-task-form-modal" action="javascript:void(0);">
+                <input type="time" id="new-task-time" required>
+                <input type="text" id="new-task-text" placeholder="Новая задача..." required>
+                <button type="submit" class="btn btn-primary" id="add-task-btn" title="Добавить задачу">
+                    <svg class="send-icon" viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+                    </svg>
+                </button>
+            </form>
         </div>
     </div>
 </div>
 
-<div class="modal" id="archiveModal">
-    <div class="modal-content small-modal-content">
-        <h2>🗄️ Архив Недель</h2>
-        <div id="archiveModalList" class="archive-modal-list">
-            </div>
-        <button class="btn" onclick="closeArchiveModal()">Закрыть</button>
+<div class="modal" id="recur-modal">
+    <div class="modal-content" style="max-width: 600px;"> <div class="modal-header">
+            <h2>Настроить повторение задачи</h2>
+            <span class="close-recur-modal">×</span>
+        </div>
+        <div class="modal-body">
+            <form id="recur-form">
+                <div class="form-group">
+                    <label for="recur-type">Повторять:</label>
+                    <select id="recur-type" class="form-control">
+                        <option value="weekly">Раз в неделю</option>
+                        <option value="monthly">Раз в месяц</option>
+                        <option value="yearly">Раз в год</option>
+                        <option value="custom">Свой вариант (дни)</option>
+                    </select>
+                </div>
+                
+                <div id="recur-weekly-options" class="recur-options">
+                    <p>Выберите дни недели:</p>
+                    <div class="weekday-picker" id="recur-weekly-days">
+                        <label><input type="checkbox" value="1"> Пн</label>
+                        <label><input type="checkbox" value="2"> Вт</label>
+                        <label><input type="checkbox" value="3"> Ср</label>
+                        <label><input type="checkbox" value="4"> Чт</label>
+                        <label><input type="checkbox" value="5"> Пт</label>
+                        <label><input type="checkbox" value="6"> Сб</label>
+                        <label><input type="checkbox" value="0"> Вс</label>
+                    </div>
+                </div>
+
+                <div id="recur-custom-options" class="recur-options" style="display: none;">
+                    <label for="recur-custom-days">Повторять каждые (дней):</label>
+                    <input type="number" id="recur-custom-days" class="form-control" value="2" min="1" max="30">
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                     <label for="recur-end-date">Дата окончания (необязательно):</label>
+                     <input type="date" id="recur-end-date" class="form-control">
+                </div>
+
+            </form>
+        </div>
+        <div class="modal-footer">
+             <button type="button" class="btn close-recur-modal">Отмена</button>
+             <button type="button" class="btn btn-primary" id="save-recur-btn">Сохранить</button>
+        </div>
     </div>
 </div>
-
-
 <div id="loadingOverlay">
     <div class="spinner"></div>
     <div>Пожалуйста, подождите...</div>
@@ -1814,8 +1786,7 @@ body {
 <nav class="mobile-bottom-nav">
     <button class="mobile-nav-btn" id="mobileNavWeeks">
         <span class="icon">🗓️</span>
-        <span class="label">Недели</span>
-    </button>
+        <span class="label">Календарь</span> </button>
     <button class="mobile-nav-btn" id="mobileNavHabits">
         <span class="icon">✅</span>
         <span class="label">Привычки</span>
@@ -1865,9 +1836,7 @@ body {
         </button>
     </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="https://unpkg.com/drag-drop-touch"></script>
 
 <script>
 // =================================================================
@@ -1878,25 +1847,20 @@ body {
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
 let supabase = null; 
+let currentUserId = null; // ДОБАВЛЕНО ДЛЯ КАЛЕНДАРЯ
 
 // --- ОБЩИЕ КОНСТАНТЫ ---
 const STORAGE_KEY_AUTH = 'plannerAuthDataKey'; 
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 const STORAGE_KEY_LOCAL = 'plannerData_v9_local';
 const STORAGE_KEY_UNSAVED = 'plannerUnsavedChanges';
-const STORAGE_KEY_CONFIRM_DELETE = 'plannerConfirmDelete_v1';
+// STORAGE_KEY_CONFIRM_DELETE удален
 
-const months=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const monthColors=['#d46a6a','#e5b15f','#5fbfd4','#38a386','#d69ce5','#a3d35f','#4dbfa6','#d67fa0','#d6bf5f','#61a0d8','#d68a6a','#6fc07f'];
-const weekDays=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
 const MOOD_EMOJIS = { bad: '😔', normal: '😐', great: '😄' };
 
 let notificationTimers = {}; 
-let data = null;
-let dragId = null;
-let dragTitle = null;
-let dragOrigin = null; // НОВАЯ ПЕРЕМЕННАЯ: Откуда перетаскиваем ('unassigned', 'month', 'archive')
-let currentDayDrag = null; 
+let data = null; // Это для Goals, Habits, Mood
+// dragId, dragTitle, dragOrigin, currentDayDrag удалены
 
 const saveAllBtn = document.getElementById('saveAllBtn');
 const saveAllBtnText = document.getElementById('saveAllBtnText');
@@ -1907,23 +1871,7 @@ const getAISuggestionBtn = document.getElementById('getAISuggestionBtn');
 const aiAdviceModalOverlay = document.getElementById('aiAdviceModalOverlay');
 const aiAdviceText = document.getElementById('aiAdviceText');
 
-// --- ИЗМЕНЕНИЕ: Ссылки на новую корзину ---
-const headerTrashBtn = document.getElementById('headerTrashBtn');
-const trashPopover = document.getElementById('trashPopover');
-// const openTrashBtn = document.getElementById('openTrashBtn'); // УДАЛЕНО
-// const trashContainer = document.getElementById('trashContainer'); // УДАЛЕНО
-
-const confirmModal = document.getElementById('confirmModal');
-const confirmMessage = document.getElementById('confirmMessage');
-const confirmCancelBtn = document.getElementById('confirmCancelBtn');
-const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-const dontAskAgainCheckbox = document.getElementById('dontAskAgain');
-let currentDeleteResolve = null; 
-
-// --- НОВЫЕ КОНСТАНТЫ: Модальное окно Архива ---
-const archiveModal = document.getElementById('archiveModal');
-const openArchiveModalBtn = document.getElementById('openArchiveModalBtn');
-
+// --- Ссылки на корзину и модалку подтверждения удалены ---
 
 const loadingOverlay = document.getElementById('loadingOverlay');
 function showLoading() {
@@ -1935,7 +1883,50 @@ function hideLoading() {
     setTimeout(() => { loadingOverlay.style.display = 'none'; }, 300);
 }
 
-/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ --- */
+/* --- НОВАЯ ФУНКЦИЯ: Кастомные Уведомления --- */
+function showNotification(message, type = 'warning', duration = 5000) {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notif = document.createElement('div');
+    notif.className = `custom-notification ${type}`; // type: 'warning', 'success', 'error'
+    
+    const messageP = document.createElement('p');
+    messageP.textContent = message;
+    
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'close-btn';
+    closeBtn.innerHTML = '&times;';
+    
+    notif.appendChild(messageP);
+    notif.appendChild(closeBtn);
+    container.appendChild(notif);
+
+    setTimeout(() => {
+        notif.classList.add('show');
+    }, 10); 
+
+    let timer = null;
+
+    const removeNotif = () => {
+        if (timer) clearTimeout(timer);
+        notif.classList.remove('show');
+        setTimeout(() => {
+            if (notif.parentElement) {
+                notif.parentElement.removeChild(notif);
+            }
+        }, 500); 
+    };
+    
+    closeBtn.onclick = removeNotif;
+
+    if (duration) {
+        timer = setTimeout(removeNotif, duration);
+    }
+}
+
+
+/* --- ФУНКЦИИ УПРАВЛЕНИЯ СОХРАНЕНИЕМ (Goals, Habits, Mood) --- */
 function setUnsaved(isUnsaved) {
     const mobileSaveBtn = document.getElementById('mobileNavSave'); 
 
@@ -1958,7 +1949,7 @@ function save() {
 }
 
 // =================================================================
-// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE 
+// 2. ФУНКЦИИ ВЗАИМОДЕЙСТВИЯ С SUPABASE (Goals, Habits, Mood)
 // =================================================================
 async function loadDataFromSupabase() {
     if (!supabase) { console.error("Supabase client not initialized."); return null; }
@@ -1982,47 +1973,20 @@ async function loadDataFromSupabase() {
     hideLoading();
     if (error && error.code !== 'PGRST116') { 
         console.error("Ошибка Supabase при загрузке:", error);
-        alert(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`);
+        showNotification(`Ошибка загрузки: ${error.message}. Будут загружены пустые данные.`, 'error', 8000);
     }
 
+    // ЛОГИКА НЕДЕЛЬ/МЕСЯЦЕВ/АРХИВА УДАЛЕНА
     const loadedData = (result && result.data_json) 
         ? result.data_json 
-        : {goals:[],weeks:{},months:{},unassigned:[],habits:[],habitRecords:[], moodRecords:{}, archive: []}; // ИЗМЕНЕНО: archivedTasks на archive
+        : {goals:[],habits:[],habitRecords:[], moodRecords:{}}; 
 
     if (!loadedData.goals) loadedData.goals = [];
-    if (!loadedData.weeks) loadedData.weeks = {};
-    if (!loadedData.unassigned) loadedData.unassigned = [];
     if (!loadedData.habits) loadedData.habits = [];
     if (!loadedData.habitRecords) loadedData.habitRecords = [];
     if (!loadedData.moodRecords) loadedData.moodRecords = {};
-    if (!loadedData.months) loadedData.months = {};
-    if (!loadedData.archive) loadedData.archive = []; // ДОБАВЛЕНО: проверка archive
 
-    months.forEach(m=>{if(!loadedData.months[m]) loadedData.months[m]=[];});
-
-    // ОБНОВЛЕНО: allWeeks теперь включает data.archive
-    const allWeeks = [...loadedData.unassigned, ...Object.values(loadedData.months).flat(), ...(loadedData.archive || [])];
-    allWeeks.forEach(week => {
-        if (!week.startDate) {
-            week.startDate = null; 
-        }
-        if (week.tasks) {
-            weekDays.forEach(day => {
-                if (Array.isArray(week.tasks[day])) {
-                    week.tasks[day] = week.tasks[day].map(task => {
-                        if (typeof task === 'string') {
-                            return { text: task, done: false, time: '' };
-                        }
-                        if (typeof task === 'object' && task !== null) {
-                            if (task.done === undefined) task.done = false;
-                            if (task.time === undefined) task.time = '';
-                        }
-                        return task;
-                    });
-                }
-            });
-        }
-    });
+    // Блок обработки данных старых недель удален
 
     setUnsaved(false);
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(loadedData));
@@ -2035,7 +1999,7 @@ async function saveDataToSupabase() {
     localStorage.setItem(STORAGE_KEY_LOCAL, JSON.stringify(data));
     const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
     if (!dataKey) {
-        alert("Ошибка авторизации. Пожалуйста, войдите в систему снова.");
+        showNotification("Ошибка авторизации. Пожалуйста, войдите в систему снова.", 'error');
         window.location.href = 'login.html';
         return { status: "error", message: "Нет ключа авторизации." };
     }
@@ -2051,11 +2015,11 @@ async function saveDataToSupabase() {
     hideLoading();
     if (error) {
         console.error("Ошибка Supabase при сохранении:", error);
-        alert(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`);
+        showNotification(`Ошибка сохранения: ${error.message}. Данные сохранены локально. Попробуйте еще раз.`, 'error', 8000);
         return { status: "error", message: error.message };
     } else {
         setUnsaved(false);
-        alert("Данные успешно сохранены на сервер!");
+        showNotification('Данные (Цели, Привычки, Настроение) успешно сохранены на сервер!', 'success', 5000);
         return { status: "success" };
     }
 }
@@ -2064,7 +2028,7 @@ saveAllBtn.onclick = saveDataToSupabase;
 async function changeUsername(newNick) {
     localStorage.setItem(STORAGE_KEY_USERNAME, newNick);
     updateAuthButton();
-    alert(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`);
+    showNotification(`Имя пользователя успешно изменено на: ${newNick} (сохранено только локально)`, 'success');
     closeProfileModal();
     return { status: "success", newUsername: newNick };
 }
@@ -2082,13 +2046,14 @@ async function deleteProfileAndData() {
         .from('user_data')
         .delete()
         .eq('data_key', dataKey);
+    // TODO: Также удалить задачи из daily_tasks
     hideLoading();
     if (error) {
         console.error("Ошибка Supabase при удалении:", error);
-        alert(`Ошибка при удалении профиля: ${error.message}`);
+        showNotification(`Ошибка при удалении профиля: ${error.message}`, 'error', 8000);
     } else {
-        alert("Ваш профиль и все данные успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved', 'ConfirmDelete_v1'].forEach(key => localStorage.removeItem(`planner${key}`));
+        alert("Ваш профиль и все данные (кроме задач календаря) успешно удалены.");
+        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}`));
         window.location.href = 'login.html';
     }
 }
@@ -2103,30 +2068,9 @@ const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
 
 function calculateTaskStats() {
-    let completed = 0;
-    let uncompleted = 0;
-    
-    // ОБНОВЛЕНО: Собираем все недели, *кроме* архива, для статистики
-    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat()];
-    
-    allWeeks.forEach(week => {
-        if (week.tasks) {
-            // Перебираем задачи по всем дням недели
-            weekDays.forEach(day => {
-                if (Array.isArray(week.tasks[day])) {
-                    week.tasks[day].forEach(task => {
-                        if (task.done) {
-                            completed++;
-                        } else {
-                            uncompleted++;
-                        }
-                    });
-                }
-            });
-        }
-    });
-    
-    return { completed, uncompleted };
+    // Эта функция больше не может работать, так как задачи теперь в другой системе.
+    // Оставляем заглушку, чтобы не было ошибок.
+    return { completed: 0, uncompleted: 0 };
 }
 
 function updateAuthButton() {
@@ -2138,7 +2082,7 @@ function handleAccountControlClick() { openProfileModal(); }
 function openProfileModal() {
     nickInput.value = localStorage.getItem(STORAGE_KEY_USERNAME) || '';
     
-    // Считаем и отображаем статистику
+    // Считаем и отображаем статистику (пока заглушка)
     const stats = calculateTaskStats();
     const completedEl = document.getElementById('completedTasksCount');
     const uncompletedEl = document.getElementById('uncompletedTasksCount');
@@ -2155,49 +2099,20 @@ function closeProfileModal() {
     setTimeout(() => { profileModal.style.display='none'; }, 300);
 }
 
-// === НОВАЯ ФУНКЦИЯ АРХИВАЦИИ НЕДЕЛЬ ===
-async function archiveAllMonths() {
-    if (!confirm("Вы уверены, что хотите заархивировать все недели из 'Месяцев'?\n\nОни будут перемещены в раздел 'Архив'.")) {
-        return;
-    }
-
-    if (!data.archive) data.archive = [];
-    
-    let archivedCount = 0;
-    const monthsToArchive = Object.keys(data.months);
-    
-    monthsToArchive.forEach(monthName => {
-        const weeksInMonth = data.months[monthName] || [];
-        
-        if (weeksInMonth.length > 0) {
-            // Добавляем все недели из этого месяца в архив
-            data.archive.push(...weeksInMonth);
-            archivedCount += weeksInMonth.length;
-            
-            // Очищаем массив недель этого месяца
-            data.months[monthName] = [];
-        }
-    });
-
-    if (archivedCount > 0) {
-        save(); 
-        renderAll(); // Перерисовываем все
-        alert(`Успешно заархивировано ${archivedCount} недель.`);
-    } else {
-        alert("Не найдено недель для архивации в 'Месяцах'.");
-    }
-    
-}
+// archiveAllMonths() удалена
 
 document.getElementById('saveNickBtn').onclick = async () => {
     const newNick = nickInput.value.trim();
-    if (!newNick) { alert("Имя пользователя не может быть пустым."); return; }
+    if (!newNick) { 
+        showNotification("Имя пользователя не может быть пустым.", 'warning'); 
+        return; 
+    }
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
     await changeUsername(newNick); 
 };
 document.getElementById('logoutBtn').onclick = () => {
     if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
-        if (!confirm("У вас есть несохраненные изменения, которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
+        if (!confirm("У вас есть несохраненные изменения (Цели/Привычки/Настроение), которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
             return; 
         }
     }
@@ -2206,7 +2121,6 @@ document.getElementById('logoutBtn').onclick = () => {
     localStorage.removeItem(STORAGE_KEY_USERNAME);
     localStorage.removeItem(STORAGE_KEY_LOCAL);
     localStorage.removeItem(STORAGE_KEY_UNSAVED);
-    localStorage.removeItem(STORAGE_KEY_CONFIRM_DELETE);
     setTimeout(() => {
         window.location.href = 'login.html';
     }, 500); 
@@ -2214,115 +2128,9 @@ document.getElementById('logoutBtn').onclick = () => {
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
 
-/* --- ИЗМЕНЕНИЕ: ФУНКЦИИ НОВОЙ КОРЗИНЫ --- */
-function toggleTrashPopover() {
-    const isVisible = trashPopover.classList.contains('visible');
-    if (isVisible) {
-        trashPopover.classList.remove('visible');
-    } else {
-        trashPopover.classList.add('visible');
-    }
-}
-// Закрытие поповера при клике вне его
-document.addEventListener('click', (e) => {
-    if (!trashPopover.contains(e.target) && !headerTrashBtn.contains(e.target)) {
-        trashPopover.classList.remove('visible');
-    }
-});
+// --- Функции корзины и старых недель удалены ---
 
-headerTrashBtn.onclick = toggleTrashPopover;
-
-function showConfirmDeleteModal(title) {
-    return new Promise(resolve => {
-        if (localStorage.getItem(STORAGE_KEY_CONFIRM_DELETE) === 'skip') {
-            resolve(true);
-            return;
-        }
-        currentDeleteResolve = resolve;
-        confirmMessage.textContent = `Вы уверены, что хотите безвозвратно удалить элемент "${title}"?`;
-        dontAskAgainCheckbox.checked = false; 
-        confirmModal.style.display = 'flex';
-        setTimeout(() => confirmModal.classList.add('visible'), 10);
-    });
-}
-function closeConfirmDeleteModal() {
-    confirmModal.classList.remove('visible');
-    setTimeout(() => { confirmModal.style.display = 'none'; }, 300);
-}
-confirmDeleteBtn.onclick = () => {
-    if (dontAskAgainCheckbox.checked) {
-        localStorage.setItem(STORAGE_KEY_CONFIRM_DELETE, 'skip');
-    }
-    closeConfirmDeleteModal();
-    if (currentDeleteResolve) {
-        currentDeleteResolve(true);
-    }
-    currentDeleteResolve = null;
-};
-confirmCancelBtn.onclick = () => {
-    closeConfirmDeleteModal();
-    if (currentDeleteResolve) {
-        currentDeleteResolve(false);
-    }
-    currentDeleteResolve = null;
-};
-
-// Drag-n-drop для новой корзины
-trashPopover.ondragover = e => { e.preventDefault(); trashPopover.classList.add('dragover'); };
-trashPopover.ondragleave = () => { trashPopover.classList.remove('dragover'); };
-trashPopover.ondrop = async e => {
-    e.preventDefault(); 
-    trashPopover.classList.remove('dragover');
-    trashPopover.classList.remove('visible'); // Скрываем поповер после дропа
-    if (!dragId || !dragTitle) return;
-    
-    const confirmed = await showConfirmDeleteModal(dragTitle);
-
-    if (confirmed) {
-        let deleted = false;
-        
-        // 1. Проверяем нераспределенные
-        const unassignedIndex = data.unassigned.findIndex(w => w.id === dragId);
-        if (unassignedIndex !== -1) {
-            data.unassigned.splice(unassignedIndex, 1);
-            deleted = true;
-        }
-        
-        // 2. Проверяем месяцы
-        if (!deleted) {
-            for (const monthName of months) {
-                if (data.months[monthName]) {
-                    const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
-                    if (weekIndex !== -1) {
-                        data.months[monthName].splice(weekIndex, 1);
-                        deleted = true;
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // 3. НОВАЯ ПРОВЕРКА: Проверяем архив
-        if (!deleted && data.archive) {
-             const archiveIndex = data.archive.findIndex(w => w.id === dragId);
-            if (archiveIndex !== -1) {
-                data.archive.splice(archiveIndex, 1);
-                deleted = true;
-            }
-        }
-
-        if (deleted) {
-            clearWeekNotifications(dragId);
-            save(); 
-            renderAll();
-        }
-    }
-    dragId = null;
-    dragTitle = null;
-    dragOrigin = null; // Сбрасываем origin
-};
-
-/* --- ЦЕЛИ, НЕДЕЛИ, МЕСЯЦЫ --- */
+/* --- ЦЕЛИ (Goal Styles) --- */
 const goalsList=document.getElementById('goalsList');
 function renderGoals(){
     goalsList.innerHTML='';
@@ -2335,572 +2143,525 @@ function renderGoals(){
         goalsList.appendChild(div);
     });
 }
-document.getElementById('addGoalBtn').onclick=()=>{data.goals.push('Новая цель');save();renderGoals();};
-const unassignedList=document.getElementById('unassignedList');
-const createWeekBtn=document.getElementById('createWeekBtn');
-const unassignedContainer = unassignedList.parentElement;
-
-// ОБНОВЛЕНО: ondragover для unassigned
-unassignedContainer.ondragover = e => { 
-    e.preventDefault(); 
-    if (dragOrigin === 'month') {
-        unassignedContainer.classList.add('dragover'); 
-    } else if (dragOrigin === 'archive') {
-        unassignedContainer.classList.add('dragover-from-archive'); // Другой стиль для перетаскивания из архива
+document.getElementById('addGoalBtn').onclick=()=>{
+    if (data.goals.length >= 3) {
+        showNotification('Максимум 3 годовые цели.', 'warning', 5000);
+        return; 
     }
+    data.goals.push('Новая цель');
+    save();
+    renderGoals();
 };
-// ОБНОВЛЕНО: ondragleave для unassigned
-unassignedContainer.ondragleave = () => { 
-    unassignedContainer.classList.remove('dragover'); 
-    unassignedContainer.classList.remove('dragover-from-archive'); 
+
+// --- Функции нераспределенных, месяцев, архива, модалки недели УДАЛЕНЫ ---
+
+
+// =================================================================
+// 4. НОВЫЙ БЛОК: ЛОГИКА КАЛЕНДАРЯ
+// =================================================================
+
+// --- ЭЛЕМЕНТЫ DOM КАЛЕНДАРЯ ---
+const currentMonthDisplay = document.getElementById('current-month-display');
+const calendarGrid = document.getElementById('calendar-grid');
+const weekViewContainer = document.getElementById('week-view-container');
+const prevBtn = document.getElementById('prev-btn');
+const nextBtn = document.getElementById('next-btn');
+const todayBtn = document.getElementById('today-btn');
+const monthViewBtn = document.getElementById('month-view-btn');
+const weekViewBtn = document.getElementById('week-view-btn');
+const monthView = document.getElementById('month-view');
+const weekView = document.getElementById('week-view');
+
+const dayModal = document.getElementById('day-modal');
+const closeModalBtn = document.getElementById('close-modal');
+const modalDateDisplay = document.getElementById('modal-date-display');
+const modalTaskList = document.getElementById('modal-task-list');
+const addTaskFormModal = document.getElementById('add-task-form-modal');
+const newTaskTimeInput = document.getElementById('new-task-time');
+const newTaskTextInput = document.getElementById('new-task-text');
+
+// --- ГЛОБАЛЬНОЕ СОСТОЯНИЕ КАЛЕНДАРЯ ---
+let state = {
+    tasks: {}, // { 'YYYY-MM-DD': [task1, task2] }
+    currentDate: new Date(),
+    currentView: 'month', // 'month' or 'week'
+    currentModalDate: null, // 'YYYY-MM-DD'
+    currentRecurTask: null
 };
-// ОБНОВЛЕНО: ondrop для unassigned
-unassignedContainer.ondrop = e => {
-    e.preventDefault(); 
-    unassignedContainer.classList.remove('dragover'); 
-    unassignedContainer.classList.remove('dragover-from-archive'); 
+const monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+
+// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ КАЛЕНДАРЯ ---
+
+function getISODate(date) {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+function getMonthDays(year, month) {
+    const days = [];
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
     
-    // Проверяем, что перетаскиваем из 'month' или 'archive'
-    if (!dragId || (dragOrigin !== 'month' && dragOrigin !== 'archive')) { 
-        dragId = null; dragTitle = null; dragOrigin = null;
+    let dayOfWeek = firstDay.getDay();
+    if (dayOfWeek === 0) dayOfWeek = 7;
+    
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = dayOfWeek - 1; i > 0; i--) {
+        const date = new Date(year, month - 1, prevMonthLastDay - i + 1);
+        days.push({ date: date, isCurrentMonth: false });
+    }
+    
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+        const date = new Date(year, month, i);
+        days.push({ date: date, isCurrentMonth: true });
+    }
+    
+    const nextDays = 42 - days.length;
+    for (let i = 1; i <= nextDays; i++) {
+        const date = new Date(year, month + 1, i);
+        days.push({ date: date, isCurrentMonth: false });
+    }
+    
+    return days;
+}
+
+function getWeekDays(date) {
+    const days = [];
+    let dayOfWeek = date.getDay();
+    if (dayOfWeek === 0) dayOfWeek = 7; // Вс = 7
+    
+    const monday = new Date(date);
+    monday.setDate(date.getDate() - (dayOfWeek - 1));
+    
+    for (let i = 0; i < 7; i++) {
+        const weekDay = new Date(monday);
+        weekDay.setDate(monday.getDate() + i);
+        days.push(weekDay);
+    }
+    return days;
+}
+
+// --- ЛОГИКА SUPABASE КАЛЕНДАРЯ ---
+
+async function fetchTasks() {
+    if (!supabase || !currentUserId) return;
+    
+    showLoading();
+    const { data, error } = await supabase
+        .from('daily_tasks')
+        .select('*')
+        .eq('user_id', currentUserId);
+        
+    hideLoading();
+    
+    if (error) {
+        console.error("Ошибка загрузки задач:", error);
         return;
     }
-
-    let weekToMove = null;
-
-    if (dragOrigin === 'month') {
-        for (const monthName of months) {
-            if (data.months[monthName]) {
-                const weekIndex = data.months[monthName].findIndex(w => w.id === dragId);
-                if (weekIndex !== -1) {
-                    [weekToMove] = data.months[monthName].splice(weekIndex, 1);
-                    break;
-                }
-            }
-        }
-    } else if (dragOrigin === 'archive') { // НОВЫЙ БЛОК: ищем в архиве
-        if (data.archive) {
-             const weekIndex = data.archive.findIndex(w => w.id === dragId);
-            if (weekIndex !== -1) {
-                [weekToMove] = data.archive.splice(weekIndex, 1);
-            }
-        }
-    }
-
-    if (weekToMove) {
-        data.unassigned.push(weekToMove);
-        save(); 
-        renderAll();
-    }
-
-    dragId = null;
-    dragTitle = null;
-    dragOrigin = null;
-};
-
-// ОБНОВЛЕНО: getWeekById теперь ищет и в архиве
-function getWeekById(id) {
-    const allWeeks = [...data.unassigned, ...Object.values(data.months).flat(), ...(data.archive || [])];
-    return allWeeks.find(w => w.id === id);
-}
-
-// ОБНОВЛЕНО: createWeekEl принимает 'origin'
-function createWeekEl(week, origin){
-    const div=document.createElement('div'); div.className='week-item';
-    div.innerHTML=`<div>${week.title}</div>`; div.draggable=true;
-    div.dataset.origin = origin; // Сохраняем origin
     
-    div.ondragstart=()=>{
-        dragId=week.id;
-        dragTitle=week.title;
-        dragOrigin = origin; // Устанавливаем глобальный origin
-    };
-    div.onclick=()=>openWeekModal(week.id);
-    return div;
-}
-function renderUnassigned(){
-    unassignedList.innerHTML='';
-    // ОБНОВЛЕНО: передаем origin
-    data.unassigned.forEach(w=>{ unassignedList.appendChild(createWeekEl(w, 'unassigned')); });
-}
-const monthsContainer=document.getElementById('months');
-function renderMonths(){
-    monthsContainer.innerHTML='';
-    const currentMonthIndex = new Date().getMonth(); // НОВЫЙ КОД: получаем текущий месяц (0-11)
-
-    months.forEach((m,i)=>{
-        const div=document.createElement('div'); div.className='month';
-        
-        // НОВЫЙ КОД: Подсветка текущего месяца
-        if (i === currentMonthIndex) {
-            div.classList.add('current-month');
+    state.tasks = data.reduce((acc, task) => {
+        const date = task.task_date;
+        if (!acc[date]) {
+            acc[date] = [];
         }
+        acc[date].push(task);
+        return acc;
+    }, {});
+    
+    for (const date in state.tasks) {
+        state.tasks[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+    }
+}
 
-        div.style.borderColor=monthColors[i%monthColors.length];
-        div.innerHTML=`<div class="m-title">${m}</div><div class="month-weeks"></div><div class="drop-zone" data-month="${m}">Перетащите недели сюда</div>`;
-        monthsContainer.appendChild(div);
-        const dropZone=div.querySelector('.drop-zone');
+async function addTask(date, time, text) {
+    if (!supabase || !currentUserId) return;
+    
+    showLoading();
+    const { data, error } = await supabase
+        .from('daily_tasks')
+        .insert({
+            user_id: currentUserId,
+            task_date: date,
+            time: time,
+            text: text,
+            is_done: false
+        })
+        .select()
+        .single();
+    
+    hideLoading();
+    
+    if (error) {
+        console.error("Ошибка добавления задачи:", error);
+        return null;
+    }
+    return data;
+}
+
+async function updateTaskStatus(taskId, isDone) {
+    if (!supabase) return;
+    
+    const { error } = await supabase
+        .from('daily_tasks')
+        .update({ is_done: isDone })
+        .eq('id', taskId);
         
-        dropZone.ondragover=e=>{
-            e.preventDefault(); 
-            // Принимаем только из 'unassigned'
-            if (dragOrigin === 'unassigned') {
-                dropZone.classList.add('dragover');
+    if (error) {
+        console.error("Ошибка обновления задачи:", error);
+    }
+}
+
+async function deleteTask(taskId) {
+    if (!supabase) return;
+    
+    const { error } = await supabase
+        .from('daily_tasks')
+        .delete()
+        .eq('id', taskId);
+        
+    if (error) {
+        console.error("Ошибка удаления задачи:", error);
+    }
+    return !error;
+}
+
+// --- ЛОГИКА РЕНДЕРИНГА КАЛЕНДАРЯ ---
+
+function render() {
+    const year = state.currentDate.getFullYear();
+    const month = state.currentDate.getMonth();
+    
+    currentMonthDisplay.textContent = `${monthNames[month]} ${year}`;
+    
+    if (state.currentView === 'month') {
+        renderMonthView(year, month);
+        monthView.style.display = 'block';
+        weekView.style.display = 'none';
+        monthViewBtn.classList.add('active');
+        weekViewBtn.classList.remove('active');
+    } else {
+        renderWeekView(state.currentDate);
+        monthView.style.display = 'none';
+        weekView.style.display = 'block';
+        monthViewBtn.classList.remove('active');
+        weekViewBtn.classList.add('active');
+    }
+}
+
+function renderMonthView(year, month) {
+    calendarGrid.innerHTML = '';
+    const days = getMonthDays(year, month);
+    const todayISO = getISODate(new Date());
+    
+    days.forEach(dayObj => {
+        const dayEl = document.createElement('div');
+        dayEl.className = 'calendar-day';
+        const dateISO = getISODate(dayObj.date);
+        
+        if (!dayObj.isCurrentMonth) {
+            dayEl.classList.add('other-month');
+        }
+        
+        if (dateISO === todayISO) {
+            dayEl.classList.add('today');
+        }
+        
+        const dayNumber = document.createElement('div');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = dayObj.date.getDate();
+        dayEl.appendChild(dayNumber);
+        
+        const tasks = state.tasks[dateISO] || [];
+        if (tasks.length > 0) {
+            const tasksPreview = document.createElement('div');
+            tasksPreview.className = 'tasks-preview';
+            
+            tasks.slice(0, 5).forEach(task => { 
+                const taskPill = document.createElement('div');
+                taskPill.className = 'task-preview-item';
+                if (task.is_done) {
+                    taskPill.classList.add('done');
+                }
+                
+                if (task.time) {
+                    taskPill.innerHTML = `<span class="task-preview-time">${task.time.slice(0, 5)}</span>`;
+                } else {
+                    taskPill.innerHTML = `<span class="task-preview-time">•</span>`;
+                }
+                tasksPreview.appendChild(taskPill);
+            });
+            
+            if (tasks.length > 5) {
+                 const morePill = document.createElement('div');
+                 morePill.className = 'task-preview-item';
+                 morePill.textContent = `...`;
+                 tasksPreview.appendChild(morePill);
             }
-        };
-        dropZone.ondragleave=()=>dropZone.classList.remove('dragover');
-        dropZone.ondrop=e=>{
-            e.preventDefault(); dropZone.classList.remove('dragover');
-            // Принимаем только из 'unassigned'
-            if (!dragId || dragOrigin !== 'unassigned') {
-                dragId = null; dragTitle = null; dragOrigin = null;
-                return;
-            }
-            const idx=data.unassigned.findIndex(w=>w.id===dragId);
-            if(idx>=0){
-                const [w] = data.unassigned.splice(idx,1);
-                if(!data.months[m]) data.months[m] = [];
-                data.months[m].push(w);
-                save(); renderAll();
-            }
-            dragId = null;
-            dragTitle = null;
-            dragOrigin = null;
-        };
-        const monthWeeksDiv=div.querySelector('.month-weeks');
-        // ОБНОВЛЕНО: передаем origin
-        (data.months[m] || []).forEach(w=>{ monthWeeksDiv.appendChild(createWeekEl(w, 'month')); });
+            
+            dayEl.appendChild(tasksPreview);
+        }
+        
+        if (dayObj.isCurrentMonth) {
+            dayEl.onclick = () => openDayModal(dateISO);
+        }
+        
+        calendarGrid.appendChild(dayEl);
     });
 }
 
-// === НОВАЯ ФУНКЦИЯ: РЕНДЕРИНГ АРХИВА ===
-const archiveList = document.getElementById('archiveList');
-const archiveDropZone = document.querySelector('.drop-zone-archive');
-
-function renderArchive() {
-    if (!archiveList || !archiveDropZone) return;
+function renderWeekView(date) {
+    weekViewContainer.innerHTML = '';
+    const days = getWeekDays(date);
+    const todayISO = getISODate(new Date());
     
-    // archiveList.innerHTML = ''; // УБРАНО: Список теперь скрыт и рендерится в модалке
-    
-    // ОБНОВЛЕНО: передаем origin
-    // (data.archive || []).forEach(w => {
-    //     archiveList.appendChild(createWeekEl(w, 'archive'));
-    // });
-    // --- Код выше закомментирован, т.к. список больше не рендерится здесь ---
-
-
-    archiveDropZone.ondragover = e => { 
-        e.preventDefault(); 
-        // Принимаем из 'unassigned' и 'month'
-        if (dragOrigin === 'unassigned' || dragOrigin === 'month') {
-            archiveDropZone.classList.add('dragover'); 
+    days.forEach((day, index) => {
+        const dateISO = getISODate(day);
+        const dayCol = document.createElement('div');
+        dayCol.className = 'week-day-column';
+        if (dateISO === todayISO) {
+            dayCol.classList.add('today');
         }
-    };
-    archiveDropZone.ondragleave = () => archiveDropZone.classList.remove('dragover');
-    archiveDropZone.ondrop = e => {
-        e.preventDefault();
-        archiveDropZone.classList.remove('dragover');
         
-        // Принимаем из 'unassigned' и 'month'
-        if (!dragId || (dragOrigin !== 'unassigned' && dragOrigin !== 'month')) {
-            dragId = null; dragTitle = null; dragOrigin = null;
-            return;
-        }
-
-        let weekToMove = null;
-        // 1. Ищем в unassigned
-        let idx = data.unassigned.findIndex(w => w.id === dragId);
-        if (idx !== -1) {
-            [weekToMove] = data.unassigned.splice(idx, 1);
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'week-day-header';
+        dayHeader.innerHTML = `
+            <h3>${dayNames[index]}</h3>
+            <div class="date-display">${day.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long' })}</div>
+        `;
+        dayCol.appendChild(dayHeader);
+        
+        const taskList = document.createElement('div');
+        taskList.className = 'task-list-week';
+        dayCol.appendChild(taskList);
+        
+        const tasks = state.tasks[dateISO] || [];
+        if (tasks.length === 0) {
+            taskList.innerHTML = '<p class="no-tasks">Задач нет.</p>';
         } else {
-            // 2. Ищем в months
-            for (const monthName of months) {
-                if (data.months[monthName]) {
-                    idx = data.months[monthName].findIndex(w => w.id === dragId);
-                    if (idx !== -1) {
-                        [weekToMove] = data.months[monthName].splice(idx, 1);
-                        break;
-                    }
+            tasks.forEach(task => {
+                taskList.appendChild(createTaskItemElement(task));
+            });
+        }
+        
+        const addForm = document.createElement('form');
+        addForm.className = 'add-task-form-week';
+        addForm.action = "javascript:void(0);";
+        addForm.innerHTML = `
+            <div class="form-inputs-week">
+                <input type="text" class="week-task-text" placeholder="Новая задача..." required>
+                <input type="time" class="week-task-time" required>
+            </div>
+            <button type="submit" class="btn btn-primary" title="Добавить задачу">
+                <svg class="send-icon" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+            </button>
+        `;
+        
+        addForm.onsubmit = async (e) => {
+            const timeInput = e.target.querySelector('.week-task-time');
+            const textInput = e.target.querySelector('.week-task-text');
+            
+            const newTask = await addTask(dateISO, timeInput.value, textInput.value);
+            if (newTask) {
+                if (!state.tasks[dateISO]) state.tasks[dateISO] = [];
+                state.tasks[dateISO].push(newTask);
+                state.tasks[dateISO].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+                
+                timeInput.value = '';
+                textInput.value = '';
+                render(); 
+            }
+        };
+        
+        dayCol.appendChild(addForm);
+        weekViewContainer.appendChild(dayCol);
+    });
+}
+
+// --- ЛОГИКА МОДАЛЬНОГО ОКНА КАЛЕНДАРЯ ---
+
+async function handleDeleteTask(task, taskEl) {
+    if (confirm(`Удалить задачу "${task.text}"?`)) {
+        const success = await deleteTask(task.id);
+        if (success) {
+            const date = task.task_date;
+            state.tasks[date] = state.tasks[date].filter(t => t.id !== task.id);
+            
+            if (dayModal.classList.contains('visible') && state.currentModalDate === date) {
+                taskEl.remove();
+                if (state.tasks[date].length === 0) {
+                    modalTaskList.innerHTML = '<p class="no-tasks">Задач на этот день нет.</p>';
                 }
             }
+            render(); 
         }
-
-        if (weekToMove) {
-            if (!data.archive) data.archive = [];
-            data.archive.push(weekToMove);
-            save();
-            renderAll();
-        }
-        dragId = null; dragTitle = null; dragOrigin = null;
-    };
-}
-// === КОНЕЦ НОВОЙ ФУНКЦИИ АРХИВА ===
-
-// === НОВЫЕ ФУНКЦИИ МОДАЛЬНОГО ОКНА АРХИВА ===
-function closeArchiveModal() {
-    archiveModal.classList.remove('visible');
-    setTimeout(() => { archiveModal.style.display='none'; }, 300);
+    }
 }
 
-function openArchiveModal() {
-    const modalList = document.getElementById('archiveModalList');
-    if (!modalList) return;
+function handleDownloadTask(task) {
+    const content = `Задача: ${task.text}\nДата: ${task.task_date}\nВремя: ${task.time || 'Весь день'}\nСтатус: ${task.is_done ? 'Выполнено' : 'Не выполнено'}`;
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeFileName = task.text.replace(/[^a-z0-9а-я\s]/gi, '_').substring(0, 30);
+    a.download = `Задача_${safeFileName}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function openRecurModal(task) {
+    const modal = document.getElementById('recur-modal');
+    state.currentRecurTask = task; 
     
-    modalList.innerHTML = '';
-    const archivedWeeks = data.archive || [];
+    document.getElementById('recur-type').value = 'weekly';
+    document.getElementById('recur-weekly-days').querySelectorAll('input').forEach(cb => cb.checked = false);
+    document.getElementById('recur-custom-days').value = '2';
+    document.getElementById('recur-end-date').value = '';
+
+    document.getElementById('recur-weekly-options').style.display = 'block';
+    document.getElementById('recur-custom-options').style.display = 'none';
+
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('visible'), 10);
+}
+
+
+function createTaskItemElement(task) {
+    const taskEl = document.createElement('div');
+    taskEl.className = 'task-item';
+    taskEl.dataset.taskId = task.id;
+    if (task.is_done) {
+        taskEl.classList.add('done');
+    }
     
-    if (archivedWeeks.length === 0) {
-        modalList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Архив пуст.</p>';
-    } else {
-        // Сортируем недели (например, по названию), чтобы список был упорядочен
-        archivedWeeks.sort((a, b) => a.title.localeCompare(b.title));
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.className = 'task-item-checkbox';
+    checkbox.checked = task.is_done;
+    checkbox.onchange = async () => {
+        const newStatus = checkbox.checked;
+        await updateTaskStatus(task.id, newStatus);
         
-        archivedWeeks.forEach(week => {
-            const item = document.createElement('div');
-            item.className = 'archive-modal-item';
-            
-            const title = document.createElement('span');
-            title.textContent = week.title || 'Безымянная неделя';
-            
-            const unarchiveBtn = document.createElement('button');
-            unarchiveBtn.className = 'btn btn-unarchive';
-            unarchiveBtn.textContent = 'Разархивировать';
-            unarchiveBtn.onclick = () => unarchiveWeek(week.id);
-            
-            item.appendChild(title);
-            item.appendChild(unarchiveBtn);
-            modalList.appendChild(item);
+        task.is_done = newStatus;
+        taskEl.classList.toggle('done', newStatus);
+        render(); 
+    };
+    
+    const timeEl = document.createElement('span');
+    timeEl.className = 'task-item-time';
+    timeEl.textContent = task.time ? task.time.slice(0, 5) : 'Весь день';
+    
+    const textEl = document.createElement('span');
+    textEl.className = 'task-item-text';
+    textEl.textContent = task.text;
+    
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'task-item-more';
+    moreBtn.innerHTML = '⋮'; 
+    moreBtn.title = 'Опции';
+
+    const menu = document.createElement('div');
+    menu.className = 'task-item-menu';
+    menu.innerHTML = `
+        <div class="task-menu-item" data-action="delete">Удалить задачу</div>
+        <div class="task-menu-item" data-action="download">Скачать (.txt)</div>
+        <div class="task-menu-item" data-action="recur">Сделать регулярной</div>
+    `;
+    
+    moreBtn.onclick = (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.task-item-menu.visible').forEach(m => {
+            if (m !== menu) m.classList.remove('visible');
+        });
+        menu.classList.toggle('visible');
+    };
+    
+    menu.onclick = (e) => {
+        e.stopPropagation();
+        const target = e.target.closest('.task-menu-item');
+        if (!target) return;
+        
+        const action = target.dataset.action;
+        
+        if (action === 'delete') {
+            handleDeleteTask(task, taskEl); 
+        }
+        if (action === 'download') {
+            handleDownloadTask(task);
+        }
+        if (action === 'recur') {
+            openRecurModal(task);
+        }
+        
+        menu.classList.remove('visible'); 
+    };
+
+    taskEl.appendChild(checkbox);
+    taskEl.appendChild(timeEl);
+    taskEl.appendChild(textEl);
+    taskEl.appendChild(moreBtn); 
+    taskEl.appendChild(menu); 
+    
+    return taskEl;
+}
+
+function openDayModal(dateISO) {
+    state.currentModalDate = dateISO;
+    const date = new Date(dateISO + 'T12:00:00'); 
+    modalDateDisplay.textContent = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+    
+    modalTaskList.innerHTML = '';
+    const tasks = state.tasks[dateISO] || [];
+    
+    if (tasks.length === 0) {
+        modalTaskList.innerHTML = '<p class="no-tasks">Задач на этот день нет.</p>';
+    } else {
+        tasks.forEach(task => {
+            modalTaskList.appendChild(createTaskItemElement(task));
         });
     }
     
-    archiveModal.style.display='flex';
-    setTimeout(() => archiveModal.classList.add('visible'), 10);
+    dayModal.style.display = 'flex';
+    setTimeout(() => dayModal.classList.add('visible'), 10);
 }
 
-function unarchiveWeek(weekId) {
-    if (!data.archive) return;
+function closeModal() {
+    dayModal.classList.remove('visible');
+    setTimeout(() => { dayModal.style.display = 'none'; }, 300);
+    state.currentModalDate = null;
+    newTaskTimeInput.value = '';
+    newTaskTextInput.value = '';
+}
+
+async function handleModalAddTask() {
+    const time = newTaskTimeInput.value;
+    const text = newTaskTextInput.value.trim();
+    const date = state.currentModalDate;
     
-    const weekIndex = data.archive.findIndex(w => w.id === weekId);
-    if (weekIndex === -1) {
-        console.warn('Неделя для разархивации не найдена:', weekId);
-        return;
-    }
+    if (!text || !date) return;
     
-    // Удаляем из архива и добавляем в нераспределенные
-    const [weekToUnarchive] = data.archive.splice(weekIndex, 1);
-    data.unassigned.push(weekToUnarchive);
+    const newTask = await addTask(date, time, text);
     
-    save();
-    renderAll(); // Обновляем основной UI (счетчики, и т.д.)
-    openArchiveModal(); // Обновляем список в модальном окне
-}
-// === КОНЕЦ ФУНКЦИЙ МОДАЛЬНОГО ОКНА АРХИВА ===
-
-
-createWeekBtn.onclick=()=>{
-    const now = new Date();
-    const day = now.getDay();
-    const diff = now.getDate() - day + (day === 0 ? -6 : 1);
-    const closestMonday = new Date(now.setDate(diff));
-    const formattedDate = closestMonday.toISOString().split('T')[0];
-    const week={
-        id:'w'+Date.now(),
-        title:'Новая неделя',
-        desc:'',
-        startDate: formattedDate, 
-        tasks:{}
-    };
-    data.unassigned.push(week); save(); renderAll();
-};
-
-function scrollToCurrentMonth() {
-    const monthsContainer = document.getElementById('months');
-    const monthsWrapper = monthsContainer.parentElement; 
-    const now = new Date();
-    const currentMonthIndex = now.getMonth(); 
-    const currentMonthEl = monthsContainer.children[currentMonthIndex];
-    if (currentMonthEl && monthsWrapper) {
-        // --- ИЗМЕНЕНИЕ: Убеждаемся, что элемент виден, перед прокруткой ---
-        setTimeout(() => {
-            const scrollPosition = currentMonthEl.offsetLeft - (monthsWrapper.offsetWidth / 2) + (currentMonthEl.offsetWidth / 2);
-            monthsWrapper.scrollTo({
-                left: scrollPosition,
-                behavior: 'smooth'
-            });
-        }, 100); // Небольшая задержка для рендеринга
-    }
-}
-
-/* --- МОДАЛЬНОЕ ОКНО НЕДЕЛИ (ОБНОВЛЕНО) --- */
-const weekModal=document.getElementById('weekModal');
-const weekTitle=document.getElementById('weekTitle');
-const weekDesc=document.getElementById('weekDesc');
-const weekStartDateInput = document.getElementById('weekStartDate'); 
-const daysContainer=document.getElementById('daysContainer');
-const modalGoalsList=document.getElementById('modalGoalsList');
-let currentWeek=null;
-
-function getDateForDay(dateString, dayIndex) {
-    if (!dateString) return 'Не выбрана';
-    const date = new Date(dateString + 'T00:00:00'); 
-    if (isNaN(date.getTime())) return 'Ошибка даты';
-    const dayOffset = dayIndex;
-    date.setDate(date.getDate() + dayOffset);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = String(date.getFullYear()).slice(2);
-    return `${day}.${month}.${year}`;
-}
-
-function createTaskElement(task, day, index) {
-    const taskDiv = document.createElement('div');
-    taskDiv.className = 'task-item';
-    taskDiv.classList.toggle('task-done', task.done);
-    taskDiv.draggable = true;
-    taskDiv.dataset.day = day;
-    taskDiv.dataset.index = index;
-
-    taskDiv.ondragstart = (e) => {
-        currentDayDrag = day; 
-        e.dataTransfer.setData('text/plain', index);
-        e.dataTransfer.effectAllowed = 'move';
-        taskDiv.classList.add('dragging');
-    };
-    taskDiv.ondragend = () => {
-        taskDiv.classList.remove('dragging');
-        currentDayDrag = null;
-    };
-
-    const checkSpan = document.createElement('span');
-    checkSpan.className = 'task-check';
-    checkSpan.innerHTML = task.done ? '✓' : '☐';
-    checkSpan.title = task.done ? 'Отменить' : 'Выполнить';
-    checkSpan.onclick = () => {
-        currentWeek.tasks[day][index].done = !currentWeek.tasks[day][index].done;
-        save();
-        renderWeekModal(); 
-    };
-    taskDiv.appendChild(checkSpan);
-
-    const timeInput = document.createElement('input');
-    timeInput.type = 'text';
-    timeInput.className = 'task-time-input';
-    timeInput.placeholder = 'HH:MM';
-    timeInput.maxLength = 5;
-    timeInput.value = task.time || '';
-    timeInput.oninput = (e) => {
-        let val = e.target.value.replace(/[^0-9:]/g, '');
-        if (val.length === 2 && val.indexOf(':') === -1) {
-            val += ':';
-        }
-        e.target.value = val;
-        currentWeek.tasks[day][index].time = val;
-        save();
-    };
-    timeInput.onblur = () => {
-        const val = timeInput.value.trim();
-        if (val.length > 0 && !val.match(/^\d{1,2}:\d{2}$/)) {
-            timeInput.value = '';
-            currentWeek.tasks[day][index].time = '';
-            save();
-        }
-        scheduleCurrentWeekNotifications();
-    }
-    taskDiv.appendChild(timeInput);
-
-    const textContainer = document.createElement('div');
-    textContainer.className = 'task-text-container';
-
-    const textSpan = document.createElement('span');
-    textSpan.className = 'task-text';
-    textSpan.contentEditable = true; 
-    textSpan.innerText = task.text || 'Новая задача';
-    textSpan.oninput = () => { 
-        currentWeek.tasks[day][index].text = textSpan.innerText.replace(/×/g, '').trim(); 
-        save(); 
-    };
-    textContainer.appendChild(textSpan);
-
-    const rm = document.createElement('img');
-    rm.src = 'pictures/trash.png';
-    rm.className = 'task-delete';
-    rm.onclick = () => {
-        currentWeek.tasks[day].splice(index, 1);
-        save();
-        renderWeekModal(); 
-        scheduleCurrentWeekNotifications();
-    };
-    textContainer.appendChild(rm);
-
-    taskDiv.appendChild(textContainer);
-    return taskDiv;
-}
-
-function handleTaskDrop(e, day) {
-    e.preventDefault();
-    const targetDayEl = e.currentTarget;
-    targetDayEl.classList.remove('dragover');
-    if (currentDayDrag !== day) return; 
-
-    const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-    const draggedElement = document.querySelector(`.task-item[data-day="${day}"][data-index="${fromIndex}"]`);
-    if (!draggedElement) return;
-
-    const tasksArray = currentWeek.tasks[day];
-    const draggedTask = tasksArray[fromIndex];
-    if (!draggedTask) return;
-
-    tasksArray.splice(fromIndex, 1);
-    const afterElement = getDragAfterElement(targetDayEl, e.clientY);
-    let newIndex;
-    if (afterElement === null) {
-        newIndex = tasksArray.length;
-    } else {
-        const afterIndex = parseInt(afterElement.dataset.index);
-        newIndex = afterIndex; 
-    }
-    tasksArray.splice(newIndex, 0, draggedTask);
-
-    save();
-    renderWeekModal(); 
-}
-
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.task-item:not(.dragging)')];
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset: offset, element: child };
-        } else {
-            return closest;
-        }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
-}
-
-function openWeekModal(id){
-    // ОБНОВЛЕНО: getWeekById теперь ищет везде
-    currentWeek = getWeekById(id);
-    if(!currentWeek) return;
-
-    weekModal.style.display='flex';
-    setTimeout(()=>weekModal.classList.add('visible'), 10);
-    weekTitle.value=currentWeek.title;
-    weekDesc.value=currentWeek.desc || '';
-    weekStartDateInput.value = currentWeek.startDate || '';
-
-    weekTitle.oninput = () => { currentWeek.title = weekTitle.value; save(); };
-    weekDesc.oninput = () => { currentWeek.desc = weekDesc.value; save(); };
-    weekStartDateInput.onchange = () => { 
-        currentWeek.startDate = weekStartDateInput.value; 
-        save(); 
-        renderWeekModal(); 
-    };
-
-    modalGoalsList.innerHTML='';
-    data.goals.forEach(t=>{ const li=document.createElement('li'); li.textContent=t; modalGoalsList.appendChild(li); });
-
-    daysContainer.innerHTML='';
-    weekDays.forEach((d, dayIndex)=>{
-        const dayDiv=document.createElement('div'); dayDiv.className='day';
-        const tasks = currentWeek.tasks[d] || [];
-        const dayDate = getDateForDay(currentWeek.startDate, dayIndex);
-
-        dayDiv.innerHTML = `<h4>
-            <span class="day-label">
-                ${d} 
-                <span class="day-date">${dayDate}</span>
-            </span>
-            <span>${tasks.length}</span>
-        </h4>
-        <div class="tasks"></div>
-        <button class="add-task-btn">＋ Добавить задачу</button>`;
-
-        const taskContainer=dayDiv.querySelector('.tasks');
-        taskContainer.ondragover = e => { e.preventDefault(); taskContainer.classList.add('dragover'); };
-        taskContainer.ondragleave = () => taskContainer.classList.remove('dragover');
-        taskContainer.ondrop = e => handleTaskDrop(e, d);
-        tasks.forEach((t, i) => { taskContainer.appendChild(createTaskElement(t, d, i)); });
-        dayDiv.querySelector('.add-task-btn').onclick=()=>{
-            if(!currentWeek.tasks[d]) currentWeek.tasks[d]=[];
-            currentWeek.tasks[d].push({ text: 'Новая задача', done: false, time: '' });
-            save();
-            renderWeekModal(); 
-        };
-        daysContainer.appendChild(dayDiv);
-    });
-    scheduleCurrentWeekNotifications();
-}
-
-function renderWeekModal(){if(currentWeek) openWeekModal(currentWeek.id);}
-function closeWeekModal() {
-    clearWeekNotifications(currentWeek.id); 
-    weekModal.classList.remove('visible');
-    document.getElementById('weekMenu').classList.remove('show');
-    setTimeout(() => { weekModal.style.display='none'; }, 300);
-    currentWeek = null; 
-}
-document.getElementById('closeModal').onclick=()=>closeWeekModal();
-document.getElementById('saveBtn').onclick=()=>closeWeekModal();
-const menuBtn = document.getElementById('menuBtn');
-const weekMenu = document.getElementById('weekMenu');
-menuBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    weekMenu.classList.toggle('show');
-});
-document.addEventListener('click', (e) => {
-    if (weekMenu.classList.contains('show') && !menuBtn.contains(e.target) && !weekMenu.contains(e.target)) {
-        weekMenu.classList.remove('show');
-    }
-});
-// ОБНОВЛЕНО: deleteWeek теперь ищет везде
-document.getElementById('deleteWeek').onclick=async()=>{
-    if(!currentWeek) return;
-    const weekTitle = currentWeek.title;
-    const confirmed = await showConfirmDeleteModal(weekTitle);
-    if (confirmed) {
-        clearWeekNotifications(currentWeek.id); 
+    if (newTask) {
+        if (!state.tasks[date]) state.tasks[date] = [];
+        state.tasks[date].push(newTask);
+        state.tasks[date].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
         
-        // Ищем и удаляем неделю из всех 3-х возможных мест
-        let deleted = false;
-        // 1. unassigned
-        let idx = data.unassigned.findIndex(w => w.id === currentWeek.id);
-        if (idx > -1) { data.unassigned.splice(idx, 1); deleted = true; }
+        newTaskTimeInput.value = '';
+        newTaskTextInput.value = '';
         
-        // 2. months
-        if (!deleted) {
-            for (const monthName of months) {
-                if(data.months[monthName]) {
-                    idx = data.months[monthName].findIndex(w => w.id === currentWeek.id);
-                    if (idx > -1) { data.months[monthName].splice(idx, 1); deleted = true; break; }
-                }
-            }
-        }
-        
-        // 3. archive
-        if (!deleted && data.archive) {
-            idx = data.archive.findIndex(w => w.id === currentWeek.id);
-            if (idx > -1) { data.archive.splice(idx, 1); deleted = true; }
-        }
-
-        save(); 
-        renderAll(); 
-        closeWeekModal();
+        openDayModal(date);
+        render();
     }
-};
-document.getElementById('downloadWeek').onclick=()=>{
-    if(!currentWeek) return;
-    let text=`Название: ${currentWeek.title}\nНачало недели: ${currentWeek.startDate || 'Не указано'}\nОписание: ${currentWeek.desc || 'Нет описания'}\n`;
-    weekDays.forEach((d, dayIndex)=>{
-        const dayDate = getDateForDay(currentWeek.startDate, dayIndex);
-        text+=`\n${d} (${dayDate}):\n`;
-        (currentWeek.tasks[d]||[]).forEach((t)=>
-            text+=`  - [${t.done?'X':' '}] ${t.time?`(${t.time}) ` : ''}${t.text || 'Без названия'}\n`
-        );
-    });
-    const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${currentWeek.title}.txt`; a.click();
-};
+}
+// =================================================================
+// КОНЕЦ БЛОКА КАЛЕНДАРЯ
+// =================================================================
 
 
 /* --- ТРЕКЕР ПРИВЫЧЕК --- */
@@ -2989,7 +2750,8 @@ document.getElementById('addHabitBtn').onclick=()=>{
 document.getElementById('newDayBtn').onclick=()=>{
     const today=new Date().setHours(0,0,0,0);
     if(data.habitRecords.some(r=>new Date(r.date).setHours(0,0,0,0)===today)){
-        alert('Запись за сегодня уже существует.'); return;
+        showNotification('Запись за сегодня уже существует.', 'warning'); 
+        return;
     }
     const newRecord={ date: new Date().toISOString(), tasks: {} };
     data.habits.forEach(h=>{newRecord.tasks[h]=false;});
@@ -3004,11 +2766,12 @@ function getDayKey(date) { return `${date.getFullYear()}-${date.getMonth() + 1}-
 function updateMoodSelect() {
     const now = new Date();
     moodMonthSelect.innerHTML = '';
+    const monthsLocale = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
     for (let i = 0; i < 12; i++) {
         const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
         const option = document.createElement('option');
         option.value = `${date.getFullYear()}-${date.getMonth()}`;
-        option.textContent = `${months[date.getMonth()]} ${date.getFullYear()}`;
+        option.textContent = `${monthsLocale[date.getMonth()]} ${date.getFullYear()}`;
         moodMonthSelect.appendChild(option);
     }
     moodMonthSelect.value = `${now.getFullYear()}-${now.getMonth()}`;
@@ -3042,7 +2805,7 @@ function updateMoodSelection() {
 }
 
 // =================================================================
-// 4. AI ФУНКЦИОНАЛ (Заглушка)
+// 5. AI ФУНКЦИОНАЛ
 // =================================================================
 
 function closeAiAdviceModal() {
@@ -3067,7 +2830,7 @@ function generateAIPrompt() {
     return prompt;
 }
 async function callGeminiAPI(prompt) {
-    alert("Для использования AI-совета требуется серверный прокси или отдельная реализация. Функционал временно недоступен после перехода с Apps Script.");
+    showNotification("Для использования AI-совета требуется серверный прокси. Функционал временно недоступен.", 'warning', 7000);
     return { status: "error", message: "AI функционал требует серверного прокси." };
 }
 getAISuggestionBtn.onclick = async () => {
@@ -3079,38 +2842,11 @@ getAISuggestionBtn.onclick = async () => {
 };
 
 // =================================================================
-// 5. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API)
+// 6. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API)
 // =================================================================
 
-function clearWeekNotifications(weekId) {
-    if (notificationTimers[weekId]) {
-        notificationTimers[weekId].forEach(timerId => clearTimeout(timerId));
-        delete notificationTimers[weekId];
-        console.log(`Очищены все уведомления для недели ${weekId}`);
-    }
-}
-function requestNotificationPermission() {
-    if (!("Notification" in window)) {
-        console.warn("Этот браузер не поддерживает Desktop Notifications.");
-        return;
-    }
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission().then(permission => {
-            console.log("Разрешение на уведомления:", permission);
-        });
-    }
-}
-// =================================================================
-// 5. ФУНКЦИИ УВЕДОМЛЕНИЙ (Notification API) - ИСПРАВЛЕНО
-// =================================================================
+// Функции уведомлений для старых недель удалены
 
-function clearWeekNotifications(weekId) {
-    if (notificationTimers[weekId]) {
-        notificationTimers[weekId].forEach(timerId => clearTimeout(timerId));
-        delete notificationTimers[weekId];
-        console.log(`Очищены все уведомления для недели ${weekId}`);
-    }
-}
 function requestNotificationPermission() {
     if (!("Notification" in window)) {
         console.warn("Этот браузер не поддерживает Desktop Notifications.");
@@ -3123,112 +2859,23 @@ function requestNotificationPermission() {
     }
 }
 
-/**
- * ИСПРАВЛЕНО: Теперь использует полную дату начала недели (currentWeek.startDate) 
- * для надежного расчета даты напоминания, устраняя проблему парсинга ДД.ММ.ГГ.
- */
-function scheduleTaskNotification(weekId, taskText, time, dayName, taskDateString, dayIndex) {
-    if (Notification.permission !== "granted" || !time || !taskDateString) {
-        return; 
-    }
-
-    const [hour, minute] = time.split(':').map(Number);
-    
-    // Используем дату начала недели для построения точной даты дня
-    const weekStartDate = new Date(taskDateString + 'T00:00:00'); // ПН 00:00:00
-    const notificationTime = new Date(weekStartDate);
-    notificationTime.setDate(notificationTime.getDate() + dayIndex); // Получаем дату нужного дня
-    
-    // Устанавливаем время HH:MM
-    notificationTime.setHours(hour, minute, 0, 0);
-
-    const now = new Date();
-    if (notificationTime <= now) {
-        // Уведомление на прошлое время
-        return;
-    }
-
-    const delay = notificationTime.getTime() - now.getTime();
-    
-    // Форматируем дату для текста уведомления
-    const bodyDate = notificationTime.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: '2-digit' });
-    
-    const timerId = setTimeout(() => {
-        const notification = new Notification("Напоминание о задаче!", {
-            body: `${dayName}, ${bodyDate} в ${time}: ${taskText}`,
-            icon: 'pictures/favicon.png' 
-        });
-        notification.onclick = function () { window.focus(); };
-        
-        // Очищаем таймер после срабатывания
-        if (notificationTimers[weekId]) {
-            notificationTimers[weekId] = notificationTimers[weekId].filter(id => id !== timerId);
-        }
-    }, delay);
-    
-    if (!notificationTimers[weekId]) notificationTimers[weekId] = [];
-    notificationTimers[weekId].push(timerId);
-    console.log(`Уведомление для '${taskText}' запланировано на ${bodyDate} в ${time} (${Math.round(delay / 1000)} сек).`);
-}
-function scheduleCurrentWeekNotifications() {
-    if (!currentWeek || !currentWeek.startDate) {
-        console.warn("Невозможно запланировать уведомления: неделя не выбрана или не имеет начальной даты.");
-        return;
-    }
-    
-    // Проверка формата даты начала недели
-    if (!currentWeek.startDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-         console.error("Некорректный формат startDate. Уведомления не запланированы.");
-         return;
-    }
-    
-    clearWeekNotifications(currentWeek.id);
-    
-    // В новой версии scheduleTaskNotification нам нужен только ISO-формат даты начала недели
-    const weekStartDateISO = currentWeek.startDate; 
-    
-    weekDays.forEach((dayName, dayIndex) => {
-        const tasks = currentWeek.tasks[dayName] || [];
-        tasks.forEach(task => {
-            if (!task.done && task.time && task.time.match(/^\d{1,2}:\d{2}$/)) {
-                // Передаем дату начала недели (в ISO формате) и индекс дня
-                scheduleTaskNotification(
-                    currentWeek.id, 
-                    task.text, 
-                    task.time, 
-                    dayName, 
-                    weekStartDateISO, 
-                    dayIndex 
-                );
-            }
-        });
-    });
-}
-
 // =================================================================
-// 6. ИНИЦИАЛИЗАЦИЯ
+// 7. ИНИЦИАЛИЗАЦИЯ
 // =================================================================
 
-// ОБНОВЛЕНО: renderAll теперь вызывает renderArchive
 function renderAll(){
     renderGoals();
-    renderUnassigned();
-    renderMonths();
-    renderArchive(); // ДОБАВЛЕН ВЫЗОВ
+    // renderUnassigned, renderMonths, renderArchive УДАЛЕНЫ
     renderHabitTracker();
     updateMoodSelect();
     renderMoodCalendar();
     updateMoodSelection(); 
 }
 
-/**
- * НОВАЯ ФУНКЦИЯ: Настраивает слушатели для мобильной навигации (РЕДИЗАЙН)
- * ОБНОВЛЕНО: Удалена логика для mobileMenuCloseBtn
- */
 function setupMobileNav() {
     // --- Секции ---
     const sectionGoals = document.getElementById('mobileSectionGoals');
-    const sectionWeeks = document.getElementById('mobileSectionWeeks');
+    const sectionWeeks = document.getElementById('mobileSectionWeeks'); // Теперь это Календарь
     const sectionHabits = document.getElementById('mobileSectionHabits');
     const sectionMood = document.getElementById('mobileSectionMood');
     const allSections = [sectionGoals, sectionWeeks, sectionHabits, sectionMood];
@@ -3240,30 +2887,23 @@ function setupMobileNav() {
     const mobileNavSave = document.getElementById('mobileNavSave');
     const mobileNavProfile = document.getElementById('mobileNavProfile');
     
-    // Кнопки-вкладки (которые могут быть "активными")
     const allTabButtons = [mobileNavWeeks, mobileNavHabits]; 
 
     // --- Всплывающее меню ---
     const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
-    // const mobileMenuCloseBtn = document.getElementById('mobileMenuCloseBtn'); // УДАЛЕНО
     const mobileMenuGoals = document.getElementById('mobileMenuGoals');
     const mobileMenuMood = document.getElementById('mobileMenuMood');
     const mobileMenuKB = document.getElementById('mobileMenuKB');
     const mobileMenuAI = document.getElementById('mobileMenuAI');
-    const mobileMenuMedics = document.getElementById('mobileMenuMedics'); // ДОБАВЛЕНО
+    const mobileMenuMedics = document.getElementById('mobileMenuMedics'); 
 
     // --- Функция показа секции ---
     const showMobileSection = (sectionToShow, buttonToActivate) => {
-        // Скрываем все секции
         allSections.forEach(sec => sec.classList.remove('active'));
-        // Убираем 'active' со всех кнопок-вкладок
         allTabButtons.forEach(btn => {
             if(btn) btn.classList.remove('active');
         });
-
-        // Показываем нужную секцию
         if (sectionToShow) sectionToShow.classList.add('active');
-        // Активируем нужную кнопку-вкладку
         if (buttonToActivate) buttonToActivate.classList.add('active');
     };
 
@@ -3281,11 +2921,9 @@ function setupMobileNav() {
     if (mobileNavWeeks) mobileNavWeeks.onclick = () => showMobileSection(sectionWeeks, mobileNavWeeks);
     if (mobileNavHabits) mobileNavHabits.onclick = () => showMobileSection(sectionHabits, mobileNavHabits);
     
-    // Действия
     if (mobileNavSave && saveAllBtn) mobileNavSave.onclick = () => saveAllBtn.click();
     if (mobileNavProfile && accountControlBtn) mobileNavProfile.onclick = () => accountControlBtn.click();
 
-    // Открытие/закрытие всплывающего меню
     if (mobileNavMenuBtn) mobileNavMenuBtn.onclick = () => {
         if (mobileMenuOverlay.classList.contains('visible')) {
             closeMobileMenuOverlay();
@@ -3293,9 +2931,7 @@ function setupMobileNav() {
             openMobileMenuOverlay();
         }
     };
-    // if (mobileMenuCloseBtn) mobileMenuCloseBtn.onclick = closeMobileMenuOverlay; // УДАЛЕНО
     
-    // Закрытие по клику на фон
     if (mobileMenuOverlay) mobileMenuOverlay.onclick = (e) => {
         if (e.target === mobileMenuOverlay) {
             closeMobileMenuOverlay();
@@ -3304,11 +2940,11 @@ function setupMobileNav() {
 
     // --- Назначение кликов для ВСПЛЫВАЮЩЕГО МЕНЮ ---
     if (mobileMenuGoals) mobileMenuGoals.onclick = () => {
-        showMobileSection(sectionGoals, null); // Нет активной кнопки-вкладки
+        showMobileSection(sectionGoals, null); 
         closeMobileMenuOverlay();
     };
     if (mobileMenuMood) mobileMenuMood.onclick = () => {
-        showMobileSection(sectionMood, null); // Нет активной кнопки-вкладки
+        showMobileSection(sectionMood, null); 
         closeMobileMenuOverlay();
     };
     if (mobileMenuKB) mobileMenuKB.onclick = () => {
@@ -3325,8 +2961,7 @@ function setupMobileNav() {
     };
 
     // --- Показываем секцию по умолчанию при загрузке ---
-    // "Недели" (sectionWeeks) - самая главная
-    showMobileSection(sectionWeeks, mobileNavWeeks);
+    showMobileSection(sectionWeeks, mobileNavWeeks); // Календарь по умолчанию
 }
 
 async function init() {
@@ -3344,22 +2979,100 @@ async function init() {
         return; 
     }
 
-    // === ПРИВЯЗЫВАЕМ КНОПКУ АРХИВА (теперь она в основном DOM) ===
-    const archiveMonthsBtn = document.getElementById('archiveAllMonthsBtn');
-    if (archiveMonthsBtn) {
-        archiveMonthsBtn.onclick = archiveAllMonths;
+    // ОБНОВЛЕНО: Получаем ID пользователя при инициализации
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
+        console.error("Ошибка авторизации или пользователь не найден:", userError);
+        window.location.href = 'login.html'; 
+        return;
     }
+    currentUserId = user.id; // Устанавливаем глобальную переменную
 
     updateAuthButton();
+    
+    // 1. Загружаем данные для Целей, Привычек, Настроения
     data = await loadDataFromSupabase();  
-
     if (data) {
-        renderAll();
-        scrollToCurrentMonth();
+        renderAll(); // Рендерим Цели, Привычки, Настроение
         requestNotificationPermission(); 
     } else {
-        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные. Попробуйте обновить страницу.</h2>';
+        document.body.innerHTML = '<h2 style="color: red; text-align: center; margin-top: 50px;">Не удалось загрузить данные (Цели/Привычки). Попробуйте обновить страницу.</h2>';
+        return; // Не продолжаем, если основные данные не загружены
     }
+    
+    // 2. Загружаем и рендерим Календарь
+    await fetchTasks(); 
+    render(); // Рендерим Календарь
+    
+    // 3. Устанавливаем слушатели Календаря
+    prevBtn.onclick = () => {
+        if (state.currentView === 'month') {
+            state.currentDate.setMonth(state.currentDate.getMonth() - 1);
+        } else {
+            state.currentDate.setDate(state.currentDate.getDate() - 7);
+        }
+        render();
+    };
+    
+    nextBtn.onclick = () => {
+        if (state.currentView === 'month') {
+            state.currentDate.setMonth(state.currentDate.getMonth() + 1);
+        } else {
+            state.currentDate.setDate(state.currentDate.getDate() + 7);
+        }
+        render();
+    };
+    
+    todayBtn.onclick = () => {
+        state.currentDate = new Date();
+        render();
+    };
+    
+    monthViewBtn.onclick = () => {
+        state.currentView = 'month';
+        render();
+    };
+    weekViewBtn.onclick = () => {
+        state.currentView = 'week';
+        render();
+    };
+    
+    closeModalBtn.onclick = closeModal;
+    dayModal.onclick = (e) => {
+        if (e.target === dayModal) closeModal();
+    };
+    addTaskFormModal.onsubmit = handleModalAddTask;
+
+    const recurModal = document.getElementById('recur-modal');
+    const recurTypeSelect = document.getElementById('recur-type');
+    const weeklyOptions = document.getElementById('recur-weekly-options');
+    const customOptions = document.getElementById('recur-custom-options');
+    
+    recurTypeSelect.onchange = () => {
+        const type = recurTypeSelect.value;
+        weeklyOptions.style.display = (type === 'weekly') ? 'block' : 'none';
+        customOptions.style.display = (type === 'custom') ? 'block' : 'none';
+    };
+    
+    document.querySelectorAll('.close-recur-modal').forEach(btn => {
+        btn.onclick = () => {
+            recurModal.classList.remove('visible');
+            setTimeout(() => { recurModal.style.display = 'none'; }, 300);
+            state.currentRecurTask = null;
+        };
+    });
+    
+    document.getElementById('save-recur-btn').onclick = () => {
+        if (!state.currentRecurTask) return;
+        alert('Логика сохранения регулярной задачи еще не реализована.\nВыбранная задача: ' + state.currentRecurTask.text);
+        document.querySelector('.close-recur-modal').click();
+    };
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.task-item-more') && !e.target.closest('.task-item-menu')) {
+             document.querySelectorAll('.task-item-menu.visible').forEach(m => m.classList.remove('visible'));
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', () => {
