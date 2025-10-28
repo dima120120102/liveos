@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Мои Списки (v2) - Time Owner</title>
+<title>Мои Списки - Time Owner</title>
 <link rel="icon" type="image/png" href="pictures/favicon.png">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/drag-drop-touch"></script>
@@ -84,7 +84,7 @@ body {
 .header-btn:hover { background: var(--accent-color); color: #fff; transform: translateY(-2px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
 
 /* ---
---- НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ СПИСКОВ (V2) ---
+--- НОВЫЕ СТИЛИ ДЛЯ СТРАНИЦЫ СПИСКОВ (V2.1) ---
 --- */
 
 .lists-container {
@@ -547,7 +547,7 @@ body.public-view .list-main-view { padding: 0; }
 // 1. КОНСТАНТЫ И ПЕРЕМЕННЫЕ
 // =================================================================
 
-// --- КОНСТАНТЫ SUPABASE (Вставьте ваши) ---
+// --- ИСПРАВЛЕННЫЕ КОНСТАНТЫ SUPABASE (Взяты из htd (1).html) ---
 const SUPABASE_URL = 'https://dgkozfxuhauemxrbjvno.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRna296Znh1aGF1ZW14cmJqdm5vIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzOTgzMTcsImV4cCI6MjA3NTk3NDMxN30.kkRJs8IO1cQBnAZe-yBjQs2rXzR34ZV1emQqTG6UqVs';
 
@@ -617,11 +617,14 @@ document.addEventListener('DOMContentLoaded', () => {
         supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     } else {
         console.error("Supabase library not found.");
+        showNotification("Критическая ошибка: библиотека Supabase не загружена.", 'error', 30000);
         return;
     }
 
     const urlParams = new URLSearchParams(window.location.search);
     const shareToken = urlParams.get('id');
+    
+    showLoading();
 
     if (shareToken) {
         document.body.classList.add('public-view');
@@ -638,6 +641,7 @@ function checkAuth() {
             currentUserId = session.user.id;
             await loadUserDashboard();
         } else {
+            // Если нет сессии и нет токена - на логин
             window.location.href = 'login.html';
         }
     });
@@ -649,20 +653,26 @@ function checkAuth() {
 
 async function loadUserDashboard() {
     showLoading();
-    const { data: lists, error } = await supabase
-        .from('shared_lists')
-        .select('*')
-        .eq('owner_id', currentUserId)
-        .order('created_at');
-    
-    if (error) {
-        console.error("Ошибка загрузки списков:", error);
-        hideLoading();
-        return;
+    try {
+        const { data: lists, error } = await supabase
+            .from('shared_lists')
+            .select('*')
+            .eq('owner_id', currentUserId)
+            .order('created_at');
+        
+        if (error) {
+            console.error("Ошибка загрузки списков:", error);
+            showNotification('Ошибка: ' + error.message, 'error');
+            // Мы все равно рендерим пустой сайдбар
+        }
+        allUserLists = lists || [];
+        renderSidebar();
+    } catch (err) {
+        console.error("Критическая ошибка:", err);
+        showNotification('Критическая ошибка загрузки. ' + err.message, 'error');
+    } finally {
+        hideLoading(); // <-- Гарантированно убираем загрузку
     }
-    allUserLists = lists;
-    renderSidebar();
-    hideLoading();
 }
 
 function renderSidebar() {
@@ -699,60 +709,55 @@ function renderSidebar() {
 
 async function loadListContent(listId) {
     showLoading();
-    
-    // 1. Получаем сам список
-    const { data: listData, error: listError } = await supabase
-        .from('shared_lists')
-        .select('*')
-        .eq('id', listId)
-        .single();
-    
-    if (listError) {
-        showNotification('Ошибка: ' + listError.message, 'error');
-        hideLoading();
-        return;
-    }
-    currentList = listData;
+    try {
+        // 1. Получаем сам список
+        const { data: listData, error: listError } = await supabase
+            .from('shared_lists')
+            .select('*')
+            .eq('id', listId)
+            .single();
+        
+        if (listError) throw listError;
+        currentList = listData;
 
-    // 2. Получаем папки
-    const { data: foldersData, error: foldersError } = await supabase
-        .from('list_folders')
-        .select('*')
-        .eq('list_id', listId)
-        .order('created_at');
+        // 2. Получаем папки
+        const { data: foldersData, error: foldersError } = await supabase
+            .from('list_folders')
+            .select('*')
+            .eq('list_id', listId)
+            .order('created_at');
+            
+        if (foldersError) throw foldersError;
+        currentListFolders = foldersData;
         
-    if (foldersError) {
-        showNotification('Ошибка: ' + foldersError.message, 'error');
-        hideLoading();
-        return;
-    }
-    currentListFolders = foldersData;
-    
-    // 3. Получаем элементы
-    const { data: itemsData, error: itemsError } = await supabase
-        .from('list_items')
-        .select('*')
-        .eq('list_id', listId)
-        .order('created_at');
+        // 3. Получаем элементы
+        const { data: itemsData, error: itemsError } = await supabase
+            .from('list_items')
+            .select('*')
+            .eq('list_id', listId)
+            .order('created_at');
+            
+        if (itemsError) throw itemsError;
+        currentListItems = itemsData;
         
-    if (itemsError) {
-        showNotification('Ошибка: ' itemsError.message, 'error');
+        // 4. Рендерим все
+        renderSidebar(); // Обновить active
+        renderMainView();
+        
+        // Мобильная логика
+        if (window.innerWidth <= 768) {
+            container.classList.add('list-selected');
+            backToListsBtn.style.display = 'flex';
+        }
+    } catch (err) {
+        console.error("Ошибка загрузки контента списка:", err);
+        showNotification('Ошибка: ' + err.message, 'error');
+        // Возвращаем на "добро пожаловать"
+        welcomeMessage.style.display = 'flex';
+        listContentWrapper.style.display = 'none';
+    } finally {
         hideLoading();
-        return;
     }
-    currentListItems = itemsData;
-    
-    // 4. Рендерим все
-    renderSidebar(); // Обновить active
-    renderMainView();
-    
-    // Мобильная логика
-    if (window.innerWidth <= 768) {
-        container.classList.add('list-selected');
-        backToListsBtn.style.display = 'flex';
-    }
-    
-    hideLoading();
 }
 
 function renderMainView() {
@@ -889,35 +894,38 @@ async function handleNewList() {
     if (!name || !currentUserId) return;
 
     showLoading();
-    const { data, error } = await supabase
-        .from('shared_lists')
-        .insert({ name: name, owner_id: currentUserId })
-        .select()
-        .single();
-    
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-    } else {
+    try {
+        const { data, error } = await supabase
+            .from('shared_lists')
+            .insert({ name: name, owner_id: currentUserId })
+            .select()
+            .single();
+        
+        if (error) throw error;
+
         allUserLists.push(data);
         renderSidebar();
         loadListContent(data.id); // Сразу открываем новый список
         showNotification(`Список "${name}" создан!`, 'success');
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
     }
-    hideLoading();
 }
 
 async function handleDeleteList(listId, listName) {
     if (!confirm(`Вы уверены, что хотите удалить список "${listName}"? Это действие необратимо и удалит ВСЕ папки и элементы в нем.`)) return;
     
     showLoading();
-    const { error } = await supabase
-        .from('shared_lists')
-        .delete()
-        .eq('id', listId);
+    try {
+        const { error } = await supabase
+            .from('shared_lists')
+            .delete()
+            .eq('id', listId);
+            
+        if (error) throw error;
         
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-    } else {
         allUserLists = allUserLists.filter(l => l.id !== listId);
         currentList = null;
         renderSidebar();
@@ -926,8 +934,11 @@ async function handleDeleteList(listId, listName) {
         container.classList.remove('list-selected');
         backToListsBtn.style.display = 'none';
         showNotification(`Список "${listName}" удален.`, 'success');
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
     }
-    hideLoading();
 }
 
 async function handleNewFolderInList() {
@@ -936,82 +947,86 @@ async function handleNewFolderInList() {
     if (!name) return;
     
     showLoading();
-    const { data, error } = await supabase
-        .from('list_folders')
-        .insert({ name: name, list_id: currentList.id })
-        .select()
-        .single();
+    try {
+        const { data, error } = await supabase
+            .from('list_folders')
+            .insert({ name: name, list_id: currentList.id })
+            .select()
+            .single();
+            
+        if (error) throw error;
         
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-    } else {
         currentListFolders.push(data);
         renderMainView(); // Перерисовываем
         showNotification(`Папка "${name}" создана!`, 'success');
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
     }
-    hideLoading();
 }
 
 async function handleDeleteFolder(folderId, folderName) {
     if (!confirm(`Удалить папку "${folderName}"? Все элементы из нее будут перемещены в "Без папки".`)) return;
     
     showLoading();
-    // 1. Обнуляем folder_id у всех дочерних элементов
-    const { error: updateError } = await supabase
-        .from('list_items')
-        .update({ folder_id: null })
-        .eq('folder_id', folderId);
+    try {
+        // 1. Обнуляем folder_id у всех дочерних элементов
+        const { error: updateError } = await supabase
+            .from('list_items')
+            .update({ folder_id: null })
+            .eq('folder_id', folderId);
+            
+        if (updateError) throw updateError;
+
+        // 2. Удаляем саму папку
+        const { error: deleteError } = await supabase
+            .from('list_folders')
+            .delete()
+            .eq('id', folderId);
+
+        if (deleteError) throw deleteError;
         
-    if (updateError) {
-        showNotification('Ошибка: ' + updateError.message, 'error');
-        hideLoading();
-        return;
-    }
-
-    // 2. Удаляем саму папку
-    const { error: deleteError } = await supabase
-        .from('list_folders')
-        .delete()
-        .eq('id', folderId);
-
-    if (deleteError) {
-        showNotification('Ошибка: ' + deleteError.message, 'error');
-    } else {
         // Обновляем локальные данные и рендерим
         currentListFolders = currentListFolders.filter(f => f.id !== folderId);
         currentListItems.forEach(i => { if (i.folder_id === folderId) i.folder_id = null; });
         renderMainView();
         showNotification(`Папка "${folderName}" удалена.`, 'success');
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
     }
-    hideLoading();
 }
 
 async function handleAddItem() {
     const content = newItemText.value.trim();
     if (!content || !currentList) return;
     
-    // Временно добавляем в UI (в корень)
     const tempId = `temp-${Date.now()}`;
-    const tempItem = { id: tempId, content: content, is_done: false, list_id: currentList.id, folder_id: null };
-    const itemEl = createItemElement(tempItem);
+    const itemEl = createItemElement({ id: tempId, content: content, is_done: false, folder_id: null });
     itemEl.style.opacity = '0.5';
     document.querySelector('.root-items-container').appendChild(itemEl);
+    const originalText = newItemText.value;
     newItemText.value = '';
 
-    const { data: newItem, error } = await supabase
-        .from('list_items')
-        .insert({ content: content, list_id: currentList.id, folder_id: null }) // По умолчанию в корень
-        .select()
-        .single();
-    
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-        itemEl.remove();
-    } else {
+    try {
+        const { data: newItem, error } = await supabase
+            .from('list_items')
+            .insert({ content: content, list_id: currentList.id, folder_id: null }) // По умолчанию в корень
+            .select()
+            .single();
+        
+        if (error) throw error;
+        
         itemEl.remove(); // Удаляем временный
         currentListItems.push(newItem); // Добавляем настоящий
         const realItemEl = createItemElement(newItem); // Создаем настоящий
         document.querySelector('.root-items-container').appendChild(realItemEl);
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+        itemEl.remove();
+        newItemText.value = originalText; // Возвращаем текст
     }
 }
 
@@ -1019,17 +1034,19 @@ async function handleDeleteItem(itemId) {
     const itemEl = document.querySelector(`.list-item-entry[data-item-id="${itemId}"]`);
     if (itemEl) itemEl.style.opacity = '0.3';
 
-    const { error } = await supabase
-        .from('list_items')
-        .delete()
-        .eq('id', itemId);
+    try {
+        const { error } = await supabase
+            .from('list_items')
+            .delete()
+            .eq('id', itemId);
 
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-        if (itemEl) itemEl.style.opacity = '1';
-    } else {
+        if (error) throw error;
+        
         if (itemEl) itemEl.remove();
         currentListItems = currentListItems.filter(i => i.id !== itemId);
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+        if (itemEl) itemEl.style.opacity = '1';
     }
 }
 
@@ -1037,44 +1054,50 @@ async function handleToggleItem(itemId, isDone) {
     const itemEl = document.querySelector(`.list-item-entry[data-item-id="${itemId}"]`);
     if (itemEl) itemEl.classList.toggle('done', isDone);
 
-    const { error } = await supabase
-        .from('list_items')
-        .update({ is_done: isDone })
-        .eq('id', itemId);
+    try {
+        const { error } = await supabase
+            .from('list_items')
+            .update({ is_done: isDone })
+            .eq('id', itemId);
 
-    if (error) {
-        showNotification('Ошибка: ' + error.message, 'error');
-        if (itemEl) itemEl.classList.toggle('done', !isDone); // Откат
-    } else {
+        if (error) throw error;
+        
         const item = currentListItems.find(i => i.id === itemId);
         if (item) item.is_done = isDone;
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+        if (itemEl) itemEl.classList.toggle('done', !isDone); // Откат
     }
 }
 
 // =================================================================
 // 6. ЛОГИКА "ПОДЕЛИТЬСЯ"
 // =================================================================
-// (Эта часть осталась почти без изменений, т.к. логика та же)
 
 async function openShareModal() {
     if (!currentList) return;
     showLoading();
-    const { data, error } = await supabase
-        .from('shared_lists')
-        .update({ is_public_editable: true })
-        .eq('id', currentList.id)
-        .select('share_token')
-        .single();
-    hideLoading();
-    if (error) { showNotification('Ошибка: ' + error.message, 'error'); return; }
+    try {
+        const { data, error } = await supabase
+            .from('shared_lists')
+            .update({ is_public_editable: true })
+            .eq('id', currentList.id)
+            .select('share_token')
+            .single();
+        if (error) throw error;
 
-    currentList.is_public_editable = true;
-    renderMainView(); // Обновить кнопку
+        currentList.is_public_editable = true;
+        renderMainView(); // Обновить кнопку
 
-    const shareUrl = `${window.location.origin}${window.location.pathname}?id=${data.share_token}`;
-    shareLinkInput.value = shareUrl;
-    shareModal.style.display = 'flex';
-    setTimeout(() => shareModal.classList.add('visible'), 10);
+        const shareUrl = `${window.location.origin}${window.location.pathname}?id=${data.share_token}`;
+        shareLinkInput.value = shareUrl;
+        shareModal.style.display = 'flex';
+        setTimeout(() => shareModal.classList.add('visible'), 10);
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 function closeShareModal() {
@@ -1092,17 +1115,22 @@ async function disableSharing() {
     if (!currentList) return;
     if (!confirm('Отключить доступ по ссылке?')) return;
     showLoading();
-    const { error } = await supabase
-        .from('shared_lists')
-        .update({ is_public_editable: false })
-        .eq('id', currentList.id);
-    hideLoading();
-    if (error) { showNotification('Ошибка: ' + error.message, 'error'); return; }
-    
-    currentList.is_public_editable = false;
-    renderMainView(); // Обновить кнопку
-    showNotification('Доступ по ссылке отключен.', 'success');
-    closeShareModal();
+    try {
+        const { error } = await supabase
+            .from('shared_lists')
+            .update({ is_public_editable: false })
+            .eq('id', currentList.id);
+        if (error) throw error;
+        
+        currentList.is_public_editable = false;
+        renderMainView(); // Обновить кнопку
+        showNotification('Доступ по ссылке отключен.', 'success');
+        closeShareModal();
+    } catch (err) {
+        showNotification('Ошибка: ' + err.message, 'error');
+    } finally {
+        hideLoading();
+    }
 }
 
 // =================================================================
@@ -1111,42 +1139,45 @@ async function disableSharing() {
 
 async function loadPublicList(shareToken) {
     showLoading();
-    // 1. Получаем список, его папки и его элементы одним запросом
-    const { data, error } = await supabase
-        .from('shared_lists')
-        .select('*, list_folders(*), list_items(*)')
-        .eq('share_token', shareToken)
-        .eq('is_public_editable', true)
-        .single();
+    try {
+        // 1. Получаем список, его папки и его элементы одним запросом
+        const { data, error } = await supabase
+            .from('shared_lists')
+            .select('*, list_folders(*), list_items(*)')
+            .eq('share_token', shareToken)
+            .eq('is_public_editable', true)
+            .single();
+            
+        if (error) throw error;
+        if (!data) throw new Error("Список не найден или доступ закрыт.");
         
-    hideLoading();
-    if (error || !data) {
-        console.error("Ошибка:", error);
-        document.body.innerHTML = `<h2 style="color: var(--warning-color); text-align: center; margin-top: 50px;">Список не найден или доступ закрыт.</h2>`;
-        return;
+        // RLS позволяет анониму это делать
+        currentList = data;
+        currentListFolders = data.list_folders || [];
+        currentListItems = data.list_items || [];
+        
+        // Настраиваем UI
+        renderMainView();
+        
+        // Скрываем/отключаем кнопки "для владельца"
+        document.getElementById('list-new-folder-btn').style.display = 'none';
+        document.getElementById('list-share-btn').style.display = 'none';
+        document.querySelectorAll('.folder-delete-btn').forEach(btn => btn.style.display = 'none');
+        
+        // Включаем форму добавления
+        listAddForm.onsubmit = (e) => {
+            e.preventDefault();
+            handleAddItem(); // Будет работать из-за RLS
+        };
+        
+        // Включаем Drag-and-Drop
+        setupDragAndDropListeners();
+    } catch (err) {
+        console.error("Ошибка:", err);
+        document.body.innerHTML = `<h2 style="color: var(--warning-color); text-align: center; margin-top: 50px;">${err.message}</h2>`;
+    } finally {
+        hideLoading();
     }
-    
-    // RLS позволяет анониму это делать
-    currentList = data;
-    currentListFolders = data.list_folders || [];
-    currentListItems = data.list_items || [];
-    
-    // Настраиваем UI
-    renderMainView();
-    
-    // Скрываем/отключаем кнопки "для владельца"
-    document.getElementById('list-new-folder-btn').style.display = 'none';
-    document.getElementById('list-share-btn').style.display = 'none';
-    document.querySelectorAll('.folder-delete-btn').forEach(btn => btn.style.display = 'none');
-    
-    // Включаем форму добавления
-    listAddForm.onsubmit = (e) => {
-        e.preventDefault();
-        handleAddItem(); // Будет работать из-за RLS
-    };
-    
-    // Включаем Drag-and-Drop
-    setupDragAndDropListeners();
 }
 
 // =================================================================
@@ -1187,23 +1218,26 @@ function setupDragAndDropListeners() {
 }
 
 async function updateItemFolder(itemId, newFolderId) {
+    if (!draggedItem) return;
     draggedItem.style.opacity = '0.5'; // Показываем "обработку"
     
-    const { error } = await supabase
-        .from('list_items')
-        .update({ folder_id: newFolderId })
-        .eq('id', itemId);
+    try {
+        const { error } = await supabase
+            .from('list_items')
+            .update({ folder_id: newFolderId })
+            .eq('id', itemId);
+            
+        if (error) throw error;
         
-    if (error) {
-        showNotification('Ошибка перемещения: ' + error.message, 'error');
-        // Тут нужна логика отката, но для простоты просто перезагрузим
-        loadListContent(currentList.id);
-    } else {
         // Обновляем локальный кеш
         const item = currentListItems.find(i => i.id === itemId);
         if (item) item.folder_id = newFolderId;
-        draggedItem.style.opacity = '1';
+        if (draggedItem) draggedItem.style.opacity = '1';
         showNotification('Элемент перемещен!', 'success', 2000);
+    } catch (err) {
+        showNotification('Ошибка перемещения: ' + err.message, 'error');
+        // Перезагружаем контент, чтобы откатить D&D
+        loadListContent(currentList.id);
     }
 }
 
