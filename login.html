@@ -67,6 +67,38 @@
             padding-bottom: 10px;
             margin-bottom: 20px;
         }
+        
+        /* --- Стили для обертки пароля и переключателя (ОБНОВЛЕНО) --- */
+        .password-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        .password-wrapper input {
+            /* Увеличиваем правый отступ для иконки */
+            padding-right: 40px; 
+            margin-bottom: 0; /* Удаляем стандартный нижний отступ */
+        }
+        .password-toggle {
+            position: absolute;
+            right: 5px; /* Прижимаем к правому краю */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.8em; /* Большая обезьянка */
+            line-height: 1; 
+            padding: 5px;
+            opacity: 0.9;
+            z-index: 10;
+            transition: opacity 0.3s;
+            user-select: none;
+        }
+        .password-toggle:hover {
+            opacity: 1;
+        }
+
+        /* Общие стили для инпутов */
         .auth-box input {
             width: 100%;
             padding: 12px;
@@ -83,6 +115,32 @@
             box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
             outline: none;
         }
+
+        /* Стили для чекбокса Политики */
+        .checkbox-container {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            font-size: 0.85em;
+            text-align: left;
+            padding: 0 5px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 2px 10px 0 0;
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+        .checkbox-container a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+        .checkbox-container a:hover {
+            text-decoration: underline;
+        }
+
+        /* Стили для кнопок */
         .btn {
             border: none;
             color: var(--text-color);
@@ -109,6 +167,30 @@
         }
         .error-msg { color: var(--error-color); }
         .success-msg { color: var(--success-color); }
+
+        /* --- Стили для двухэтапной регистрации --- */
+        #register-step-1, #register-step-2 {
+            transition: opacity 0.5s, transform 0.5s;
+            position: absolute;
+            top: 70px; /* Смещение под заголовок */
+            left: 30px;
+            right: 30px;
+        }
+        #register-step-2 {
+            transform: translateX(100%);
+            opacity: 0;
+            visibility: hidden;
+        }
+        .step-2-active #register-step-1 {
+            transform: translateX(-100%);
+            opacity: 0;
+            visibility: hidden;
+        }
+        .step-2-active #register-step-2 {
+            transform: translateX(0);
+            opacity: 1;
+            visibility: visible;
+        }
     </style>
 </head>
 <body>
@@ -118,7 +200,17 @@
     <div class="auth-box" id="login-form">
         <h3>Вход в аккаунт</h3>
         <input type="email" id="loginEmail" placeholder="Email">
-        <input type="password" id="loginPassword" placeholder="Пароль">
+        
+        <div class="password-wrapper">
+            <input type="password" id="loginPassword" placeholder="Пароль">
+            <button type="button" class="password-toggle" data-target="loginPassword">🙈</button>
+        </div>
+
+        <div class="checkbox-container">
+            <input type="checkbox" id="loginPolicyCheckbox" required>
+            <label for="loginPolicyCheckbox">Я принимаю <a href="privacy.html" target="_blank">Политику конфиденциальности</a></label>
+        </div>
+
         <button id="loginBtn" class="btn login-btn">Войти</button>
         <div id="loginMessage" class="auth-message error-msg"></div>
         <button id="showRegisterBtn" class="btn switch-btn">Нет аккаунта? Регистрация</button>
@@ -126,12 +218,36 @@
 
     <div class="auth-box" id="register-form">
         <h3>Создание аккаунта</h3>
-        <input type="text" id="registerUsername" placeholder="Желаемый Логин (для отображения)">
-        <input type="email" id="registerEmail" placeholder="Email">
-        <input type="password" id="registerPassword" placeholder="Пароль (мин. 6 символов)">
-        <button id="registerBtn" class="btn login-btn">Зарегистрироваться</button>
-        <div id="registerMessage" class="auth-message error-msg"></div>
-        <button id="showLoginBtn" class="btn switch-btn">Уже есть аккаунт? Войти</button>
+        
+        <div id="register-step-1">
+            <input type="text" id="registerUsername" placeholder="Желаемый Логин">
+            <input type="email" id="registerEmail" placeholder="Email">
+            <button id="nextStepBtn" class="btn login-btn">Продолжить</button>
+            <button id="showLoginBtn_step1" class="btn switch-btn" style="margin-top: 10px;">Уже есть аккаунт? Войти</button>
+        </div>
+
+        <div id="register-step-2">
+            <div class="password-wrapper">
+                <input type="password" id="registerPassword" placeholder="Пароль (мин. 6 символов)">
+                <button type="button" class="password-toggle" data-target="registerPassword">🙈</button>
+            </div>
+            
+            <div class="password-wrapper">
+                <input type="password" id="registerConfirmPassword" placeholder="Повторите Пароль">
+                <button type="button" class="password-toggle" data-target="registerConfirmPassword">🙈</button>
+            </div>
+            
+            <div class="checkbox-container">
+                <input type="checkbox" id="registerPolicyCheckbox" required>
+                <label for="registerPolicyCheckbox">Я принимаю <a href="privacy.html" target="_blank">Политику конфиденциальности</a></label>
+            </div>
+
+            <button id="registerBtn" class="btn login-btn">Зарегистрироваться</button>
+            <button id="backStepBtn" class="btn switch-btn" style="margin-top: 10px;">Назад</button>
+        </div>
+
+        <div id="registerMessage" class="auth-message error-msg" style="position: absolute; bottom: 85px; left: 0; right: 0;"></div>
+        <button id="showLoginBtn" class="btn switch-btn" style="position: absolute; bottom: 30px; left: 30px; right: 30px; display: none;">Уже есть аккаунт? Войти</button>
     </div>
 </div>
 
@@ -154,17 +270,28 @@ const STORAGE_KEY_AUTH = 'plannerAuthDataKey';
 const STORAGE_KEY_USERNAME = 'plannerUsername';
 
 const authContainer = document.getElementById('authContainer');
+// Вход
 const loginEmail = document.getElementById('loginEmail');
 const loginPassword = document.getElementById('loginPassword');
+const loginPolicyCheckbox = document.getElementById('loginPolicyCheckbox');
 const loginMessage = document.getElementById('loginMessage');
 const loginBtn = document.getElementById('loginBtn');
+// Регистрация
+const registerForm = document.getElementById('register-form');
 const registerUsername = document.getElementById('registerUsername');
 const registerEmail = document.getElementById('registerEmail');
 const registerPassword = document.getElementById('registerPassword');
+const registerConfirmPassword = document.getElementById('registerConfirmPassword'); // НОВОЕ
+const registerPolicyCheckbox = document.getElementById('registerPolicyCheckbox');
 const registerMessage = document.getElementById('registerMessage');
 const registerBtn = document.getElementById('registerBtn');
+const nextStepBtn = document.getElementById('nextStepBtn');
+const backStepBtn = document.getElementById('backStepBtn');
+// Переключатели
 const showRegisterBtn = document.getElementById('showRegisterBtn');
 const showLoginBtn = document.getElementById('showLoginBtn');
+const showLoginBtnStep1 = document.getElementById('showLoginBtn_step1'); // НОВОЕ
+const passwordToggles = document.querySelectorAll('.password-toggle');
 
 // =================================================================
 // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -172,6 +299,8 @@ const showLoginBtn = document.getElementById('showLoginBtn');
 function showForm(formId) {
     if (formId === 'register') {
         authContainer.classList.add('show-register');
+        registerForm.classList.remove('step-2-active'); // Всегда начинаем с шага 1
+        showLoginBtn.style.display = 'none'; // Скрываем общую кнопку Войти
     } else {
         authContainer.classList.remove('show-register');
     }
@@ -185,22 +314,66 @@ function setAuthMessage(el, text, isError = true) {
     el.classList.toggle('success-msg', !isError);
 }
 
+// ФУНКЦИЯ: переключение видимости пароля
+function setupPasswordToggle() {
+    passwordToggles.forEach(button => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                button.textContent = '🙉'; // Обезьянка с открытыми глазами
+            } else {
+                targetInput.type = 'password';
+                button.textContent = '🙈'; // Обезьянка с закрытыми глазами
+            }
+        });
+    });
+}
+
 // =================================================================
-// 4. РЕГИСТРАЦИЯ
+// 4. РЕГИСТРАЦИЯ (2 ЭТАПА)
 // =================================================================
-async function handleRegister() {
+
+function handleRegisterStep1() {
     const username = registerUsername.value.trim();
     const email = registerEmail.value.trim();
-    const password = registerPassword.value.trim();
 
     setAuthMessage(registerMessage, '', true);
 
+    // Простая валидация шага 1
     if (username.length < 3) {
         setAuthMessage(registerMessage, 'Логин должен быть не менее 3 символов.');
         return;
     }
+    if (!email.includes('@') || !email.includes('.')) {
+        setAuthMessage(registerMessage, 'Введите корректный Email.');
+        return;
+    }
+
+    // Переход ко второму шагу
+    registerForm.classList.add('step-2-active');
+}
+
+async function handleRegisterStep2() {
+    const password = registerPassword.value.trim();
+    const confirmPassword = registerConfirmPassword.value.trim();
+    const username = registerUsername.value.trim();
+    const email = registerEmail.value.trim();
+
+    setAuthMessage(registerMessage, '', true);
+
     if (password.length < 6) {
         setAuthMessage(registerMessage, 'Пароль должен быть не менее 6 символов.');
+        return;
+    }
+    if (password !== confirmPassword) {
+        setAuthMessage(registerMessage, 'Пароли не совпадают.');
+        return;
+    }
+    if (!registerPolicyCheckbox.checked) {
+        setAuthMessage(registerMessage, 'Необходимо принять Политику конфиденциальности.');
         return;
     }
 
@@ -227,15 +400,14 @@ async function handleRegister() {
         return;
     }
 
-    if (data.user) {
-        setAuthMessage(registerMessage, '✅ Аккаунт создан! Проверьте почту для подтверждения.', false);
-    } else {
-        setAuthMessage(registerMessage, '✅ Проверьте почту для завершения регистрации.', false);
-    }
-
+    // Сообщение пользователю
+    setAuthMessage(registerMessage, '✅ Аккаунт создан! Проверьте почту для подтверждения. Автоматический вход через 3 секунды...', false);
+    
+    // Очистка полей
     registerUsername.value = '';
     registerEmail.value = '';
     registerPassword.value = '';
+    registerConfirmPassword.value = '';
 
     // Возврат к форме входа через 3 секунды
     setTimeout(() => showForm('login'), 3000);
@@ -250,6 +422,10 @@ async function handleLogin() {
 
     if (!email || password.length < 6) {
         setAuthMessage(loginMessage, 'Введите корректный Email и Пароль (мин. 6 символов).');
+        return;
+    }
+    if (!loginPolicyCheckbox.checked) {
+        setAuthMessage(loginMessage, 'Необходимо принять Политику конфиденциальности.');
         return;
     }
 
@@ -298,13 +474,19 @@ async function checkLoggedIn() {
 // =================================================================
 showRegisterBtn.onclick = () => showForm('register');
 showLoginBtn.onclick = () => showForm('login');
+showLoginBtnStep1.onclick = () => showForm('login'); // Кнопка "Войти" на шаге 1
 loginBtn.onclick = handleLogin;
-registerBtn.onclick = handleRegister;
+nextStepBtn.onclick = handleRegisterStep1; // Кнопка "Продолжить" (Шаг 1 -> Шаг 2)
+backStepBtn.onclick = () => registerForm.classList.remove('step-2-active'); // Кнопка "Назад"
+registerBtn.onclick = handleRegisterStep2; // Кнопка "Зарегистрироваться" (Шаг 2)
 
 // =================================================================
 // 8. ПРОВЕРКА ПРИ ЗАГРУЗКЕ
 // =================================================================
-document.addEventListener('DOMContentLoaded', checkLoggedIn);
+document.addEventListener('DOMContentLoaded', () => {
+    checkLoggedIn();
+    setupPasswordToggle(); 
+});
 </script>
 </body>
 </html>
