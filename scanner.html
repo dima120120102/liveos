@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time Owner - Сканер (Gemini)</title>
+<link rel="icon" type="image/png" href="pictures/favicon.png">
+
+<style>
+/* --- ОБЩИЕ УЛУЧШЕННЫЕ СТИЛИ (Набор переменных для Dark Mode) --- */
+:root {
+    --bg-main: #121212;
+    --bg-secondary: #1e1e1e;
+    --bg-tertiary: #2a2a2a;
+    --bg-hover: #333333;
+    --border-color: #383838;
+    --text-primary: #e0e0e0;
+    --text-secondary: #a0a0a0;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --danger-color: #e53935;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+    --header-height: 60px;
+}
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.container {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+    width: 100%;
+    flex-grow: 1;
+}
+.button {
+    background-color: var(--accent-color);
+    color: var(--text-primary);
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+    font-weight: bold;
+    margin-right: 10px;
+}
+.button:hover {
+    background-color: var(--accent-hover);
+}
+.card {
+    background-color: var(--bg-secondary);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+#loading-progress {
+    margin-top: 15px;
+    width: 80%;
+    background-color: var(--bg-tertiary);
+    border-radius: 5px;
+    overflow: hidden;
+}
+#loading-bar {
+    height: 20px;
+    width: 0%;
+    background-color: var(--success-color);
+    transition: width 0.3s;
+}
+#result-output {
+    min-height: 200px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: var(--bg-tertiary);
+    padding: 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    font-family: monospace;
+    font-size: 14px;
+    margin-top: 15px;
+}
+#image-preview {
+    max-width: 100%;
+    height: auto;
+    display: none;
+    margin-top: 15px;
+    border: 1px dashed var(--accent-color);
+}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay">
+    <span>Отправляю документ в Gemini...</span>
+    <div id="loading-progress">
+        <div id="loading-bar"></div>
+    </div>
+    <span id="loading-status">Подготовка</span>
+</div>
+
+<div class="container">
+    <h2>Сканер документов (Gemini OCR) 📝</h2>
+    
+    <div class="card">
+        <p>Загрузи изображение (jpg, png) или PDF. Для лучшего результата используй качественные сканы. Запрос обрабатывается безопасно через Google Apps Script.</p>
+        
+        <input type="file" id="file-input" accept="image/*">
+        
+        <button id="scan-btn" class="button" style="margin-top: 15px; display: block;">Начать сканирование</button>
+
+        <img id="image-preview" src="#" alt="Предварительный просмотр изображения">
+    </div>
+
+    <div class="card">
+        <h3>Результат распознавания</h3>
+        <p id="result-info" style="color: var(--text-secondary);">Текст появится здесь после сканирования.</p>
+        <div id="result-output" contenteditable="true"></div>
+        <button id="copy-btn" class="button" style="margin-top: 10px;">Копировать текст</button>
+    </div>
+
+</div>
+
+<script>
+    // =========================================================================
+    // !!! ВСТАВЬ СЮДА URL, который ты получил после развертывания Apps Script
+    // =========================================================================
+    const APP_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwzt9OVbS4AqphGJG-Oox7k7d_3cqI63_6K6I52p1X_R7bs-lrJOK7kr0xBtjgV7BWskA/exec"; 
+    // =========================================================================
+
+    const fileInput = document.getElementById('file-input');
+    const scanBtn = document.getElementById('scan-btn');
+    const resultOutput = document.getElementById('result-output');
+    const resultInfo = document.getElementById('result-info');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingStatus = document.getElementById('loading-status');
+    const loadingBar = document.getElementById('loading-bar');
+    const copyBtn = document.getElementById('copy-btn');
+    const imagePreview = document.getElementById('image-preview');
+
+    let uploadedFile = null;
+
+    // --- Функция преобразования File в Base64 Data URL ---
+    function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result); 
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // --- Отображение предпросмотра ---
+    fileInput.onchange = (e) => {
+        uploadedFile = e.target.files[0];
+        
+        if (uploadedFile && uploadedFile.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                imagePreview.src = event.target.result;
+                imagePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(uploadedFile);
+        } else {
+            imagePreview.style.display = 'none';
+        }
+        
+        resultOutput.textContent = '';
+        resultInfo.textContent = 'Нажмите "Начать сканирование".';
+    };
+
+    // --- Основная логика сканирования через Apps Script ---
+    scanBtn.onclick = async () => {
+        if (!uploadedFile) {
+            alert('Сначала загрузи файл!');
+            return;
+        }
+
+        if (APP_SCRIPT_URL === "СЮДА_ВСТАВИТЬ_URL_РАЗВЕРНУТОГО_ПРИЛОЖЕНИЯ") {
+             alert('ВНИМАНИЕ! Сначала разверни Google Apps Script и вставь URL в этот код!');
+             return;
+        }
+
+        resultOutput.textContent = '';
+        loadingOverlay.style.display = 'flex';
+        loadingBar.style.width = '0%';
+        loadingStatus.textContent = 'Преобразую изображение...';
+        resultInfo.textContent = 'Отправляю на защищенный сервер (Apps Script)...';
+        
+        try {
+            // 1. Конвертируем изображение в Base64 Data URL
+            const base64Image = await fileToBase64(uploadedFile);
+            
+            loadingBar.style.width = '30%';
+            loadingStatus.textContent = 'Отправляю в Apps Script...';
+            
+            // 2. Формируем тело запроса как Form Data (для обхода CORS)
+            const requestBody = new URLSearchParams({
+                image: base64Image
+            }).toString();
+
+            // 3. Выполняем Fetch-запрос к Google Apps Script
+            const response = await fetch(APP_SCRIPT_URL, {
+                method: "POST",
+                // КРИТИЧНО: НЕ УСТАНАВЛИВАЕМ Content-Type. 
+                // Браузер сам установит application/x-www-form-urlencoded, делая запрос "простым".
+                body: requestBody
+            });
+
+            loadingBar.style.width = '80%';
+            loadingStatus.textContent = 'Получаю ответ...';
+
+            if (!response.ok) {
+                throw new Error(`Ошибка сети при обращении к Apps Script: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // 4. Проверяем ответ от Apps Script на наличие ошибки
+            if (data.error) {
+                const errorDetails = data.details ? JSON.stringify(data.details, null, 2) : '';
+                throw new Error(data.error + (errorDetails ? `\nДетали: ${errorDetails}` : ''));
+            }
+
+            // 5. Извлекаем результат
+            const recognizedText = data.text;
+            
+            // 6. Выводим результат
+            loadingBar.style.width = '100%';
+            resultOutput.textContent = recognizedText;
+            resultInfo.textContent = `Текст распознан через Gemini (защищенный запрос). Символов: ${recognizedText.length}`;
+
+            
+        } catch (error) {
+            console.error('Ошибка сканирования:', error);
+            resultOutput.textContent = `Произошла ошибка при обработке документа. Проверь свой Apps Script, ключ OpenRouter и лимиты. Ошибка: ${error.message}`;
+            resultInfo.textContent = 'Ошибка.';
+        } finally {
+            loadingOverlay.style.display = 'none';
+        }
+    };
+
+    // --- Логика копирования ---
+    copyBtn.onclick = () => {
+        const textToCopy = resultOutput.textContent;
+        if (textToCopy) {
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    alert('Текст скопирован!');
+                })
+                .catch(err => {
+                    console.error('Ошибка копирования:', err);
+                    alert('Ошибка при копировании. Попробуйте скопировать вручную.');
+                });
+        }
+    };
+</script>
+</body>
+</html>
