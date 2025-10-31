@@ -405,6 +405,7 @@ body {
 .mood-calendar-day { padding: 8px 0; font-size: 14px; font-weight: 600; color: var(--text-secondary); }
 .mood-calendar-cell { padding: 5px 0; background: var(--bg-secondary); border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 40px; cursor: default; transition: transform 0.2s; }
 .mood-calendar-cell:hover { transform: scale(1.05); }
+.mood-calendar-cell.has-data { cursor: pointer; }
 .mood-calendar-cell.empty { background: var(--bg-main); cursor: default; }
 .day-number { font-size: 12px; color: var(--text-secondary); }
 .day-mood { font-size: 18px; margin-top: 2px; }
@@ -1311,7 +1312,60 @@ select.form-control {
     .mood-calendar { grid-template-columns: repeat(4, 1fr); }
     .mood-option { font-size: 30px; }
 }
+/* --- СТИЛИ ДЛЯ МОДАЛЬНОГО ОКНА НАСТРОЕНИЯ --- */
 
+/* Стиль для кнопки "X" в шапке (как у других модалок) */
+#close-mood-modal {
+    cursor: pointer;
+    font-size: 24px;
+    color: var(--text-secondary);
+    transition: color 0.2s;
+}
+#close-mood-modal:hover {
+    color: var(--accent-color);
+}
+
+/* Добавляем подсветку и эффект для эмодзи */
+#mood-modal-emoji {
+    /* Та же подсветка, что и у выбранного смайлика */
+    text-shadow: 0 0 15px var(--warning-color);
+    transition: transform 0.2s ease;
+}
+#mood-modal-emoji:hover {
+    transform: scale(1.1); /* Маленький эффект при наведении */
+}
+
+/* Улучшаем textarea для комментария */
+#mood-modal-comment {
+    font-family: inherit; /* Чтобы шрифт был как у всего сайта */
+    resize: vertical;     /* Разрешаем менять размер по вертикали */
+    min-height: 120px;    /* Делаем поле чуть побольше */
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Эффект :focus для textarea, как у других полей */
+#mood-modal-comment:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.4);
+}
+
+/* Добавляем отступ между кнопками "Отмена" и "Сохранить" */
+#mood-comment-modal .modal-footer div {
+    display: flex;
+    gap: 10px;
+}
+
+/* Улучшаем кнопку "Удалить" */
+#mood-modal-delete-btn {
+    color: #fff; /* Убедимся, что текст белый */
+    transition: background-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+#mood-modal-delete-btn:hover {
+    background-color: #c32727; /* Тот же hover, что у .btn-delete */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(229, 57, 53, 0.3);
+}
 /* --- СТАТИСТИКА В ПРОФИЛЕ --- */
 .profile-stats {
     display: flex;
@@ -1629,6 +1683,10 @@ select.form-control {
         <span class="mood-option" data-mood="normal" title="Нормально">😐</span>
         <span class="mood-option" data-mood="great" title="Отлично">😄</span>
     </div>
+    <div style="padding: 0 20px 15px 20px; display: flex; flex-direction: column; gap: 8px;">
+        <label for="moodCommentInput" style="color: var(--text-secondary); font-weight: 600; font-size: 0.9em;">Комментарий к дню (сохраняется автоматом):</label>
+        <textarea id="moodCommentInput" rows="3" placeholder="Хочешь добавить комментарий к этому дню?" style="width: 100%; background: var(--bg-tertiary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 12px; border-radius: 6px; font-size: 15px; font-family: inherit; resize: vertical;"></textarea>
+    </div>
 
     <h3>История настроения</h3>
     <div class="mood-history-controls">
@@ -1679,7 +1737,28 @@ select.form-control {
         <button class="btn" onclick="closeProfileModal()">Закрыть</button>
     </div>
 </div>
-
+<div class="modal" id="mood-comment-modal">
+    <div class="modal-content small-modal-content">
+        <div class="modal-header">
+            <h2 id="mood-modal-date-display">Комментарий к дню</h2>
+            <span id="close-mood-modal" class="close-mood-modal">×</span>
+        </div>
+        <div class="modal-body">
+            <div style="text-align: center; font-size: 40px; margin-bottom: 15px;" id="mood-modal-emoji"></div>
+            <div class="form-group">
+                <label for="mood-modal-comment">Ваш комментарий:</label>
+                <textarea id="mood-modal-comment" rows="5" class="form-control" placeholder="Здесь ваш комментарий..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: space-between;">
+            <button type="button" class="btn" id="mood-modal-delete-btn" style="background: var(--danger-color); border-color: var(--danger-color);">Удалить комментарий</button>
+            <div>
+                <button type="button" class="btn close-mood-modal">Отмена</button>
+                <button type="button" class="btn btn-primary" id="mood-modal-save-btn">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal" id="day-modal">
     <div class="modal-content" style="max-width: 600px;"> <div class="modal-header">
             <h2 id="modal-date-display"></h2>
@@ -1836,6 +1915,10 @@ select.form-control {
         <button class="mobile-menu-btn" id="mobileMenuLists">
             <span class="icon">📝</span>
             <span class="label">Списки</span>
+        </button>
+        <button class="mobile-menu-btn" id="mobileMenuScanner">
+            <span class="icon">📸</span>
+            <span class="label">Сканнер</span>
         </button>
     </div>
     </div>
@@ -2037,28 +2120,66 @@ async function changeUsername(newNick) {
 }
 
 async function deleteProfileAndData() {
-    if (!supabase) { console.error("Supabase client not initialized."); return; }
-    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH);
+    if (!supabase || !currentUserId) { 
+        console.error("Supabase client or User ID not initialized."); 
+        showNotification("Ошибка: Клиент не инициализирован.", 'error');
+        return; 
+    }
+    
+    const dataKey = localStorage.getItem(STORAGE_KEY_AUTH); // Ключ для user_data
     const currentUsername = localStorage.getItem(STORAGE_KEY_USERNAME);
-    if (!dataKey) { alert("Ошибка: нет ключа авторизации."); return; }
-    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { return; }
+    
+    if (!dataKey) { 
+        alert("Ошибка: нет ключа авторизации."); 
+        return; 
+    }
+    
+    if (!confirm("ВНИМАНИЕ! Вы уверены, что хотите УДАЛИТЬ ВСЕ данные и профиль? Это действие необратимо!")) { 
+        return; 
+    }
+    
     const confirmText = prompt(`Для подтверждения удаления введите свой ник: ${currentUsername}`);
-    if (confirmText !== currentUsername) { alert("Введенный ник не совпадает. Удаление отменено."); return; }
+    if (confirmText !== currentUsername) { 
+        alert("Введенный ник не совпадает. Удаление отменено."); 
+        return; 
+    }
+
     showLoading();
-    const { error } = await supabase
+
+    // 1. Удаляем данные о целях/привычках (из user_data)
+    const { error: dataError } = await supabase
         .from('user_data')
         .delete()
-        .eq('data_key', dataKey);
-    // TODO: Также удалить задачи из daily_tasks
+        .eq('data_key', dataKey); 
+
+    // 2. Удаляем ВСЕ задачи календаря (из daily_tasks)
+    const { error: tasksError } = await supabase
+        .from('daily_tasks')
+        .delete()
+        .eq('user_id', currentUserId); // Используем ID пользователя
+
     hideLoading();
-    if (error) {
-        console.error("Ошибка Supabase при удалении:", error);
-        showNotification(`Ошибка при удалении профиля: ${error.message}`, 'error', 8000);
-    } else {
-        alert("Ваш профиль и все данные (кроме задач календаря) успешно удалены.");
-        ['Auth', 'Username', 'Local', 'Unsaved'].forEach(key => localStorage.removeItem(`planner${key}`));
-        window.location.href = 'login.html';
+
+    if (dataError || tasksError) {
+        console.error("Ошибка при удалении данных:", dataError || tasksError);
+        showNotification(`Ошибка при удалении данных: ${ (dataError || tasksError).message}. Попробуйте еще раз.`, 'error', 8000);
+        return; // Не выходим из системы, если данные не удалились
     }
+
+    // 3. Выходим из системы (завершаем сессию Supabase)
+    await supabase.auth.signOut();
+
+    // 4. Очищаем ВЕСЬ localStorage (включая лекарства и т.д.)
+    localStorage.removeItem(STORAGE_KEY_AUTH);
+    localStorage.removeItem(STORAGE_KEY_USERNAME);
+    localStorage.removeItem(STORAGE_KEY_LOCAL);
+    localStorage.removeItem(STORAGE_KEY_UNSAVED);
+    localStorage.removeItem('plannerMeds_v1_local');
+    // (Если есть еще ключи, типа plannerLists, добавь их сюда)
+
+    // 5. Сообщаем и перенаправляем
+    alert("Ваш профиль и все связанные данные (цели, привычки, задачи) были успешно удалены.");
+    window.location.href = 'login.html';
 }
 
 
@@ -2071,9 +2192,33 @@ const profileModal = document.getElementById('profileModal');
 const nickInput = document.getElementById('nickInput');
 
 function calculateTaskStats() {
-    // Эта функция больше не может работать, так как задачи теперь в другой системе.
-    // Оставляем заглушку, чтобы не было ошибок.
-    return { completed: 0, uncompleted: 0 };
+    let completed = 0;
+    let uncompleted = 0;
+
+    // state.tasks - это глобальный объект, где лежат все задачи
+    if (!state || !state.tasks) {
+        console.warn("calculateTaskStats: state.tasks не найден.");
+        return { completed: 0, uncompleted: 0 };
+    }
+
+    // Перебираем все ключи (даты) в объекте state.tasks
+    for (const date in state.tasks) {
+        
+        // Проверяем, что по этому ключу действительно массив
+        if (Array.isArray(state.tasks[date])) {
+            
+            // Перебираем каждую задачу в массиве
+            state.tasks[date].forEach(task => {
+                if (task.is_done) {
+                    completed++;
+                } else {
+                    uncompleted++;
+                }
+            });
+        }
+    }
+    
+    return { completed, uncompleted };
 }
 
 function updateAuthButton() {
@@ -2113,20 +2258,33 @@ document.getElementById('saveNickBtn').onclick = async () => {
     if (newNick === localStorage.getItem(STORAGE_KEY_USERNAME)) { closeProfileModal(); return; }
     await changeUsername(newNick); 
 };
-document.getElementById('logoutBtn').onclick = () => {
+document.getElementById('logoutBtn').onclick = async () => {
     if (localStorage.getItem(STORAGE_KEY_UNSAVED) === 'true') {
         if (!confirm("У вас есть несохраненные изменения (Цели/Привычки/Настроение), которые не были отправлены на сервер. Вы уверены, что хотите выйти и потерять их?")) {
             return; 
         }
     }
     showLoading(); 
-    localStorage.removeItem(STORAGE_KEY_AUTH);
-    localStorage.removeItem(STORAGE_KEY_USERNAME);
-    localStorage.removeItem(STORAGE_KEY_LOCAL);
-    localStorage.removeItem(STORAGE_KEY_UNSAVED);
-    setTimeout(() => {
-        window.location.href = 'login.html';
-    }, 500); 
+    
+    if (supabase) {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Ошибка при выходе из Supabase:", error);
+            showNotification("Произошла ошибка при выходе. Пожалуйста, попробуйте еще раз.", 'error');
+            hideLoading(); 
+            return; 
+        }
+    }
+    
+    // Очищаем ВСЕ локальные ключи
+    localStorage.removeItem(STORAGE_KEY_AUTH); 
+    localStorage.removeItem(STORAGE_KEY_USERNAME); 
+    localStorage.removeItem(STORAGE_KEY_LOCAL); 
+    localStorage.removeItem(STORAGE_KEY_UNSAVED); 
+    localStorage.removeItem('plannerMeds_v1_local'); // <-- ВОТ ОНО
+    // P.S. Если у тебя есть еще plannerLists_v1_local, его тоже сюда добавь
+    
+    window.location.href = 'login.html';
 };
 document.getElementById('deleteProfileBtn').onclick = deleteProfileAndData;
 
@@ -2781,30 +2939,219 @@ function updateMoodSelect() {
     moodMonthSelect.onchange = renderMoodCalendar;
 }
 function renderMoodCalendar() {
-    moodCalendar.innerHTML = '';
-    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { moodCalendar.innerHTML += `<div class="mood-calendar-day">${day}</div>`; });
+    moodCalendar.innerHTML = ''; // Очищаем старый календарь
+    
+    // Добавляем заголовки дней недели
+    ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => { 
+        const dayHeader = document.createElement('div');
+        dayHeader.className = 'mood-calendar-day';
+        dayHeader.textContent = day;
+        moodCalendar.appendChild(dayHeader);
+    });
+
     const [year, month] = moodMonthSelect.value.split('-').map(Number);
     const date = new Date(year, month, 1);
+    
+    // Добавляем пустые ячейки для дней до начала месяца
     let firstDay = date.getDay();
-    if (firstDay === 0) firstDay = 7;
-    for (let i = 1; i < firstDay; i++) { moodCalendar.innerHTML += `<div class="mood-calendar-cell empty"></div>`; }
+    if (firstDay === 0) firstDay = 7; // 0 (Вс) -> 7
+    for (let i = 1; i < firstDay; i++) { 
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'mood-calendar-cell empty';
+        moodCalendar.appendChild(emptyCell);
+    }
+
+    // Заполняем дни месяца
     while (date.getMonth() === month) {
         const dayKey = getDayKey(date);
-        const mood = data.moodRecords[dayKey];
-        moodCalendar.innerHTML += `<div class="mood-calendar-cell"><span class="day-number">${date.getDate()}</span><span class="day-mood">${mood ? MOOD_EMOJIS[mood] : ''}</span></div>`;
+        const record = data.moodRecords[dayKey];
+        
+        const cell = document.createElement('div');
+        cell.className = 'mood-calendar-cell';
+        
+        const dayNumber = document.createElement('span');
+        dayNumber.className = 'day-number';
+        dayNumber.textContent = date.getDate();
+        cell.appendChild(dayNumber);
+        
+        const dayMood = document.createElement('span');
+        dayMood.className = 'day-mood';
+        
+        let moodEmoji = '';
+        if (record?.mood) {
+            moodEmoji = MOOD_EMOJIS[record.mood] || '';
+        }
+        if (record?.comment) {
+            moodEmoji += ' 💬'; // Добавляем иконку, если есть коммент
+        }
+        dayMood.textContent = moodEmoji;
+        cell.appendChild(dayMood);
+
+        // Если для дня есть запись (настроение или коммент), делаем его кликабельным
+        if (record) {
+            cell.classList.add('has-data'); // Для CSS (cursor: pointer)
+            cell.onclick = () => openMoodCommentModal(dayKey, record);
+        }
+        
+        moodCalendar.appendChild(cell);
         date.setDate(date.getDate() + 1);
     }
 }
+
+// --- НОВЫЕ ФУНКЦИИ ДЛЯ МОДАЛКИ НАСТРОЕНИЯ ---
+
+let currentMoodModalKey = null; // Для отслеживания, какой день открыт
+
+function openMoodCommentModal(dayKey, record) {
+    currentMoodModalKey = dayKey; // Сохраняем ключ дня
+    
+    const modal = document.getElementById('mood-comment-modal');
+    if (!modal || !record) return;
+
+    // Находим элементы
+    const dateDisplay = document.getElementById('mood-modal-date-display');
+    const emojiDisplay = document.getElementById('mood-modal-emoji');
+    const commentTextarea = document.getElementById('mood-modal-comment');
+    const saveBtn = document.getElementById('mood-modal-save-btn');
+    const deleteBtn = document.getElementById('mood-modal-delete-btn');
+
+    // 1. Заполняем данными
+    // Преобразуем 'YYYY-MM-DD' в дату
+    const dateParts = dayKey.split('-');
+    const date = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+    dateDisplay.textContent = date.toLocaleDateString('ru-RU', { day: '2-digit', month: 'long', year: 'numeric' });
+    
+    emojiDisplay.textContent = record.mood ? MOOD_EMOJIS[record.mood] : '😐'; // Показываем смайлик (или дефолтный)
+    commentTextarea.value = record.comment || '';
+
+    // 2. Назначаем действия кнопкам (сначала удаляем старые, чтобы не было дублей)
+    saveBtn.onclick = null;
+    saveBtn.onclick = () => {
+        const newComment = commentTextarea.value.trim();
+        const currentRecord = data.moodRecords[currentMoodModalKey]; // Получаем запись
+        
+        if (newComment) {
+            currentRecord.comment = newComment;
+        } else {
+            currentRecord.comment = undefined; // Удаляем коммент, если поле пустое
+        }
+        
+        // Проверяем, нужно ли удалить всю запись
+        if (!currentRecord.mood && !currentRecord.comment) {
+            delete data.moodRecords[currentMoodModalKey];
+        }
+        
+        save();
+        renderMoodCalendar();
+        closeMoodCommentModal();
+    };
+    
+    deleteBtn.onclick = null;
+    deleteBtn.onclick = () => {
+        const currentRecord = data.moodRecords[currentMoodModalKey];
+        if(currentRecord) { // Проверяем, что запись еще существует
+            currentRecord.comment = undefined; // Удаляем только коммент
+        
+            // Проверяем, нужно ли удалить всю запись
+            if (!currentRecord.mood) {
+                delete data.moodRecords[currentMoodModalKey];
+            }
+        }
+
+        save();
+        renderMoodCalendar();
+        closeMoodCommentModal();
+    };
+
+    // 3. Показываем модалку
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('visible'), 10);
+}
+
+function closeMoodCommentModal() {
+    const modal = document.getElementById('mood-comment-modal');
+    if (!modal) return;
+    
+    modal.classList.remove('visible');
+    setTimeout(() => { modal.style.display = 'none'; }, 300);
+    currentMoodModalKey = null; // Сбрасываем ключ
+}
+
+// --- КОНЕЦ НОВЫХ ФУНКЦИЙ ---
+
 function updateMoodSelection() {
     const todayKey = getDayKey(new Date());
-    const savedMood = data.moodRecords[todayKey];
+    const record = data.moodRecords[todayKey];
+    const savedMood = record?.mood;
+    const commentInput = document.getElementById('moodCommentInput');
+
+    // 1. Обновляем смайлики (Фикс багов 1 и 2)
     document.querySelectorAll('.mood-option').forEach(el => {
-        el.classList.toggle('selected', savedMood && el.dataset.mood === savedMood);
+        // Четко устанавливаем класс 'selected' только если data-mood совпадает
+        if (savedMood === el.dataset.mood) {
+            el.classList.add('selected');
+        } else {
+            el.classList.remove('selected');
+        }
+
+        // Переназначаем 'onclick', чтобы использовать новую логику
         el.onclick = () => {
-            data.moodRecords[todayKey] = (savedMood === el.dataset.mood) ? undefined : el.dataset.mood;
-            save(); updateMoodSelection(); renderMoodCalendar();
+            const clickedMood = el.dataset.mood;
+            let currentRecord = data.moodRecords[todayKey] || {};
+
+            // Если кликнули по уже выбранному смайлику
+            if (currentRecord.mood === clickedMood) {
+                currentRecord.mood = undefined; // Снимаем выбор
+            } else { // Выбрали новый смайлик
+                currentRecord.mood = clickedMood;
+            }
+
+            // Проверяем, остались ли в записи данные. Если нет - удаляем запись.
+            if (!currentRecord.mood && !currentRecord.comment) {
+                delete data.moodRecords[todayKey];
+            } else {
+                data.moodRecords[todayKey] = currentRecord;
+            }
+
+            save();
+            updateMoodSelection(); // Повторно вызываем, чтобы обновить классы
+            renderMoodCalendar(); // Обновляем календарь
         };
     });
+
+    // 2. Обновляем поле комментария
+    if (commentInput) {
+        commentInput.value = record?.comment || '';
+        
+        // Удаляем старый листенер, чтобы не было дублей
+        commentInput.oninput = null; 
+        
+        // Добавляем сохранение комментария при вводе
+        commentInput.oninput = () => {
+            let currentRecord = data.moodRecords[todayKey] || {};
+            let commentText = commentInput.value.trim();
+            
+            if (commentText) {
+                currentRecord.comment = commentText;
+            } else {
+                currentRecord.comment = undefined;
+            }
+
+            // Проверяем, остались ли в записи данные.
+            if (!currentRecord.mood && !currentRecord.comment) {
+                delete data.moodRecords[todayKey];
+            } else {
+                data.moodRecords[todayKey] = currentRecord;
+            }
+            
+            save(); // Сохраняем при каждом вводе
+        };
+        
+        // Дополнительно обновляем календарь (для иконки 💬) при потере фокуса
+        commentInput.onblur = () => {
+             renderMoodCalendar(); 
+        };
+    }
 }
 
 // =================================================================
@@ -2966,6 +3313,10 @@ function setupMobileNav() {
         window.location.href = 'lists.html';
         closeMobileMenuOverlay();
     };
+    if (mobileMenuScanner) mobileMenuScanner.onclick = () => {
+        window.location.href = 'scanner.html';
+        closeMobileMenuOverlay();
+    };
 
     // --- Показываем секцию по умолчанию при загрузке ---
     showMobileSection(sectionWeeks, mobileNavWeeks); // Календарь по умолчанию
@@ -3084,6 +3435,20 @@ async function init() {
 
 document.addEventListener('DOMContentLoaded', () => {
     init();
+    // --- Листенеры для НОВОЙ модалки настроения ---
+    const moodModal = document.getElementById('mood-comment-modal');
+    if (moodModal) {
+        // Закрытие по клику на фон
+        moodModal.onclick = (e) => {
+            if (e.target === moodModal) {
+                closeMoodCommentModal();
+            }
+        };
+        // Закрытие по кнопкам "X" и "Отмена"
+        moodModal.querySelectorAll('.close-mood-modal').forEach(btn => {
+            btn.onclick = closeMoodCommentModal;
+        });
+    }
     setupMobileNav(); // Вызываем настройку навигации
 });
 </script>
